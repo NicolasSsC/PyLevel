@@ -1,0 +1,33 @@
+# Núcleo de PyLevel
+
+- `exercises.json`: los tres proyectos originales del ZIP, con defectos intencionales.
+- `workspace.ts`: recuperación y guardado local por ejercicio.
+- `client.ts`: contrato HTTP de ejecución y cancelación.
+- `Workbench.astro`: interfaz, editor y resultados; la salida se renderiza como texto.
+- `server.mjs`: puente **solo para desarrollo**, limitado a una ejecución simultánea.
+
+## Desarrollo
+
+Preparar primero la imagen siguiendo `../../../runner/README.md`.
+Desde la carpeta `pyLevel`:
+
+```sh
+node src/core/server.mjs
+# En otra terminal:
+ASTRO_TELEMETRY_DISABLED=1 pnpm astro dev --background
+```
+
+Astro reenvía `/api` al servicio local en el puerto 8787. Las ejecuciones usan
+gVisor y un entorno nuevo; no se ejecuta Python en el proceso de la web.
+Detener aborta la solicitud y envía SIGINT al supervisor, que elimina el contenedor.
+Una ejecución tarda hasta 10 segundos más el tiempo de limpieza. La consola indica
+el código de salida; cero pruebas no certifica que el ejercicio esté resuelto.
+Las pruebas públicas son de solo lectura en la interfaz, no una barrera contra fraude.
+El enunciado se muestra como texto Markdown, sin interpretar HTML del material.
+
+## Despliegue
+
+`pnpm build` genera una web estática. El proxy de Vite solo funciona en desarrollo;
+producción requiere enrutar `/api` a una API autenticada con cola, cuotas, cancelación
+y limpieza externa de huérfanos, en un host dedicado. No publicar este puente ni
+exponer su socket Docker. No se implementa aquí evaluación oficial o pruebas ocultas.
