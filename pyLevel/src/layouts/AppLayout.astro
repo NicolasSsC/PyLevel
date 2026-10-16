@@ -1,0 +1,46 @@
+---
+import Layout from './Layout.astro';
+import Navbar from '../components/Navbar.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'PyLevel — Evaluación de Competencias Python',
+  description = 'Plataforma de evaluación mediante evidencia real de desempeño sobre proyectos Python. Exclusivo para estudiantes de Ingeniería de Software.',
+} = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <Navbar />
+  <div class="app-body">
+    <slot />
+  </div>
+</Layout>
+
+<style>
+  /*
+   * Este layout envuelve las 5 vistas nuevas (Landing, Dashboard, Retos, Perfil, Diagnóstico).
+   * El workbench del compañero sigue usando Layout.astro directamente → sin conflicto.
+   *
+   * padding-top = altura del Navbar fijo (56px)
+   */
+  .app-body {
+    padding-top: 56px;
+    min-height: 100vh;
+    background: #0B1120;
+    color: #E2E8F0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    box-sizing: border-box;
+  }
+
+  /*
+   * Resets de base seguros (sin afectar al CSS scoped de los componentes del compañero,
+   * porque esos estilos están en su propio scope o en :global(body) de sus páginas).
+   */
+  :global(*, *::before, *::after) {
+    box-sizing: border-box;
+  }
+</style>

@@ -1,0 +1,26 @@
+/*
+ * Tailwind v4 — Entrada de estilos para las vistas nuevas de PyLevel UI.
+ *
+ * IMPORTANTE: @import "tailwindcss/preflight" está EXCLUIDO intencionalmente.
+ * Los componentes del compañero (Workbench.astro, ClassicWorkbench.astro,
+ * ExerciseHub.astro, ExerciseList.astro) usan <style> scoped / :global(body)
+ * propios. Incluir preflight rompería esos fondos y tipografías.
+ *
+ * En su lugar solo importamos las utilidades de Tailwind.
+ */
+@import "tailwindcss/utilities";
+
+/* Custom design tokens de PyLevel — paleta Python */
+:root {
+  --py-bg:       #0B1120;
+  --py-surface:  #111827;
+  --py-surface2: #1E293B;
+  --py-blue:     #3776AB;
+  --py-yellow:   #FFD43B;
+  --py-green:    #10B981;
+  --py-amber:    #F59E0B;
+  --py-red:      #F43F5E;
+  --py-text:     #E2E8F0;
+  --py-muted:    #94A3B8;
+  --py-border:   #1E293B;
+}
