@@ -1,0 +1,20 @@
+---
+import { catalogs, modePaths } from '../../../core/catalog';
+import Workbench from '../../../core/Workbench.astro';
+import ClassicWorkbench from '../../../core/ClassicWorkbench.astro';
+import { classic } from '../../../core/classic-exercises';
+import Layout from '../../../layouts/Layout.astro';
+
+export function getStaticPaths() {
+  return (['classic', 'contextual'] as const).flatMap(mode =>
+    catalogs[mode].map(exercise => ({
+      params: { modalidad: modePaths[mode], id: exercise.id },
+      props: { mode, exercise },
+    })),
+  );
+}
+const { mode, exercise } = Astro.props;
+---
+<Layout title={`${exercise.title} · PyLevel`}>
+  {mode === 'classic' ? <ClassicWorkbench exercise={classic.find(item => item.id === exercise.id)!} /> : <Workbench mode={mode} exerciseId={exercise.id} />}
+</Layout>

@@ -1,24 +1,31 @@
 ---
-import exercises from './exercises.json';
+import { catalogs, modePaths } from './catalog';
+interface Props { mode?: 'classic' | 'contextual'; exerciseId: string }
+const { mode = 'contextual', exerciseId } = Astro.props;
+const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
+const classic = mode === 'classic';
 ---
-<main>
-  <header><a href="/" class="brand">Py<span>Level</span></a><span class="tag">LABORATORIO DE PYTHON</span><span id="connection" role="status">Conectando ejecutor…</span></header>
-  <section class="intro"><div><p class="eyebrow">APRENDE RESOLVIENDO</p><h1>Encuentra el fallo.<br />Construye la solución.</h1><p>Explora el proyecto, corrige su lógica y comprueba tu solución con pruebas.</p></div><label>Tu próximo reto<select id="exercise">{exercises.map(e => <option value={e.id}>{e.title} · {e.level}</option>)}</select></label></section>
+<main data-mode={mode} data-exercise-id={exerciseId}>
+  <header><a href="/ejercicios/" class="brand">Py<span>Level</span></a><a class="back" href={`/ejercicios/${modePaths[mode]}/`}>← Volver al listado</a><span id="connection" role="status">Conectando ejecutor…</span></header>
+  <nav class="modes" aria-label="Modalidad"><a href="/ejercicios/clasicos/" aria-current={classic ? 'page' : undefined}>Ejercicios</a><a href="/ejercicios/contextualizados/" aria-current={!classic ? 'page' : undefined}>Ejercicios contextualizados</a></nav>
+  <section class="intro"><div><p class="eyebrow">{classic ? 'FUNDAMENTOS / PYTHON' : 'PROYECTOS / PYTHON'}</p><h1>{classic ? 'Una función. Tu solución.' : 'Explora el proyecto. Resuelve el problema.'}</h1><p>{classic ? 'Lee el enunciado, completa la función y pon a prueba tu lógica.' : 'Revisa los archivos, corrige su lógica y comprueba tu solución con pruebas.'}</p></div><div class="current-exercise"><span>{exercises[0].difficulty}</span><strong>{exercises[0].title}</strong></div></section>
   <section class="workbench" aria-label="Proyecto Python">
     <aside class="files"><h2>ARCHIVOS</h2><nav id="files" aria-label="Archivos del proyecto"></nav><button id="reset" class="secondary">Restablecer ejercicio</button></aside>
     <section class="editor-panel"><div class="editor-heading"><span id="filename">main.py</span><span id="saved" role="status"></span></div><label class="sr-only" for="code">Código del archivo seleccionado</label><textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off"></textarea><div class="toolbar"><span id="level"></span><button id="stop" class="secondary" disabled>Detener</button><button id="test" class="secondary">Probar</button><button id="run">▶ Ejecutar</button></div></section>
     <aside class="instructions"><h2 id="title"></h2><details open><summary>Enunciado</summary><pre id="statement"></pre></details><details><summary>Salida esperada</summary><pre id="expected"></pre></details></aside>
     <section class="console"><div><h2>CONSOLA</h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Selecciona un archivo y comienza a explorar.</pre></section>
   </section>
-  <footer>Los ejercicios contienen errores intencionales. Las pruebas te ayudarán a encontrarlos.</footer>
+  <footer>{classic ? 'Completa la función siguiendo las reglas del enunciado.' : 'Los proyectos contienen errores intencionales. Puedes editar todos sus archivos.'} Las pruebas públicas permiten comprobar tu trabajo; no constituyen una evaluación final.</footer>
 </main>
 <script>
-  import exercises from './exercises.json';
+  import { catalogs } from './catalog';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const editor = el<HTMLTextAreaElement>('code');
-  const select = el<HTMLSelectElement>('exercise');
+  const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
+  const exerciseId = document.querySelector('main')?.dataset.exerciseId;
+  const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
   let exercise = exercises[0];
   let files: Record<string, string> = {};
   let selected = 'main.py';
@@ -29,29 +36,30 @@ import exercises from './exercises.json';
   }
   function showFile(path: string) {
     selected = path; editor.value = files[path];
-    editor.readOnly = path.startsWith('tests/');
+    editor.readOnly = mode === 'classic' && path.startsWith('tests/');
     el('filename').textContent = path + (editor.readOnly ? ' · solo lectura' : '');
     for (const button of el('files').querySelectorAll('button')) button.setAttribute('aria-current', String(button.dataset.path === path));
   }
   function load() {
     files = restore(exercise.id, exercise.files);
-    // Public tests are part of the exercise, not editable student state.
-    for (const [path, source] of Object.entries(exercise.files)) if (path.startsWith('tests/')) files[path] = source;
+    if (mode === 'classic') {
+      for (const [path, source] of Object.entries(exercise.files)) if (path.startsWith('tests/')) files[path] = source;
+    }
     el('files').replaceChildren();
     for (const path of Object.keys(files).sort()) {
       const button = document.createElement('button'); button.textContent = path; button.dataset.path = path;
       button.addEventListener('click', () => showFile(path)); el('files').append(button);
     }
-    el('title').textContent = exercise.title; el('level').textContent = exercise.level;
+    el('title').textContent = exercise.title; el('level').textContent = exercise.difficulty;
     el('statement').textContent = exercise.statement; el('expected').textContent = exercise.expected;
-    el('output').textContent = 'Ejecuta main.py para reproducir el problema o prueba el proyecto.';
+    el('output').textContent = mode === 'classic' ? 'Completa la función y ejecuta el ejemplo o las pruebas públicas.' : 'Ejecuta main.py para reproducir el problema o prueba el proyecto.';
     el('result').textContent = 'Listo para ejecutar'; el('saved').textContent = '';
     showFile('main.py');
   }
   function controls(busy: boolean) {
     for (const id of ['run', 'test']) el<HTMLButtonElement>(id).disabled = busy || !online;
     el<HTMLButtonElement>('stop').disabled = !busy;
-    el<HTMLButtonElement>('reset').disabled = busy; select.disabled = busy;
+    el<HTMLButtonElement>('reset').disabled = busy;
   }
   async function run(action: Action) {
     controller = new AbortController(); controls(true);
@@ -76,7 +84,6 @@ import exercises from './exercises.json';
       files[selected] = editor.value; persist();
     }
   });
-  select.addEventListener('change', () => { exercise = exercises.find(e => e.id === select.value)!; load(); });
   el('run').addEventListener('click', () => run('run')); el('test').addEventListener('click', () => run('test'));
   el('stop').addEventListener('click', () => controller?.abort());
   el('reset').addEventListener('click', () => {
@@ -94,5 +101,7 @@ import exercises from './exercises.json';
   health(); setInterval(health, 10000);
 </script>
 <style>
-  :global(body){background:#0c111b;color:#e6edf6;font-family:system-ui,sans-serif} :global(*){box-sizing:border-box} main{max-width:1600px;margin:auto;padding:0 32px}header{display:flex;align-items:center;gap:24px;height:78px;border-bottom:1px solid #253044}.brand{font-size:26px;font-weight:800;color:#fff;text-decoration:none}.brand span{color:#8ce8b7}.tag,.eyebrow{font-size:11px;letter-spacing:2px;color:#8ce8b7}#connection{margin-left:auto;font-size:12px;color:#a8b6ca}.intro{display:flex;justify-content:space-between;align-items:center;padding:32px 0}.intro h1{font-size:36px;line-height:1.16;margin:12px 0}.intro p:not(.eyebrow){color:#a8b6ca;font-size:14px}.intro label{display:grid;gap:10px;color:#a8b6ca;font-size:13px}select{max-width:100%;background:#182231;color:#fff;border:1px solid #34455b;padding:12px;border-radius:8px;min-width:280px}.workbench{display:grid;grid-template-columns:210px minmax(300px,1fr) 330px;border:1px solid #2c384c;border-radius:12px;overflow:hidden;background:#101824}h2{font-size:12px;letter-spacing:1px;margin:0 0 20px}.workbench>section,.workbench>aside{min-width:0}.files{padding:20px 12px;border-right:1px solid #2c384c}.files h2{padding-left:8px;color:#8e9db2}.files nav{display:grid;gap:5px}:global(.files nav button){background:transparent;border:0;color:#a8b6ca;text-align:left;word-break:break-word;font:12px ui-monospace,monospace;padding:10px 8px}:global(.files nav button[aria-current=true]){background:#243646;color:#8ce8b7;border-radius:5px}.files #reset{margin-top:24px;font-size:11px}.editor-panel{min-width:0;display:flex;flex-direction:column}.editor-heading{display:flex;justify-content:space-between;gap:10px;padding:15px 18px;background:#182231;font:12px ui-monospace,monospace}#saved{font-size:10px;color:#91a5ba}textarea{width:100%;min-height:430px;flex:1;resize:vertical;background:#101824;color:#d8e6f7;border:0;padding:22px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4;outline-offset:-3px}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px;background:#151f2d}.toolbar span{margin-right:auto;font-size:12px;color:#91a5ba}button{cursor:pointer;border:0;border-radius:6px;padding:10px 15px;background:#8ce8b7;color:#102c21;font-weight:650}button:disabled{opacity:.4;cursor:not-allowed}button.secondary{background:#253246;color:#e6edf6}button:focus-visible,select:focus-visible{outline:2px solid #8ce8b7;outline-offset:2px}.instructions{padding:22px;border-left:1px solid #2c384c;max-height:540px;overflow:auto}.instructions h2{font-size:18px;letter-spacing:0}summary{cursor:pointer;font-size:13px;padding:12px 0;color:#8ce8b7}.instructions pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 system-ui;color:#acbbce}.console{grid-column:1/-1;border-top:1px solid #2c384c}.console>div{display:flex;justify-content:space-between;padding:16px 20px;background:#151f2d}.console h2{margin:0;color:#91a5ba}#result{font-size:12px;color:#8ce8b7}#output{margin:0;padding:20px;min-height:150px;max-height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,monospace}footer{padding:22px 0;color:#788ca6;font-size:12px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:1100px){.workbench{grid-template-columns:180px minmax(0,1fr)}.instructions{grid-column:1/-1;border-left:0;border-top:1px solid #2c384c;max-height:280px}.intro h1{font-size:28px}}@media(max-width:650px){main{padding:0 12px}.tag{display:none}.intro{display:block}.intro label{margin-top:24px}.workbench{grid-template-columns:1fr}.files{border-right:0;border-bottom:1px solid #2c384c}.files nav{display:flex;overflow:auto}:global(.files nav button){white-space:nowrap}.files #reset{margin-top:10px}.editor-heading{flex-wrap:wrap}textarea{min-height:350px}.toolbar{flex-wrap:wrap}}
+  .current-exercise{display:grid;gap:10px;padding:16px 20px;border:1px solid #365267;border-radius:8px;min-width:220px}.current-exercise span{font-size:11px;color:#ffd343}.current-exercise strong{font-size:14px;font-weight:500}
+  .back{color:#bfd3e3;text-decoration:none;font-size:12px}.modes{display:flex;gap:28px;padding-top:24px;border-bottom:1px solid #365267}.modes a{color:#aec5d7;text-decoration:none;font-size:13px;padding:0 0 14px}.modes a[aria-current=page]{color:#ffd343;border-bottom:3px solid #ffd343}.modes a:focus-visible,.back:focus-visible{outline:2px solid #ffd343;outline-offset:4px}.intro{gap:24px}.intro h1{max-width:650px}@media(max-width:650px){header{flex-wrap:wrap;gap:12px;height:auto;padding:20px 0}.back{order:3;width:100%}.modes{gap:16px}.modes a{font-size:12px}.intro label{min-width:0}select{min-width:0;width:100%}}
+  :global(body){background:#132b3e;color:#e6edf6;font-family:system-ui,sans-serif} :global(*){box-sizing:border-box} main{max-width:1600px;margin:auto;padding:0 32px}header{display:flex;align-items:center;gap:24px;height:78px;border-bottom:1px solid #253044}.brand{font-size:26px;font-weight:800;color:#fff;text-decoration:none}.brand span{color:#ffd343}.tag,.eyebrow{font-size:11px;letter-spacing:2px;color:#ffd343}#connection{margin-left:auto;font-size:12px;color:#a8b6ca}.intro{display:flex;justify-content:space-between;align-items:center;padding:32px 0}.intro h1{font-size:36px;line-height:1.16;margin:12px 0}.intro p:not(.eyebrow){color:#a8b6ca;font-size:14px}.intro label{display:grid;gap:10px;color:#a8b6ca;font-size:13px}select{max-width:100%;background:#203e56;color:#fff;border:1px solid #34455b;padding:12px;border-radius:8px;min-width:280px}.workbench{display:grid;grid-template-columns:210px minmax(300px,1fr) 330px;border:1px solid #2c384c;border-radius:12px;overflow:hidden;background:#152f44}h2{font-size:12px;letter-spacing:1px;margin:0 0 20px}.workbench>section,.workbench>aside{min-width:0}.files{padding:20px 12px;border-right:1px solid #2c384c}.files h2{padding-left:8px;color:#8e9db2}.files nav{display:grid;gap:5px}:global(.files nav button){background:transparent;border:0;color:#a8b6ca;text-align:left;word-break:break-word;font:12px ui-monospace,monospace;padding:10px 8px}:global(.files nav button[aria-current=true]){background:#243646;color:#ffd343;border-radius:5px}.files #reset{margin-top:24px;font-size:11px}.editor-panel{min-width:0;display:flex;flex-direction:column}.editor-heading{display:flex;justify-content:space-between;gap:10px;padding:15px 18px;background:#203e56;font:12px ui-monospace,monospace}#saved{font-size:10px;color:#91a5ba}textarea{width:100%;min-height:430px;flex:1;resize:vertical;background:#152f44;color:#d8e6f7;border:0;padding:22px;font:13px/1.8 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:4;outline-offset:-3px}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:14px;background:#1b374e}.toolbar span{margin-right:auto;font-size:12px;color:#91a5ba}button{cursor:pointer;border:0;border-radius:6px;padding:10px 15px;background:#ffd343;color:#20394d;font-weight:650}button:disabled{opacity:.4;cursor:not-allowed}button.secondary{background:#305574;color:#e6edf6}button:focus-visible,select:focus-visible{outline:2px solid #ffd343;outline-offset:2px}.instructions{padding:22px;border-left:1px solid #2c384c;max-height:540px;overflow:auto}.instructions h2{font-size:18px;letter-spacing:0}summary{cursor:pointer;font-size:13px;padding:12px 0;color:#ffd343}.instructions pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 system-ui;color:#acbbce}.console{grid-column:1/-1;border-top:1px solid #2c384c}.console>div{display:flex;justify-content:space-between;padding:16px 20px;background:#1b374e}.console h2{margin:0;color:#91a5ba}#result{font-size:12px;color:#ffd343}#output{margin:0;padding:20px;min-height:150px;max-height:300px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.8 ui-monospace,monospace}footer{padding:22px 0;color:#788ca6;font-size:12px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}@media(max-width:1100px){.workbench{grid-template-columns:180px minmax(0,1fr)}.instructions{grid-column:1/-1;border-left:0;border-top:1px solid #2c384c;max-height:280px}.intro h1{font-size:28px}}@media(max-width:650px){main{padding:0 12px}.tag{display:none}.intro{display:block}.intro label{margin-top:24px}.workbench{grid-template-columns:1fr}.files{border-right:0;border-bottom:1px solid #2c384c}.files nav{display:flex;overflow:auto}:global(.files nav button){white-space:nowrap}.files #reset{margin-top:10px}.editor-heading{flex-wrap:wrap}textarea{min-height:350px}.toolbar{flex-wrap:wrap}}
 </style>

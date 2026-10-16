@@ -1,0 +1,76 @@
+---
+import { catalogs, modePaths } from '../core/catalog';
+interface Props { mode: 'classic' | 'contextual' }
+const { mode } = Astro.props;
+const classic = mode === 'classic';
+const exercises = catalogs[mode];
+const difficulties = ['Fácil', 'Medio', 'Difícil'];
+// Only expose topics represented by the catalogue; future content adds its own tags.
+const topics = [...new Set(exercises.flatMap(exercise => exercise.topics))];
+---
+<main class="catalog">
+  <header><a class="brand" href="/ejercicios/">Py<span>Level</span><b>.</b></a><a class="back" href="/ejercicios/">← Modalidades</a><span class="language">Python <b>●</b></span></header>
+  <nav class="modes" aria-label="Modalidad"><a href="/ejercicios/clasicos/" aria-current={classic ? 'page' : undefined}>Ejercicios</a><a href="/ejercicios/contextualizados/" aria-current={!classic ? 'page' : undefined}>Ejercicios contextualizados</a></nav>
+  <section class="intro"><p class="eyebrow">{classic ? 'FUNDAMENTOS / PYTHON' : 'PROYECTOS / PYTHON'}</p><h1>{classic ? 'Ejercicios' : 'Ejercicios contextualizados'}</h1><p>{classic ? 'Elige qué lógica quieres trabajar. Encuentra un reto y construye tu solución.' : 'Explora un proyecto, comprende sus reglas y resuelve el problema.'}</p></section>
+  <div class="catalog-grid">
+    <section class="results" aria-label="Listado de ejercicios">
+      <div class="list-heading"><h2>Explora los desafíos</h2><span id="result-count" role="status">{exercises.length} {exercises.length === 1 ? 'ejercicio disponible' : 'ejercicios disponibles'}</span></div>
+      <div class="cards">
+        {exercises.map(exercise => <article class="exercise-card" data-difficulty={exercise.difficulty} data-topics={JSON.stringify(exercise.topics)}>
+          <div class="card-content"><h3><a href={`/ejercicios/${modePaths[mode]}/${exercise.id}/`}>{exercise.title}</a></h3><div class="metadata"><span class:list={['difficulty', { easy: exercise.difficulty === 'Fácil', medium: exercise.difficulty === 'Medio', hard: exercise.difficulty === 'Difícil' }]}>{exercise.difficulty}</span><span class="divider">/</span><span>{classic ? 'Función por completar' : 'Proyecto Python'}</span></div><p>{exercise.description}</p><ul class="tags" aria-label="Temas">{exercise.topics.map(topic => <li>{topic}</li>)}</ul></div>
+          <a class="solve" href={`/ejercicios/${modePaths[mode]}/${exercise.id}/`} aria-label={`Resolver ${exercise.title}`}>Resolver <span aria-hidden="true">→</span></a>
+        </article>)}
+      </div>
+      <div id="empty-results" hidden><h3>No hay ejercicios con estos filtros</h3><p>Prueba otra dificultad o tema, o limpia los filtros para ver el catálogo completo.</p></div>
+    </section>
+    <aside class="filters" aria-label="Filtros de ejercicios">
+      <div class="filter-heading"><h2>Filtros</h2><button id="clear-filters" type="button" disabled>Limpiar</button></div>
+      <fieldset><legend>Dificultad</legend>{difficulties.map(difficulty => <label><input type="checkbox" name="difficulty" value={difficulty} /><span>{difficulty}</span></label>)}</fieldset>
+      {classic && <fieldset><legend>Lógica que trabaja</legend>{topics.map(topic => <label><input type="checkbox" name="topic" value={topic} /><span>{topic}</span></label>)}</fieldset>}
+      <p class="filter-note">{classic ? 'Selecciona uno o varios temas. Se muestran ejercicios que coincidan con alguno de ellos y con la dificultad elegida.' : 'Selecciona una o varias dificultades para explorar los proyectos.'}</p>
+    </aside>
+  </div>
+</main>
+<script>
+  const inputs = [...document.querySelectorAll<HTMLInputElement>('.filters input')];
+  const cards = [...document.querySelectorAll<HTMLElement>('.exercise-card')];
+  const clear = document.querySelector<HTMLButtonElement>('#clear-filters')!;
+  const count = document.querySelector('#result-count')!;
+  const empty = document.querySelector<HTMLElement>('#empty-results')!;
+  function update() {
+    const selected = (name: string) => inputs.filter(input => input.name === name && input.checked).map(input => input.value);
+    const difficulty = selected('difficulty');
+    const topics = selected('topic');
+    let visible = 0;
+    for (const card of cards) {
+      const cardTopics: string[] = JSON.parse(card.dataset.topics || '[]');
+      const matches = (!difficulty.length || difficulty.includes(card.dataset.difficulty!)) && (!topics.length || topics.some(topic => cardTopics.includes(topic)));
+      card.hidden = !matches;
+      if (matches) visible++;
+    }
+    count.textContent = `${visible} ${visible === 1 ? 'ejercicio disponible' : 'ejercicios disponibles'}`;
+    empty.hidden = visible !== 0;
+    clear.disabled = !inputs.some(input => input.checked);
+  }
+  inputs.forEach(input => input.addEventListener('change', update));
+  clear.addEventListener('click', () => { inputs.forEach(input => input.checked = false); update(); });
+  // Reconcile browser-restored checkbox state when returning from the editor.
+  window.addEventListener('pageshow', update);
+  update();
+</script>
+<style>
+  :global(body){background:#132b3e;color:#ecf2f7;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  :global(*){box-sizing:border-box}
+  .catalog{max-width:1280px;margin:auto;padding:0 40px 72px}
+  header{height:88px;display:flex;align-items:center;gap:32px;border-bottom:1px solid #304a60}
+  a{color:inherit;text-decoration:none}a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid #ffd343;outline-offset:5px}
+  .brand{font-size:28px;letter-spacing:-1px;font-weight:800}.brand span,.brand b,.language b{color:#ffd343}
+  .back{color:#b8ccdc;font-size:12px}.language{margin-left:auto;font:12px ui-monospace,monospace}.language b{margin-left:12px}
+  .modes{display:flex;gap:30px;border-bottom:1px solid #304a60;padding-top:25px}.modes a{padding-bottom:16px;color:#b8ccdc;font-size:13px}.modes a[aria-current=page]{color:#ffd343;border-bottom:3px solid #ffd343}
+  .intro{padding:45px 0 38px}.eyebrow{font-size:10px;letter-spacing:2px;color:#ffd343;margin:0 0 14px}h1{font-size:38px;line-height:1.15;letter-spacing:-1px;margin:0 0 16px}.intro>p:last-child{color:#afc4d5;font-size:14px;line-height:1.7;margin:0}
+  .catalog-grid{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:40px}.list-heading{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}h2{font-size:13px;font-weight:600;margin:0}.list-heading>span{font-size:11px;color:#a6bed1}
+  .cards{display:grid;gap:16px}.exercise-card{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:27px 28px;background:#203e56;border:1px solid #36566e;border-radius:12px}.exercise-card:hover{border-color:#5587ad}.exercise-card[hidden]{display:none}.card-content{min-width:0}h3{font-size:20px;letter-spacing:-.35px;margin:0 0 12px}h3 a:hover{text-decoration:underline}.metadata{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:#b8ccdc}.divider{color:#66859c}.difficulty{font-weight:650}.easy{color:#a8d9ff}.medium{color:#ffd343}.hard{color:#ffb8a3}.card-content p{font-size:13px;line-height:1.7;color:#c3d4e1;margin:14px 0}.tags{display:flex;gap:7px;flex-wrap:wrap;padding:0;margin:0;list-style:none}.tags li{font-size:10px;border:1px solid #476780;border-radius:4px;padding:4px 8px;color:#c1d6e7}.solve{flex-shrink:0;padding:11px 17px;border-radius:6px;background:#ffd343;color:#20394d;font-size:12px;font-weight:650}.solve:hover{background:#ffe17c}.solve span{margin-left:14px}
+  .filters{padding-top:2px}.filter-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.filter-heading button{background:none;border:0;color:#ffd343;font-size:11px;cursor:pointer;padding:4px}.filter-heading button:disabled{color:#90a7b9;cursor:default}fieldset{border:0;border-bottom:1px solid #365267;padding:0 0 25px;margin:0 0 26px;min-width:0}legend{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#c3d4e1;padding:0;margin-bottom:18px}fieldset label{display:flex;align-items:center;gap:10px;font-size:13px;color:#dce6ee;cursor:pointer;margin-bottom:13px}input{width:17px;height:17px;margin:0;accent-color:#ffd343;color-scheme:dark}.filter-note{font-size:11px;line-height:1.8;color:#9fb8cb}#empty-results{border:1px dashed #476780;border-radius:12px;padding:35px;color:#c3d4e1}#empty-results h3{font-size:18px}#empty-results p{font-size:13px;line-height:1.8;margin-bottom:0}
+  @media(max-width:850px){.catalog-grid{grid-template-columns:1fr}.filters{grid-row:1;background:#19354c;padding:20px;border-radius:10px}.filter-heading{margin-bottom:18px}fieldset{display:flex;flex-wrap:wrap;gap:12px 20px;padding-bottom:16px;margin-bottom:18px}fieldset label{margin:0}.filter-note{margin-bottom:0}.catalog-grid{gap:24px}}
+  @media(max-width:550px){.catalog{padding:0 18px 40px}header{gap:18px}.language{display:none}h1{font-size:30px}.intro{padding:32px 0}.modes{gap:20px}.modes a{font-size:12px}.exercise-card{align-items:flex-start;flex-direction:column;padding:22px}.solve{align-self:flex-end}.list-heading{align-items:flex-start;flex-direction:column;gap:8px}}
+</style>

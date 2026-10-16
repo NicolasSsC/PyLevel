@@ -1,0 +1,156 @@
+---
+import type { ClassicExercise } from './classic-exercises';
+interface Props { exercise: ClassicExercise }
+const { exercise } = Astro.props;
+---
+<main class="practice" data-exercise-id={exercise.id}>
+  <header><a class="brand" href="/ejercicios/">Py<span>Level</span></a><a class="back" href="/ejercicios/clasicos/">← Volver a ejercicios</a><span id="connection" role="status">Conectando ejecutor…</span></header>
+  <section class="statement" aria-labelledby="exercise-title">
+    <div class="title-row"><div><div class="metadata"><span>{exercise.difficulty}</span><span>Python · {exercise.topics.join(' / ')}</span></div><h1 id="exercise-title">{exercise.title}</h1></div></div>
+    <div class="statement-content">{exercise.statement}</div>
+    <div class="expected"><h2>Salida esperada</h2><pre>{exercise.expected.trimEnd()}</pre><p>Resultado de las llamadas de ejemplo incluidas en el editor.</p></div>
+  </section>
+  <div class="help-toolbar"><span>Tu solución</span><div><button id="hint-toggle" class="hint-button" aria-expanded="false" aria-controls="hint-panel">Ver pista</button><button id="solution-toggle" class="secondary" disabled aria-haspopup="dialog" aria-controls="solution-dialog">Ver solución</button></div></div>
+  <aside id="hint-panel" hidden aria-label="Pista del ejercicio"><strong>Una pista para continuar</strong><p>{exercise.hints[0]}</p><span id="hint-status" role="status"></span></aside>
+  <dialog id="solution-dialog" aria-labelledby="solution-title"><div class="solution-heading"><h2 id="solution-title">Solución de referencia</h2><button id="solution-close" class="secondary" autofocus>Cerrar</button></div><p>{exercise.title}</p><pre tabindex="0"><code>{exercise.solution}</code></pre></dialog>
+  <div class="code-output-grid">
+  <section class="coding" aria-label="Consola Python">
+    <div class="editor-heading"><span><span class="file-dot" aria-hidden="true"></span> main.py</span><span id="saved" role="status">Python 3</span></div>
+    <div class="editor-body"><pre id="line-numbers" aria-hidden="true"></pre><label class="sr-only" for="python-code">Código Python</label><textarea id="python-code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-describedby="editor-help">{exercise.files['main.py']}</textarea></div>
+    <div class="editor-toolbar"><span id="editor-help">Tab para indentar · 4 espacios</span><div><button id="stop" class="secondary" disabled>Detener</button><button id="test" class="secondary" disabled>Probar</button><button id="run" class="primary" disabled>▶ Ejecutar</button></div></div>
+  </section>
+  <section class="terminal" aria-label="Salida del programa"><div class="terminal-heading"><h2>TERMINAL <span>· SALIDA</span></h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Ejecuta tu código para ver el resultado aquí.</pre></section>
+  </div>
+  <div class="sequence"><button type="button" disabled aria-describedby="sequence-note"><span aria-hidden="true">▷</span> Ver secuencia de ejecución</button><span id="sequence-note">Próximamente</span></div>
+  <p class="practice-note">Probar comprueba los resultados con casos públicos. No registra una calificación final.</p>
+</main>
+<script>
+  import { classic } from './classic-exercises';
+  import { execute, type Action } from './client';
+  import { restore, save } from './workspace';
+
+  const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const exercise = classic.find(item => item.id === document.querySelector('main')?.dataset.exerciseId)!;
+  const editor = el<HTMLTextAreaElement>('python-code');
+  const files = restore(exercise.id, exercise.files);
+  // Practice tests come from the catalogue, never from an old browser draft.
+  files['tests/test_publico.py'] = exercise.files['tests/test_publico.py'];
+  editor.value = files['main.py'];
+  let controller: AbortController | null = null;
+  let online = false;
+
+  function lineNumbers() {
+    el('line-numbers').textContent = Array.from({ length: editor.value.split('\n').length }, (_, index) => index + 1).join('\n');
+    el('line-numbers').scrollTop = editor.scrollTop;
+  }
+  function persist() {
+    files['main.py'] = editor.value;
+    el('saved').textContent = save(exercise.id, files) ? 'Guardado en este navegador' : 'No se pudo guardar; copia tu código';
+    lineNumbers();
+  }
+  editor.addEventListener('input', persist);
+  editor.addEventListener('scroll', () => { el('line-numbers').scrollTop = editor.scrollTop; });
+  editor.addEventListener('keydown', event => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      editor.setRangeText('    ', editor.selectionStart, editor.selectionEnd, 'end');
+      persist();
+    }
+  });
+  lineNumbers();
+
+  const hintButton = el<HTMLButtonElement>('hint-toggle');
+  const solutionButton = el<HTMLButtonElement>('solution-toggle');
+  const solutionDialog = el<HTMLDialogElement>('solution-dialog');
+  try {
+    const savedHints = JSON.parse(localStorage.getItem(`pylevel:hints:${exercise.id}`) || 'null');
+    solutionButton.disabled = !Array.isArray(savedHints?.viewed) || !savedHints.viewed.includes(0);
+  } catch { /* A hint can still unlock the solution when storage is unavailable. */ }
+  solutionButton.addEventListener('click', () => {
+    if (!solutionButton.disabled) solutionDialog.showModal();
+  });
+  el('solution-close').addEventListener('click', () => solutionDialog.close());
+  solutionDialog.addEventListener('close', () => solutionButton.focus());
+  hintButton.addEventListener('click', () => {
+    const panel = el('hint-panel');
+    const open = panel.hidden;
+    panel.hidden = !open;
+    hintButton.setAttribute('aria-expanded', String(open));
+    hintButton.textContent = open ? 'Ocultar pista' : 'Ver pista';
+    if (open) {
+      solutionButton.disabled = false;
+      try {
+        localStorage.setItem(`pylevel:hints:${exercise.id}`, JSON.stringify({ viewed: [0] }));
+        el('hint-status').textContent = 'Pista consultada';
+      } catch { el('hint-status').textContent = 'No se pudo guardar la consulta de esta pista.'; }
+    }
+  });
+
+  function controls() {
+    el<HTMLButtonElement>('run').disabled = !!controller || !online;
+    el<HTMLButtonElement>('test').disabled = !!controller || !online;
+    el<HTMLButtonElement>('stop').disabled = !controller;
+    editor.readOnly = !!controller;
+  }
+  async function run(action: Action) {
+    if (controller || !online) return;
+    const current = new AbortController();
+    controller = current;
+    controls();
+    el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando…';
+    el('output').textContent = '';
+    try {
+      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal);
+      el('output').textContent = result.output || '(Sin salida)';
+      const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
+      el('result').textContent = result.status === 'completed'
+        ? `Finalizado${result.exit_code === 0 ? '' : ' con errores'} · código ${result.exit_code}`
+        : labels[result.status] || result.status;
+    } catch (error) {
+      el('result').textContent = current.signal.aborted ? 'Ejecución cancelada' : 'No se pudo ejecutar';
+      el('output').textContent = current.signal.aborted ? 'Se solicitó detener la ejecución.' : error instanceof Error ? error.message : String(error);
+    } finally { controller = null; controls(); }
+  }
+  el('run').addEventListener('click', () => run('run'));
+  el('test').addEventListener('click', () => run('test'));
+  el('stop').addEventListener('click', () => controller?.abort());
+  async function health() {
+    try {
+      const response = await fetch('/api/health', { signal: AbortSignal.timeout(5000) });
+      online = response.ok && (await response.json()).status === 'online';
+    } catch { online = false; }
+    el('connection').textContent = online ? '● Ejecutor conectado' : '○ Ejecutor no disponible';
+    controls();
+  }
+  health();
+  const healthInterval = window.setInterval(health, 10000);
+  window.addEventListener('pagehide', () => { clearInterval(healthInterval); controller?.abort(); });
+</script>
+<style>
+  :global(body){background:#112737;color:#e7eef4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+  :global(*){box-sizing:border-box}
+  .practice{max-width:1080px;margin:auto;padding:0 36px 40px}
+  header{height:82px;display:flex;align-items:center;gap:30px;border-bottom:1px solid #2b4559}
+  a{color:inherit;text-decoration:none}.brand{font-size:27px;font-weight:800;letter-spacing:-1px}.brand span{color:#ffd343}.back{color:#b4c8d9;font-size:12px}#connection{margin-left:auto;color:#99b2c5;font-size:11px}
+  .statement{padding:36px 0 28px}.title-row{display:flex;align-items:center;justify-content:space-between;gap:20px}.metadata{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#9eb8cc}.metadata>span:first-child{color:#ffd343}h1{font-size:32px;letter-spacing:-.8px;margin:12px 0 22px;line-height:1.2}.statement-content{white-space:pre-wrap;font-size:14px;line-height:1.85;color:#c5d5e2;max-width:850px}
+  button{font:inherit;font-size:12px;cursor:pointer;border-radius:6px;padding:10px 16px;border:1px solid transparent}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:2px solid #ffd343;outline-offset:4px}.hint-button{align-self:flex-start;margin-top:24px;border-color:#88793c;color:#ffd343;background:#ffd3430a;white-space:nowrap}.hint-button span{margin-right:8px}.hint-button:hover{background:#ffd34316}
+  #hint-panel{margin-top:22px;background:#ffd3430a;border:1px solid #6e643b;border-left:3px solid #ffd343;border-radius:7px;padding:18px 22px;max-width:850px}#hint-panel strong{font-size:13px;color:#ffd343}#hint-panel p{font-size:13px;line-height:1.8;color:#d6dfdf;margin:10px 0}#hint-status{font-size:10px;color:#b9bc9c}
+  .expected{margin-top:24px;display:grid;grid-template-columns:140px 1fr;align-items:start;gap:0 20px;padding:18px 20px;background:#193448;border:1px solid #2c4c63;border-radius:8px}.expected h2{font-size:12px;font-weight:500;color:#a9c5da;margin:3px 0}.expected pre{font:13px/1.65 ui-monospace,Consolas,monospace;margin:0;color:#ffd969;overflow-x:auto}.expected p{grid-column:2;font-size:10px;color:#91adc2;margin:9px 0 0}
+  .coding{border:1px solid #334956;border-radius:10px;overflow:hidden;background:#1b2026}.editor-heading{height:44px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#182029;border-bottom:1px solid #2b3743;color:#bdcbd6;font:12px ui-monospace,Consolas,monospace}.file-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3776ab;margin-right:8px}#saved{color:#849bab;font-size:10px}.editor-body{display:flex;height:310px;overflow:hidden;background:#1b2026}#line-numbers{flex:0 0 52px;text-align:right;margin:0;padding:20px 14px 20px 0;color:#697b89;overflow:hidden;user-select:none;font:14px/26px ui-monospace,Consolas,monospace}textarea{display:block;flex:1;min-width:0;width:100%;resize:none;border:0;background:transparent;color:#d7e4ed;padding:20px 18px 20px 0;font:14px/26px ui-monospace,Consolas,monospace;tab-size:4;outline-offset:-3px;white-space:pre}textarea:focus-visible{outline:1px solid #3776ab}.editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;background:#18232d;border-top:1px solid #2b3743}.editor-toolbar>span{font:10px ui-monospace,monospace;color:#8299ac}.editor-toolbar>div{display:flex;gap:8px}.primary{background:#ffd343;color:#20394d;font-weight:650}.secondary{background:#243b4e;color:#cbdce8;border-color:#3c566a}
+  .sequence{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#1d3247;border:1px solid #304e67;border-radius:7px;padding:8px 16px;margin:12px 0}.sequence button{background:none;color:#c3d8e9;padding:4px 0}.sequence button span{margin-right:8px;color:#ffd343}.sequence>span{font-size:10px;color:#91a9be}.terminal{background:#141f28;border:1px solid #2d4558;border-radius:9px;overflow:hidden}.terminal-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #293d4c}h2{margin:0}.terminal h2{font:11px ui-monospace,monospace;letter-spacing:1px;color:#c3d1dd}.terminal h2 span{color:#7f97aa}#result{font-size:10px;color:#aec5d7}#output{font:13px/1.8 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;min-height:155px;max-height:350px;overflow:auto;margin:0;padding:18px 20px;color:#cadce8}.practice-note{font-size:10px;color:#8ca8bd;line-height:1.7;margin:16px 0 0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  @media(max-width:650px){.practice{padding:0 16px 28px}header{height:auto;min-height:80px;flex-wrap:wrap;padding:15px 0;gap:12px 20px}#connection{width:100%;margin:0}.statement{padding-top:26px}h1{font-size:26px}.title-row{gap:10px}.hint-button{padding:9px 12px}.metadata{font-size:10px}.expected{grid-template-columns:1fr;gap:10px}.expected p{grid-column:1}.editor-toolbar{flex-wrap:wrap}.editor-toolbar>div{margin-left:auto}.editor-heading{padding:0 12px}#saved{font-size:9px}.sequence{padding:10px 12px}.sequence button{font-size:11px}.terminal-heading{flex-wrap:wrap}.editor-body{height:300px}}
+</style>
+<style>
+  .practice{max-width:1360px}
+  .help-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px;color:#b4c8d9;font-size:12px}
+  .help-toolbar>div{display:flex;gap:10px}.help-toolbar .hint-button{margin:0;align-self:auto}
+  #hint-panel{max-width:none;margin:0 0 16px}
+  .code-output-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:16px;align-items:stretch}
+  .coding,.terminal{min-width:0}.terminal{display:flex;flex-direction:column;height:100%;max-height:430px}.terminal-heading{min-height:44px;flex-wrap:wrap;padding:12px 16px}
+  #output{flex:1;min-height:0;max-height:none;overflow:auto;padding:18px 16px}
+  .editor-toolbar{flex-wrap:wrap}.editor-toolbar>div{margin-left:auto}
+  #solution-dialog{background:#182c3c;color:#d7e4ed;border:1px solid #49637a;border-radius:12px;padding:24px;width:min(800px,calc(100vw - 32px));max-height:85vh}
+  #solution-dialog::backdrop{background:#05111dd9}.solution-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.solution-heading h2{font-size:19px}
+  #solution-dialog>p{font-size:13px;color:#b4c8d9}#solution-dialog pre{background:#1b2026;border:1px solid #334956;padding:20px;border-radius:8px;overflow:auto;font:13px/1.8 ui-monospace,Consolas,monospace;max-height:55vh}
+  @media(max-width:800px){.code-output-grid{grid-template-columns:1fr}.terminal{height:230px;max-height:230px}.help-toolbar{flex-wrap:wrap}.help-toolbar>div{margin-left:auto}}
+</style>
