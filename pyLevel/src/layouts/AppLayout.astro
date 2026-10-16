@@ -1,0 +1,28 @@
+---
+import Layout from './Layout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'PyLevel — Evaluación de Competencias Python',
+} = Astro.props;
+---
+
+<Layout title={title}>
+  <div class="app-body">
+    <slot />
+  </div>
+</Layout>
+
+<style>
+  .app-body {
+    min-height: calc(100vh - 68px);
+    background: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    box-sizing: border-box;
+  }
+</style>

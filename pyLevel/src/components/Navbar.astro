@@ -190,7 +190,7 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
           </div>
 
           <div class="profile-menu-links">
-            <a href="#perfil" class="menu-item" role="menuitem">
+            <a href="/perfil" class="menu-item" role="menuitem">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
@@ -1080,10 +1080,45 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
     }
   });
 
-  // Logout interaction (feedback)
-  logoutBtn?.addEventListener('click', () => {
-    alert('Has cerrado sesión en PyLevel.');
-    closeAllDropdowns();
+  // Real session sync and logout
+  async function checkAuthSession() {
+    try {
+      const res = await fetch('/api/auth/me');
+      const data = await res.json();
+      if (data.user) {
+        localStorage.setItem('pylevel:current_user', JSON.stringify(data.user));
+        const initials = (data.user.displayName || 'US')
+          .split(' ')
+          .map((n: string) => n[0])
+          .slice(0, 2)
+          .join('')
+          .toUpperCase();
+        const firstName = (data.user.displayName || '').split(' ')[0] || 'Estudiante';
+
+        const avatarEl = document.getElementById('user-avatar-initials');
+        const nameEl = document.getElementById('user-profile-name');
+        const dropAvatar = document.getElementById('dropdown-avatar');
+        const dropName = document.getElementById('dropdown-display-name');
+        const dropEmail = document.getElementById('dropdown-email');
+        const dropBio = document.getElementById('dropdown-bio');
+
+        if (avatarEl) avatarEl.textContent = initials;
+        if (nameEl) nameEl.textContent = firstName;
+        if (dropAvatar) dropAvatar.textContent = initials;
+        if (dropName) dropName.textContent = data.user.displayName;
+        if (dropEmail) dropEmail.textContent = data.user.email;
+        if (dropBio && data.user.bio) dropBio.textContent = data.user.bio;
+      }
+    } catch {}
+  }
+  checkAuthSession();
+
+  logoutBtn?.addEventListener('click', async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    localStorage.removeItem('pylevel:current_user');
+    window.location.href = '/login';
   });
 
   // Close when clicking outside
