@@ -1,0 +1,157 @@
+/* Theme Variables and Base Design System for PyLevel */
+:root {
+  --color-bg: #f5f7fa;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f8fafc;
+  --color-surface-elevated: #ffffff;
+  --color-border: #dce3e9;
+  --color-border-subtle: #edf2f7;
+  --color-text-primary: #193248;
+  --color-text-secondary: #637a8b;
+  --color-text-muted: #8ca0b0;
+  
+  --color-primary: #3776ab;
+  --color-primary-hover: #2b5e8a;
+  --color-primary-light: #eaf2f9;
+  --color-accent-gold: #d5a815;
+  --color-accent-yellow: #ffd343;
+  --color-accent-dark: #203e56;
+
+  --nav-bg: rgba(255, 255, 255, 0.92);
+  --nav-border: #dce3e9;
+  --nav-height: 68px;
+
+  --badge-bg: #eaf2f9;
+  --badge-text: #3776ab;
+  --card-bg: #ffffff;
+  --card-border: #d8e2ea;
+  --card-shadow: 0 4px 16px rgba(25, 57, 77, 0.06);
+  --card-shadow-hover: 0 12px 32px rgba(25, 57, 77, 0.12);
+
+  --diff-easy: #0284c7;
+  --diff-medium: #b45309;
+  --diff-hard: #dc2626;
+  --modes-active: #3776ab;
+  --eyebrow-color: #3776ab;
+
+  --dropdown-bg: #ffffff;
+  --dropdown-border: #dce3e9;
+  --dropdown-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+
+  --danger-color: #ef4444;
+  --success-color: #10b981;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+:root[data-theme='dark'],
+html.dark {
+  --color-bg: #0d1520;
+  --color-surface: #152232;
+  --color-surface-hover: #1c2d42;
+  --color-surface-elevated: #1a2a3e;
+  --color-border: #24374e;
+  --color-border-subtle: #1c2b3d;
+  --color-text-primary: #f0f4f8;
+  --color-text-secondary: #9cb3c9;
+  --color-text-muted: #6b8299;
+
+  --color-primary: #38bdf8;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-light: rgba(56, 189, 248, 0.12);
+  --color-accent-gold: #ffd343;
+  --color-accent-yellow: #ffd343;
+  --color-accent-dark: #0a1017;
+
+  --nav-bg: rgba(17, 28, 42, 0.92);
+  --nav-border: #24374e;
+
+  --badge-bg: rgba(56, 189, 248, 0.12);
+  --badge-text: #38bdf8;
+  --card-bg: #152232;
+  --card-border: #24374e;
+  --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --card-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.5);
+
+  --diff-easy: #38bdf8;
+  --diff-medium: #ffd343;
+  --diff-hard: #f87171;
+  --modes-active: #ffd343;
+  --eyebrow-color: #ffd343;
+
+  --dropdown-bg: #152232;
+  --dropdown-border: #283e58;
+  --dropdown-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* Global Reset & Transition Defaults */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Smooth dark mode styling overrides for existing components */
+html.dark .hub .lead {
+  color: var(--color-text-secondary);
+}
+
+html.dark .hub .path:not(.contextual) {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--color-text-primary);
+}
+
+html.dark .hub .path:not(.contextual) .symbol {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--color-primary);
+}
+
+html.dark .hub .path:not(.contextual) p {
+  color: var(--color-text-secondary);
+}
+
+html.dark .hub .path:not(.contextual) .code-preview {
+  background: #0b111a;
+  border-color: var(--color-border);
+  color: #cad8e5;
+}
+
+html.dark .hub .path:not(.contextual) .card-bottom {
+  color: var(--color-text-muted);
+}
+
+html.dark .hub .path:not(.contextual) .card-bottom strong {
+  color: var(--color-primary);
+}
+
+/* Catalog & Cards Theme Support */
+.catalog .exercise-card {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: var(--card-shadow);
+}
+
+.catalog .card-content h3 a {
+  color: var(--color-text-primary);
+}
+
+.catalog .card-content p {
+  color: var(--color-text-secondary);
+}
+
+.catalog .filters {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: var(--card-shadow);
+}
