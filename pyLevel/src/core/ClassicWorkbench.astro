@@ -1,5 +1,6 @@
 ---
 import type { ClassicExercise } from './classic-exercises';
+import BubbleSortAnimation from '../components/BubbleSortAnimation.astro';
 interface Props { exercise: ClassicExercise }
 const { exercise } = Astro.props;
 ---
@@ -10,6 +11,7 @@ const { exercise } = Astro.props;
     <div class="statement-content">{exercise.statement}</div>
     <div class="expected"><h2>Salida esperada</h2><pre>{exercise.expected.trimEnd()}</pre><p>Resultado de las llamadas de ejemplo incluidas en el editor.</p></div>
   </section>
+  {exercise.id === 'clasico_bubble_sort' && <BubbleSortAnimation />}
   <div class="help-toolbar"><span>Tu solución</span><div><button id="hint-toggle" class="hint-button" aria-expanded="false" aria-controls="hint-panel">Ver pista</button><button id="solution-toggle" class="secondary" disabled aria-haspopup="dialog" aria-controls="solution-dialog">Ver solución</button></div></div>
   <aside id="hint-panel" hidden aria-label="Pista del ejercicio"><strong>Una pista para continuar</strong><p>{exercise.hints[0]}</p><span id="hint-status" role="status"></span></aside>
   <dialog id="solution-dialog" aria-labelledby="solution-title"><div class="solution-heading"><h2 id="solution-title">Solución de referencia</h2><button id="solution-close" class="secondary" autofocus>Cerrar</button></div><p>{exercise.title}</p><pre tabindex="0"><code>{exercise.solution}</code></pre></dialog>

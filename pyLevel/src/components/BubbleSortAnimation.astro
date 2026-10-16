@@ -1,0 +1,80 @@
+---
+const values = [2, 3, 1, 5, 7, 6, 4, 8];
+---
+<details class="animation-details">
+  <summary><span aria-hidden="true">▷</span> Cómo funciona Bubble Sort <small>Animación paso a paso</small></summary>
+  <bubble-sort-demo>
+    <section class="bubble-demo" aria-label="Animación de Bubble Sort">
+      <div class="demo-heading"><div><p class="eyebrow">VISUALIZA EL ALGORITMO</p><h2>Ordenamiento burbuja</h2></div><span class="demo-label">Ejemplo ilustrativo</span></div>
+      <p class="description">Compara vecinos e intercámbialos si están al revés. En cada pasada, el mayor pendiente llega al final.</p>
+      <p class="step-message" data-message role="status" aria-live="polite">Comienza por comparar los dos primeros vecinos.</p>
+      <svg viewBox="0 0 800 180" role="img" aria-label="Lista inicial: 2, 3, 1, 5, 7, 6, 4, 8" data-chart>
+        <line x1="30" x2="770" y1="148" y2="148" stroke="#38546a" />
+        {values.map((value, id) => <g class="bubble" data-item={id} style={`transform:translate(${55 + id * 98}px, 100px)`}><circle r={22 + value * 2} /><text text-anchor="middle" dominant-baseline="central">{value}</text></g>)}
+      </svg>
+      <div class="legend"><span><i class="comparing"></i>Comparando</span><span><i class="swapping"></i>Intercambio</span><span><i class="sorted"></i>Posición final</span></div>
+      <div class="metrics"><div><span>Comparaciones</span><strong data-comparisons>0</strong></div><div><span>Intercambios</span><strong data-swaps>0</strong></div><div><span>Pasada</span><strong data-pass>0</strong></div><div><span>Avance</span><strong data-progress>Inicio</strong></div></div>
+      <div class="demo-controls"><div><button type="button" data-play>Reproducir</button><button type="button" data-step>Paso siguiente</button><button type="button" data-reset>Reiniciar</button></div><label>Velocidad <select data-speed><option value="1400">Lenta</option><option value="850" selected>Normal</option><option value="450">Rápida</option></select></label></div>
+      <p class="demo-note">Esta animación explica un ejemplo de Bubble Sort; la secuencia de tu código se mostrará en la función de ejecución paso a paso.</p>
+    </section>
+  </bubble-sort-demo>
+</details>
+<script>
+  import { bubbleFrames } from '../core/bubble-sort';
+  class BubbleSortDemo extends HTMLElement {
+    connectedCallback() {
+      if (this.dataset.ready) return;
+      this.dataset.ready = 'true';
+      const frames = bubbleFrames([2, 3, 1, 5, 7, 6, 4, 8]);
+      const get = <T extends Element>(selector: string) => this.querySelector<T>(selector)!;
+      const play = get<HTMLButtonElement>('[data-play]');
+      const step = get<HTMLButtonElement>('[data-step]');
+      const speed = get<HTMLSelectElement>('[data-speed]');
+      let cursor = 0;
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      let playing = false;
+      const pause = () => { playing = false; clearTimeout(timer); play.textContent = cursor === frames.length - 1 ? 'Repetir' : 'Reproducir'; };
+      this.stop = pause;
+      const render = () => {
+        const frame = frames[cursor];
+        frame.items.forEach((item, index) => {
+          const node = get<SVGGElement>(`[data-item="${item.id}"]`);
+          node.style.transform = `translate(${55 + index * 98}px, 100px)`;
+          node.classList.toggle('is-active', frame.active.includes(item.id));
+          node.classList.toggle('is-swap', frame.phase === 'swap' && frame.active.includes(item.id));
+          node.classList.toggle('is-sorted', index >= frame.sortedFrom);
+        });
+        get('[data-message]').textContent = frame.message;
+        get('[data-comparisons]').textContent = String(frame.comparisons);
+        get('[data-swaps]').textContent = String(frame.swaps);
+        get('[data-pass]').textContent = String(frame.pass);
+        get('[data-progress]').textContent = frame.phase === 'done' ? 'Ordenado' : `${cursor + 1} / ${frames.length}`;
+        get('[data-chart]').setAttribute('aria-label', `Lista: ${frame.items.map(item => item.value).join(', ')}. ${frame.message}`);
+        step.disabled = cursor === frames.length - 1;
+        if (step.disabled) pause();
+      };
+      const advance = () => { if (cursor < frames.length - 1) cursor++; render(); };
+      const tick = () => { timer = setTimeout(() => { advance(); if (playing) tick(); }, Number(speed.value)); };
+      play.addEventListener('click', () => {
+        if (playing) { pause(); return; }
+        if (cursor === frames.length - 1) { cursor = 0; render(); }
+        playing = true; play.textContent = 'Pausar'; tick();
+      });
+      step.addEventListener('click', () => { pause(); advance(); });
+      get('[data-reset]').addEventListener('click', () => { pause(); cursor = 0; render(); });
+      speed.addEventListener('change', () => { if (playing) { clearTimeout(timer); tick(); } });
+      this.closest('details')?.addEventListener('toggle', event => { if (!(event.target as HTMLDetailsElement).open) pause(); });
+      render();
+    }
+    stop?: () => void;
+    disconnectedCallback() { this.stop?.(); }
+  }
+  if (!customElements.get('bubble-sort-demo')) customElements.define('bubble-sort-demo', BubbleSortDemo);
+</script>
+<style>
+  .animation-details{margin:0 0 24px;border:1px solid #38566e;border-radius:10px;background:#142b3e;overflow:hidden}
+  summary{cursor:pointer;padding:16px 20px;font-size:13px;color:#ffd343;list-style:none}summary::-webkit-details-marker{display:none}summary>span{display:inline-block;margin-right:9px}details[open] summary>span{transform:rotate(90deg)}summary small{float:right;color:#a7bed0;font-size:11px}summary:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid #ffd343;outline-offset:-3px}
+  bubble-sort-demo{display:block}.bubble-demo{padding:22px 28px;background:radial-gradient(#40627a30 1px,transparent 1px) 0 0/20px 20px,#101d29;border-top:1px solid #38566e}.demo-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}.eyebrow{font:10px ui-monospace,monospace;letter-spacing:2px;color:#ffd343;margin:0 0 10px}h2{font-size:27px;margin:0;color:#eef4f8;letter-spacing:-.6px}.demo-label{font-size:10px;border:1px solid #496276;padding:6px 9px;border-radius:20px;color:#aec7d8}.description,.demo-note{font-size:12px;line-height:1.7;color:#aec3d3}.description{margin:12px 0 24px}.step-message{text-align:center;color:#ffd343;font:13px/1.6 ui-monospace,monospace;min-height:42px;margin:0}svg{display:block;width:100%;max-width:820px;margin:auto;overflow:visible}.bubble{transition:transform 350ms ease-in-out}.bubble circle{fill:#e2edf5;stroke:transparent;stroke-width:4}.bubble text{fill:#17344b;font:bold 23px ui-monospace,monospace}.bubble.is-active circle{stroke:#ffd343}.bubble.is-swap circle{fill:#ffd343}.bubble.is-sorted circle{fill:#3776ab;stroke:#70a8d4}.bubble.is-sorted text{fill:#fff}.legend{display:flex;justify-content:center;gap:22px;color:#b2c6d5;font-size:10px;flex-wrap:wrap}.legend span{display:flex;gap:7px;align-items:center}.legend i{width:10px;height:10px;display:inline-block;border-radius:50%}.comparing{border:2px solid #ffd343}.swapping{background:#ffd343}.sorted{background:#3776ab}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding:20px 0;margin-top:22px;border-top:1px solid #365064;border-bottom:1px solid #365064}.metrics span{display:block;font:10px ui-monospace,monospace;color:#97b0c3;margin-bottom:7px}.metrics strong{font:600 24px ui-monospace,monospace;color:#ffd343}.demo-controls{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;margin-top:20px}.demo-controls>div{display:flex;gap:8px;flex-wrap:wrap}button,select{border:1px solid #49667e;border-radius:5px;background:#243d52;color:#e0eaf2;padding:9px 12px;font:12px system-ui;cursor:pointer}button[data-play]{background:#ffd343;color:#1c3547;border-color:#ffd343;min-width:95px;font-weight:600}button:disabled{opacity:.45;cursor:default}label{font-size:11px;color:#b2c6d5;display:flex;align-items:center;gap:10px}.demo-note{font-size:10px;margin:18px 0 0}
+  @media(prefers-reduced-motion:reduce){.bubble{transition:none}}
+  @media(max-width:600px){.bubble-demo{padding:20px 14px}.demo-heading{align-items:flex-start;flex-direction:column}h2{font-size:23px}summary small{display:none}.metrics{grid-template-columns:repeat(2,1fr)}.step-message{font-size:11px}.legend{gap:12px}.metrics strong{font-size:21px}}
+</style>
