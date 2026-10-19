@@ -9,6 +9,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return json({ error: 'Origen de la solicitud no permitido.' }, 403);
   }
   const response = await next();
+  response.headers.set('Permissions-Policy', 'camera=(self), microphone=()');
   if (privateApi || ['/examen', '/perfil', '/progreso'].some(prefix => path.startsWith(prefix))) {
     response.headers.set('Cache-Control', 'no-store');
     response.headers.append('Vary', 'Cookie');

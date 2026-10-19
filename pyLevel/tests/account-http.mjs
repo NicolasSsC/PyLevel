@@ -54,7 +54,7 @@ assert.equal((await call('/api/account/profile', { ...input, email: `changed-${i
 response = await call('/api/account/profile', { ...input, email: `changed-${identity.email}`, currentPassword: identity.password }, cookie);
 assert.equal(response.status, 200);
 assert.equal((await response.json()).user.email, `changed-${identity.email}`);
-response = await call('/api/exam/attempt', { action: 'start' }, cookie);
+response = await call('/api/exam/attempt', { action: 'start', monitoring: { mode: 'unavailable', consent: true, reason: 'technical' } }, cookie);
 const examAttempt = (await response.json()).attempt;
 response = await call('/api/exam/attempt', { action: 'submit', attemptId: examAttempt.id, answers: {}, revision: 0, events: [] }, cookie);
 assert.equal((await response.json()).attempt.status, 'submitted');

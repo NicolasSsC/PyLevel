@@ -78,7 +78,52 @@ panel docente en vivo, penalización automática, pruebas ocultas ni calificaci�
 la entrega y las incidencias quedan pendientes de revisión. El resumen permite
 al estudiante consultar sus respuestas y los últimos 100 eventos.
 
-## Verificación
+## Control de cámara
+
+Aplicar también `003_exam_camera.sql`. Los intentos anteriores conservan su plazo y
+se identifican como `legacy`; no se exige ni se activa retroactivamente la cámara.
+Antes de un intento nuevo se aceptan las condiciones y se activa una cámara con
+un rostro estable, o se declara una dificultad (permiso, dispositivo, navegador,
+problema técnico o accesibilidad). La alternativa queda explícita para revisión.
+El servidor registra el consentimiento y el modo declarado; no puede acreditar
+que un cliente no haya sido manipulado. No se presenta como sistema antifraude.
+
+La captura usa `getUserMedia({audio:false, video:...})`, mediante un botón explícito.
+Requiere HTTPS o localhost. El navegador concede el permiso; las cookies no lo
+conceden. La cámara se apaga al entregar, vencer el plazo, salir o retirar el
+consentimiento. Al volver o recargar se activa de nuevo con el botón. El tiempo
+del examen continúa durante problemas técnicos y las respuestas siguen editables.
+
+MediaPipe Tasks Vision 0.10.32 y el modelo BlazeFace short-range se sirven desde
+el mismo origen. `scripts/prepare-camera.mjs` copia los WASM de la dependencia y
+genera un Worker clásico (MediaPipe carga su runtime mediante `importScripts`).
+Los comandos `pnpm dev`, `pnpm astro …` y `pnpm build` preparan estos recursos.
+`public/vendor/mediapipe` se genera y no se versiona. El modelo se incluye en
+`public/models/face-detector`; su origen y licencia están documentados allí.
+
+El Worker recibe imágenes reducidas, analiza aproximadamente tres por segundo
+y devuelve solamente la cantidad de rostros. No se transmiten ni almacenan
+imágenes, vídeo, audio, puntos faciales o plantillas de identidad. Los eventos
+se conservan junto al intento en `exam_events`; no hay borrado automático en esta
+versión. Definir la conservación y el procedimiento de eliminación antes de un
+despliegue institucional.
+
+Umbrales iniciales, ajustables en `src/exam/camera-policy.ts`: 1,5 s con un rostro
+para iniciar, 5 s sin rostro y 3 s con varios. Se omiten observaciones con la
+pestaña oculta, que se registran mediante el seguimiento de visibilidad existente.
+Cada episodio mantiene su UUID y actualiza su duración sin duplicar el contador;
+los reenvíos anteriores no pueden reducirla. El servidor usa su propia hora de
+recepción; la duración es una estimación del cliente. Un fallo de imagen/detector
+se registra como interrupción técnica, no como ausencia de rostro. Los avisos
+también aparecen en la barra fija del examen.
+
+Los eventos son informativos: no identifican personas, no estiman emociones,
+mirada ni intención, no detectan todas las irregularidades y nunca modifican
+la nota. La interfaz incluye una alternativa de accesibilidad. No hay panel de
+evaluadores en esta versión; el registro puede consultarse en el resumen y en la
+base, y requiere valoración humana.
+
+## Pruebas
 
 ```powershell
 pnpm test
@@ -90,6 +135,8 @@ Las pruebas de SQL usan PostgreSQL embebido PGlite en memoria, sin leer `.env` n
 modificar la base configurada. Cubren falsificación, revocación y vencimiento de
 sesiones, origen, autorización por cuenta, persistencia, conflicto de versiones,
 reenvíos de incidencias, entrega inmutable y rechazo de respuestas fuera de plazo.
+Incluyen consentimiento y validación de cámara, actualizaciones idempotentes de
+duración, aislamiento por intento, intentos antiguos y umbrales del detector.
 
 También se prueba la agrupación de señales de foco/visibilidad y la recuperación
 de una salida pendiente sin duplicarla. Para verificar HTTP sin usar datos reales:

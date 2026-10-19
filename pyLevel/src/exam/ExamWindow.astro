@@ -21,6 +21,23 @@ const { user } = Astro.props;
     <button id="dismiss-warning" type="button" aria-label="Cerrar aviso">×</button>
   </div>
 
+  <section id="exam-camera" class="camera-panel panel" hidden aria-labelledby="camera-title">
+    <div class="camera-image">
+      <video id="camera-preview" autoplay playsinline muted hidden aria-label="Vista previa de tu cámara"></video>
+      <span class="camera-placeholder" aria-hidden="true">◎</span>
+      <span class="camera-local">PROCESAMIENTO LOCAL · SIN GRABACIÓN</span>
+    </div>
+    <div class="camera-details">
+      <span class="label">SUPERVISIÓN DEL EXAMEN</span>
+      <h2 id="camera-title">Prepara tu cámara</h2>
+      <p>Comprobamos la presencia de un rostro, varios rostros y las interrupciones de cámara. Las imágenes se analizan en tu dispositivo: no se graban ni se envían al servidor. No identificamos personas.</p>
+      <p>Solo guardamos el tipo de incidencia, su duración aproximada y la hora de recepción, junto a tu intento. Podrás consultarlos al entregar. Una alerta no modifica tu nota automáticamente.</p>
+      <label class="camera-consent"><input type="checkbox" id="camera-consent" /><span>Entiendo y acepto este uso de la cámara y el registro de incidencias. El permiso de cámara se solicita por separado en el navegador.</span></label>
+      <div class="camera-actions"><button id="camera-enable" class="secondary" type="button" disabled>Activar o reconectar cámara</button><p id="camera-status" role="status" aria-live="polite" data-state="waiting">La cámara está apagada.</p></div>
+      <details class="camera-alternative"><summary>No puedo usar la cámara</summary><p>Registra el motivo para continuar. Tu intento quedará identificado para revisión; el tiempo de un examen en curso sigue avanzando.</p><div class="camera-actions"><label for="camera-reason" class="sr-only">Motivo de la dificultad de cámara</label><select id="camera-reason"><option value="">Elige un motivo</option><option value="permission">Permiso bloqueado o denegado</option><option value="device">No dispongo de una cámara funcional</option><option value="unsupported">Mi navegador no es compatible</option><option value="technical">Hay una dificultad técnica</option><option value="accessibility">Necesito una alternativa de accesibilidad</option></select><button id="camera-fallback" class="secondary" type="button" disabled>Registrar dificultad y continuar</button></div></details>
+    </div>
+  </section>
+
   <section id="exam-intro" class="intro" hidden aria-labelledby="intro-title">
     <div class="intro-main panel">
       <span class="label">ANTES DE COMENZAR</span>
@@ -53,7 +70,7 @@ const { user } = Astro.props;
 
   <section id="exam-workspace" hidden aria-label="Examen en curso">
     <div class="exam-toolbar panel">
-      <div class="running"><span class="dot"></span><strong id="attempt-label">Examen en curso</strong><span class="divider">/</span><span id="exam-progress">0 de 3 respuestas</span></div>
+      <div><div class="running"><span class="dot"></span><strong id="attempt-label">Examen en curso</strong><span class="divider">/</span><span id="exam-progress">0 de 3 respuestas</span></div><a id="camera-live" class="camera-live" href="#exam-camera" data-state="waiting">Activa la cámara para continuar la supervisión.</a></div>
       <div class="time"><span>TIEMPO RESTANTE</span><strong id="exam-timer" role="timer" aria-label="Tiempo restante">30:00</strong></div>
     </div>
     <div class="workspace-grid">
@@ -66,7 +83,7 @@ const { user } = Astro.props;
             </button>
           ))}
         </nav>
-        <div class="sidebar-bottom"><span class="label">SEGUIMIENTO</span><p><span class="dot"></span> <span id="incident-count">0 salidas registradas</span></p><p>Las incidencias se revisan por separado de tus respuestas.</p></div>
+        <div class="sidebar-bottom"><span class="label">SEGUIMIENTO</span><p><span class="dot"></span> <span id="incident-count">0 salidas registradas</span></p><p id="camera-incident-count">0 incidencias de cámara</p><p>Las incidencias se revisan por separado de tus respuestas.</p></div>
       </aside>
       <div>
         {exam.questions.map((q, i) => (
@@ -90,7 +107,8 @@ const { user } = Astro.props;
   <section id="exam-result" class="panel result" hidden aria-labelledby="result-title">
     <span class="result-icon" aria-hidden="true">✓</span><span class="label">INTENTO FINALIZADO</span>
     <h2 id="result-title">Examen entregado</h2><p id="result-description"></p>
-    <div class="result-facts"><div><small>RESPUESTAS GUARDADAS</small><strong id="result-answers"></strong></div><div><small>SALIDAS REGISTRADAS</small><strong id="result-incidents"></strong></div><div><small>CALIFICACIÓN</small><strong>Pendiente de revisión</strong></div></div>
+    <div class="result-facts"><div><small>RESPUESTAS GUARDADAS</small><strong id="result-answers"></strong></div><div><small>INCIDENCIAS</small><strong id="result-incidents"></strong></div><div><small>CALIFICACIÓN</small><strong>Pendiente de revisión</strong></div></div>
+    <p id="result-camera-mode"></p>
     <p class="receipt" id="result-receipt"></p>
     <details><summary>Ver mis respuestas e incidencias</summary><div id="result-review"></div></details>
     <a class="primary" href="/ejercicios/">Volver a ejercicios →</a>
@@ -122,6 +140,23 @@ const { user } = Astro.props;
   small { color: var(--color-text-secondary); font-size: 10px; letter-spacing: .6px; }
   .student strong { font-size: 13px; margin-top: 4px; }
   .panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; box-shadow: var(--card-shadow); }
+  .camera-panel { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 24px; padding: 24px; margin-bottom: 24px; }
+  .camera-image { position: relative; align-self: start; aspect-ratio: 4 / 3; background: #0c1623; border-radius: 10px; overflow: hidden; display: grid; place-items: center; border: 1px solid #2c4058; }
+  .camera-image video { position: absolute; width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); z-index: 1; }
+  .camera-placeholder { font-size: 64px; color: #6886a3; }
+  .camera-local { position: absolute; bottom: 0; inset-inline: 0; z-index: 2; padding: 10px 4px; background: #0c1623dd; color: #bcd0e2; text-align: center; font: 8px var(--font-mono); letter-spacing: .3px; }
+  .camera-details h2 { font-size: 22px; margin: 10px 0; }
+  .camera-details p { font-size: 12px; color: var(--color-text-secondary); margin: 8px 0; }
+  .camera-consent { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.6; margin: 18px 0; }
+  .camera-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  #camera-status { flex: 1; min-width: 160px; }
+  #camera-status[data-state='ok'] { color: var(--success-color); }
+  #camera-status[data-state='warning'] { color: var(--color-accent-gold); }
+  .camera-alternative { padding-top: 14px; border-top: 1px solid var(--color-border); margin: 18px 0 0; }
+  .camera-alternative summary { font-size: 12px; }
+  .camera-alternative select { color: var(--color-text-primary); background: var(--color-surface); border: 1px solid var(--color-border); padding: 12px; border-radius: 8px; max-width: 100%; font: 12px inherit; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  @media (max-width: 680px) { .camera-panel { grid-template-columns: 1fr; padding: 20px; } .camera-image { width: 200px; } }
   .message { border-radius: 9px; background: var(--color-primary-light); padding: 14px 18px; color: var(--color-text-primary); font-size: 14px; }
   .message[data-error='true'] { border: 1px solid var(--danger-color); }
   .intro { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; }
@@ -153,7 +188,10 @@ const { user } = Astro.props;
   .warning { padding: 16px 20px; border: 1px solid var(--color-accent-gold); border-left-width: 4px; border-radius: 9px; margin-bottom: 20px; background: var(--color-surface); font-size: 13px; }
   .warning p { margin: 4px 0 0; color: var(--color-text-secondary); }
   .warning button { border: 0; background: transparent; color: var(--color-text-primary); font-size: 26px; cursor: pointer; }
-  .exam-toolbar { padding: 18px 24px; margin-bottom: 22px; }
+  .exam-toolbar { padding: 18px 24px; margin-bottom: 22px; position: sticky; top: 78px; z-index: 5; }
+  .camera-live { display: block; margin-top: 9px; color: var(--color-text-secondary); font-size: 11px; line-height: 1.5; text-underline-offset: 3px; }
+  .camera-live[data-state='ok'] { color: var(--success-color); }
+  .camera-live[data-state='warning'] { color: var(--color-accent-gold); }
   .running { justify-content: flex-start; gap: 8px; font-size: 13px; flex-wrap: wrap; }
   #exam-progress, .divider { color: var(--color-text-secondary); }
   .divider { padding: 0 12px; }

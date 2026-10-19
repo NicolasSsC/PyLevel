@@ -5,7 +5,7 @@ import { randomUUID } from 'node:crypto';
 import { PGlite } from '@electric-sql/pglite';
 import { hashToken, sessionStore, type Database } from '../src/lib/session-store.ts';
 import { examStore, ExamError } from '../src/exam/store.ts';
-import { exam, validateAnswers, validateEvents } from '../src/exam/definition.ts';
+import { exam, validateAnswers, validateEvents, validateMonitoring } from '../src/exam/definition.ts';
 import { sameOrigin } from '../src/lib/http.ts';
 import { createPresenceTracker } from '../src/exam/presence.ts';
 
@@ -19,6 +19,9 @@ before(async () => {
   const migration = await readFile(new URL('../migrations/001_sessions_exams.sql', import.meta.url), 'utf8');
   await pg.exec(migration);
   await pg.exec(migration); // Migration is safe to re-run.
+  const cameraMigration = await readFile(new URL('../migrations/003_exam_camera.sql', import.meta.url), 'utf8');
+  await pg.exec(cameraMigration);
+  await pg.exec(cameraMigration);
   await pg.exec("INSERT INTO users (id) VALUES ('alice'), ('bob'), ('disabled')");
 });
 after(async () => { await pg.close(); });
@@ -96,6 +99,45 @@ test('submission is immutable and retrying a delivery is idempotent', async () =
   assert.equal(retry.answers.acceso, 'final answer');
   assert.equal(retry.submittedAt, submitted.submittedAt);
   assert.equal((await exams.start('alice'))!.id, attempt.id);
+});
+
+test('camera consent, technical alternatives and episode durations persist without changing answers', async () => {
+  const monitoring = validateMonitoring({ mode: 'camera', consent: true });
+  const attempt = (await exams.start('camera-user', monitoring))!;
+  assert.equal(attempt.cameraMode, 'camera');
+  assert.ok(attempt.cameraConsentAt);
+  const id = randomUUID();
+  const episode = (durationMs: number) => ({ id, kind: 'camera_missing' as const, source: 'camera' as const, durationMs });
+  await exams.sync('camera-user', { attemptId: attempt.id, submit: false, events: [episode(5000)] });
+  await exams.sync('camera-user', { attemptId: attempt.id, submit: false, events: [episode(13000)] });
+  const saved = (await exams.sync('camera-user', { attemptId: attempt.id, submit: false, events: [episode(5000)] }))!;
+  assert.equal(saved.cameraIncidents, 1);
+  assert.equal(saved.incidents, 0);
+  assert.equal(saved.events[0].durationMs, 13000);
+  assert.deepEqual(saved.answers, {});
+  assert.equal(saved.revision, 0);
+  const other = (await exams.start('camera-other', monitoring))!;
+  await exams.sync('camera-other', { attemptId: other.id, submit: false, events: [episode(20000)] });
+  assert.equal((await exams.read('camera-user'))!.events[0].durationMs, 13000);
+  assert.equal((await exams.read('camera-other'))!.cameraIncidents, 0);
+  const alternative = (await exams.sync('camera-user', { attemptId: attempt.id, submit: false, events: [], monitoring: validateMonitoring({ mode: 'unavailable', consent: true, reason: 'device' }) }))!;
+  assert.equal(alternative.cameraMode, 'unavailable');
+  assert.equal(alternative.cameraUnavailableReason, 'device');
+  await exams.sync('camera-user', { attemptId: attempt.id, submit: true, events: [], answers: {}, revision: 0 });
+  await exams.sync('camera-user', { attemptId: attempt.id, submit: false, events: [episode(25000)] });
+  assert.equal((await exams.read('camera-user'))!.events[0].durationMs, 13000);
+});
+
+test('legacy attempts accept camera events only after consent; malformed camera payloads are rejected', async () => {
+  const attempt = (await exams.start('legacy-camera'))!;
+  const event = { id: randomUUID(), kind: 'camera_interrupted' as const, source: 'camera' as const, durationMs: 0 };
+  await assert.rejects(exams.sync('legacy-camera', { attemptId: attempt.id, submit: false, events: [event] }), /condiciones/);
+  const saved = (await exams.sync('legacy-camera', { attemptId: attempt.id, submit: false, events: [event], monitoring: { mode: 'camera', consent: true } }))!;
+  assert.equal(saved.cameraIncidents, 1);
+  for (const invalid of [{ ...event, durationMs: -1 }, { ...event, durationMs: 7200001 }, { ...event, durationMs: '5000' }, { ...event, source: 'focus' }, { ...event, kind: 'away' }]) assert.throws(() => validateEvents([invalid]));
+  assert.throws(() => validateMonitoring({ mode: 'camera', consent: false }));
+  assert.throws(() => validateMonitoring({ mode: 'unavailable', consent: true }));
+  assert.throws(() => validateMonitoring({ mode: 'unavailable', consent: true, reason: 'anything' }));
 });
 
 test('server rejects answers after expiry, including when browser tries to submit them', async () => {

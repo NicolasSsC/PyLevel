@@ -1,5 +1,6 @@
-import { exam, validateAnswers, validateEvents, type Answers, type Attempt, type ExamEvent } from './definition';
+import { exam, validateAnswers, validateEvents, validateMonitoring, type Answers, type Attempt, type ExamEvent, type Monitoring } from './definition';
 import { createPresenceTracker } from './presence';
+import { createExamCamera } from './camera';
 
 export function initExam() {
   const root = document.getElementById('exam-app');
@@ -22,6 +23,9 @@ export function initExam() {
   let retryAt = 0;
   let queue: ExamEvent[] = [];
   let pendingSave: ReturnType<typeof setTimeout> | undefined;
+  let pendingMonitoring: Monitoring | undefined;
+  let monitoringKey = '';
+  let camera: ReturnType<typeof createExamCamera>;
   const active = () => attempt?.status === 'in_progress';
   const storageKey = () => `pylevel:exam:${root.dataset.userId}:${attempt?.id}`;
   const collect = (): Answers => Object.fromEntries(editors.map(e => [e.dataset.answer!, e.value]));
@@ -36,7 +40,7 @@ export function initExam() {
   }
   function cache() {
     if (!attempt || !active()) return;
-    try { localStorage.setItem(storageKey(), JSON.stringify({ answers: collect(), queue, revision: attempt.revision, away: presence.away })); } catch { /* Server saving remains available when local storage is disabled. */ }
+    try { localStorage.setItem(storageKey(), JSON.stringify({ answers: collect(), queue, monitoring: pendingMonitoring, revision: attempt.revision, away: presence.away })); } catch { /* Server saving remains available when local storage is disabled. */ }
   }
   function progress() {
     const answers = collect();
@@ -46,6 +50,8 @@ export function initExam() {
       if (state) state.textContent = (answers[q.id] ?? '').trim() && answers[q.id].trim() !== q.starter.trim() ? 'Con respuesta' : 'Sin responder';
     });
     el('incident-count').textContent = `${attempt?.incidents ?? 0} salidas registradas`;
+    const cameraCount = attempt?.cameraIncidents ?? 0;
+    el('camera-incident-count').textContent = `${cameraCount} ${cameraCount === 1 ? 'incidencia' : 'incidencias'} de cámara`;
   }
   function fill(answers: Answers) {
     editors.forEach(e => { e.value = answers[e.dataset.answer!] ?? exam.questions.find(q => q.id === e.dataset.answer)!.starter; });
@@ -68,6 +74,22 @@ export function initExam() {
     // Batches are bounded, and unsent events are kept for subsequent retries.
     cache();
   }
+  function recordCamera(event: ExamEvent) {
+    if (!active() || (!attempt?.cameraConsentAt && !pendingMonitoring && !camera.monitoring)) return;
+    queue = queue.filter(item => item.id !== event.id);
+    queue.push(event);
+    cache();
+  }
+  function cameraChanged() {
+    start.disabled = busy || !consent.checked || !camera?.prepared;
+    const monitoring = camera?.monitoring;
+    if (active() && monitoring && JSON.stringify(monitoring) !== monitoringKey) {
+      pendingMonitoring = monitoring;
+      monitoringKey = JSON.stringify(monitoring);
+      cache();
+    }
+  }
+  camera = createExamCamera(recordCamera, cameraChanged);
   function leave(source: ExamEvent['source']) {
     if (active() && presence.leave(source)) beacon();
   }
@@ -82,11 +104,12 @@ export function initExam() {
     if (!active() || !attempt) return;
     cache();
     // Do not send answers here: a late beacon must not overwrite newer edits.
-    const body = JSON.stringify({ action: 'sync', attemptId: attempt.id, events: queue.slice(0, 40) });
+    const body = JSON.stringify({ action: 'sync', attemptId: attempt.id, events: queue.slice(0, 40), monitoring: pendingMonitoring });
     if (typeof navigator.sendBeacon === 'function') navigator.sendBeacon('/api/exam/attempt', new Blob([body], { type: 'application/json' }));
   }
   function finish() {
     if (!attempt) return;
+    camera.stop();
     el('exam-workspace').hidden = true;
     el('exam-intro').hidden = true;
     el('exam-warning').hidden = true;
@@ -99,7 +122,10 @@ export function initExam() {
       ? 'El intento se cerró con las últimas respuestas guardadas antes del vencimiento. Tu evaluación está pendiente de revisión.'
       : 'Tus respuestas quedaron guardadas. Tu evaluación está pendiente de revisión.';
     el('result-answers').textContent = `${completed(attempt.answers)} de ${exam.questions.length}`;
-    el('result-incidents').textContent = String(attempt.incidents);
+    el('result-incidents').textContent = `${attempt.incidents} salidas · ${attempt.cameraIncidents} de cámara`;
+    const reasons: Record<string, string> = { permission: 'permiso bloqueado', device: 'cámara no disponible', unsupported: 'navegador no compatible', technical: 'dificultad técnica', accessibility: 'alternativa de accesibilidad' };
+    el('result-camera-mode').textContent = attempt.cameraMode === 'camera' ? 'Control de cámara activado en este intento. Las incidencias requieren revisión.'
+      : attempt.cameraMode === 'unavailable' ? `Dificultad de cámara declarada: ${reasons[attempt.cameraUnavailableReason ?? ''] ?? 'sin especificar'}. Requiere revisión.` : 'Este intento se inició antes de incorporar el control de cámara.';
     el('result-receipt').textContent = `Intento ${attempt.id} · ${new Date(attempt.submittedAt!).toLocaleString('es-CO')}`;
     const review = el('result-review');
     review.replaceChildren();
@@ -112,7 +138,8 @@ export function initExam() {
     const list = document.createElement('ul');
     for (const event of attempt.events) {
       const item = document.createElement('li');
-      item.textContent = `${event.kind === 'away' ? 'Salida de la ventana' : 'Regreso'} · ${new Date(event.occurredAt).toLocaleString('es-CO')}`;
+      const labels: Record<string, string> = { away: 'Salida de la ventana', return: 'Regreso', camera_ready: 'Cámara activa: un rostro detectado', camera_missing: 'No se detectó un rostro', camera_multiple: 'Se detectaron varios rostros', camera_interrupted: 'Cámara o análisis interrumpido', camera_unavailable: 'Dificultad de cámara declarada' };
+      item.textContent = `${labels[event.kind] ?? event.kind}${event.durationMs !== undefined ? ` · Duración aproximada: ${Math.ceil(event.durationMs / 1000)} s` : ''} · Recibido: ${new Date(event.occurredAt).toLocaleString('es-CO')}`;
       list.append(item);
     }
     if (!attempt.events.length) { const item = document.createElement('li'); item.textContent = 'Sin incidencias registradas.'; list.append(item); }
@@ -127,6 +154,7 @@ export function initExam() {
     const timer = el('exam-timer');
     timer.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     timer.dataset.urgent = String(seconds <= 300);
+    if (seconds === 0) camera.stop();
     editors.forEach(e => { e.disabled = seconds === 0; });
     submit.disabled = seconds === 0 || busy || conflict !== null;
     if (seconds === 0 && !expirationChecked && Date.now() >= retryAt) {
@@ -138,6 +166,8 @@ export function initExam() {
   function setAttempt(next: Attempt, replaceAnswers = false) {
     attempt = next;
     if (!active()) { finish(); return; }
+    el('exam-camera').hidden = false;
+    camera.setActive(true, next.cameraMode === 'unavailable');
     el('exam-intro').hidden = true;
     el('exam-result').hidden = true;
     el('exam-workspace').hidden = false;
@@ -152,12 +182,14 @@ export function initExam() {
     busy = true;
     submit.disabled = true;
     if (submitting) editors.forEach(e => { e.disabled = true; });
+    if (submitting) camera.flush();
     const answers = collect();
     const revision = attempt.revision;
     const previousAnswers = attempt.answers;
     const events = queue.slice(0, 40);
+    const monitoring = pendingMonitoring;
     const includeAnswers = submitting || dirty;
-    const payload = JSON.stringify({ action: submitting ? 'submit' : 'sync', attemptId: attempt.id, events,
+    const payload = JSON.stringify({ action: submitting ? 'submit' : 'sync', attemptId: attempt.id, events, monitoring,
       ...(includeAnswers ? { answers, revision } : {}) });
     el('save-state').textContent = 'Guardando…';
     try {
@@ -181,7 +213,8 @@ export function initExam() {
         return;
       }
       if (!response.ok) throw new Error(data.error || 'No se pudo guardar.');
-      queue = queue.filter(e => !events.some(sent => sent.id === e.id));
+      queue = queue.filter(e => !events.includes(e));
+      if (pendingMonitoring === monitoring) pendingMonitoring = undefined;
       // A heartbeat may observe another tab's save. Never adopt its revision while
       // keeping an unrelated stale editor, which would silently overwrite that save.
       if (!includeAnswers && data.attempt.status === 'in_progress' && data.attempt.revision !== revision) {
@@ -224,7 +257,7 @@ export function initExam() {
       if (!response.ok) throw new Error(data.error || 'No se pudo cargar el examen.');
       clock(data.serverNow);
       message('');
-      if (!data.attempt) { el('exam-intro').hidden = false; return; }
+      if (!data.attempt) { el('exam-intro').hidden = false; el('exam-camera').hidden = false; return; }
       setAttempt(data.attempt, true);
       if (!active() || !attempt) return;
       try {
@@ -232,7 +265,11 @@ export function initExam() {
         if (saved && saved.revision === attempt.revision && saved.answers) {
           // Validate local recovery data as carefully as server payloads.
           fill(validateAnswers(saved.answers));
-          queue = validateEvents((saved.queue ?? []).slice(0, 40));
+          const storedEvents = Array.isArray(saved.queue) ? saved.queue.slice(0, 2000) : [];
+          const recovered: ExamEvent[] = [];
+          for (let index = 0; index < storedEvents.length; index += 40) recovered.push(...validateEvents(storedEvents.slice(index, index + 40)));
+          queue = [...recovered, ...queue.filter(event => !recovered.some(item => item.id === event.id))];
+          if (saved.monitoring) pendingMonitoring = validateMonitoring(saved.monitoring);
           dirty = !equal(collect(), attempt.answers);
           presence.restore(Boolean(saved.away));
           if (dirty) message('Recuperamos cambios locales pendientes de guardar.');
@@ -248,22 +285,24 @@ export function initExam() {
     }
   }
 
-  consent.addEventListener('change', () => { start.disabled = !consent.checked; });
+  consent.addEventListener('change', cameraChanged);
   start.addEventListener('click', async () => {
-    if (!consent.checked || busy) return;
+    if (!consent.checked || !camera.prepared || !camera.monitoring || busy) return;
     busy = true; start.disabled = true; start.textContent = 'Preparando tu examen…';
     try {
-      const response = await fetch('/api/exam/attempt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start' }) });
+      const monitoring = camera.monitoring;
+      const response = await fetch('/api/exam/attempt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'start', monitoring }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'No se pudo iniciar el examen.');
       clock(data.serverNow);
+      monitoringKey = JSON.stringify(monitoring);
       setAttempt(data.attempt, true);
       // Persist starter code as part of the first acknowledged save.
       dirty = true;
       message('');
       editors[0].focus();
     } catch (error) { message((error as Error).message, true); }
-    finally { busy = false; start.disabled = !consent.checked; start.textContent = 'Comenzar examen →'; updateTime(); }
+    finally { busy = false; cameraChanged(); start.textContent = 'Comenzar examen →'; updateTime(); }
     void sync();
   });
   for (const editor of editors) {
@@ -307,7 +346,7 @@ export function initExam() {
   });
   window.addEventListener('blur', () => leave('focus'));
   window.addEventListener('focus', () => resume('focus'));
-  window.addEventListener('pagehide', () => { leave('pagehide'); beacon(); });
+  window.addEventListener('pagehide', () => { camera.flush(); leave('pagehide'); beacon(); });
   window.addEventListener('pageshow', event => { if (event.persisted) resume('resume'); });
   window.addEventListener('online', () => { retryAt = 0; void sync(); });
   window.addEventListener('offline', () => { if (active()) message('Sin conexión. Mantén esta ventana abierta; reintentaremos el guardado al reconectar.', true); });

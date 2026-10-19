@@ -16,6 +16,7 @@ CREATE TABLE profiles (
 );`);
 await db.exec(await readFile(new URL('../migrations/001_sessions_exams.sql', import.meta.url), 'utf8'));
 await db.exec(await readFile(new URL('../migrations/002_profile_progress.sql', import.meta.url), 'utf8'));
+await db.exec(await readFile(new URL('../migrations/003_exam_camera.sql', import.meta.url), 'utf8'));
 const id = randomUUID();
 await db.query('INSERT INTO users VALUES ($1, $2, $3, true, now(), now())', [id, 'demo@pylevel.test', await bcrypt.hash('PruebaLocal2026!', 10)]);
 await db.query('INSERT INTO profiles (user_id, display_name, avatar_url, bio, updated_at) VALUES ($1, $2, NULL, $3, now())', [id, 'Estudiante de prueba', 'Cuenta temporal para verificar el examen']);

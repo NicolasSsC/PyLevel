@@ -25,11 +25,16 @@ export const exam = {
 };
 
 export type Answers = Record<string, string>;
-export type ExamEvent = { id: string; kind: 'away' | 'return'; source: 'visibility' | 'focus' | 'pagehide' | 'resume' };
+export const cameraKinds = ['camera_ready', 'camera_missing', 'camera_multiple', 'camera_interrupted', 'camera_unavailable'] as const;
+export type CameraKind = typeof cameraKinds[number];
+export type Monitoring = { mode: 'camera' | 'unavailable'; reason?: 'permission' | 'device' | 'unsupported' | 'technical' | 'accessibility'; consent: true };
+export type ExamEvent = { id: string; kind: 'away' | 'return' | CameraKind; source: 'visibility' | 'focus' | 'pagehide' | 'resume' | 'camera'; durationMs?: number };
 export type Attempt = {
   id: string; status: 'in_progress' | 'submitted' | 'expired'; answers: Answers; revision: number;
   startedAt: string; expiresAt: string; submittedAt: string | null; lastSeenAt: string;
-  incidents: number; events: { kind: string; source: string; occurredAt: string }[];
+  incidents: number; cameraIncidents: number; cameraMode: Monitoring['mode'] | 'legacy'; cameraConsentAt: string | null;
+  cameraUnavailableReason: string | null;
+  events: { kind: string; source: string; occurredAt: string; durationMs?: number }[];
 };
 
 export const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -47,9 +52,19 @@ export function validateAnswers(value: unknown): Answers {
 export function validateEvents(value: unknown): ExamEvent[] {
   if (value === undefined) return [];
   if (!Array.isArray(value) || value.length > 40 || value.some(e =>
-    !e || !uuidPattern.test(e.id) || !['away', 'return'].includes(e.kind) ||
-    !['visibility', 'focus', 'pagehide', 'resume'].includes(e.source))) {
+    !e || !uuidPattern.test(e.id) ||
+    !(e.source === 'camera' ? cameraKinds.includes(e.kind) : ['away', 'return'].includes(e.kind) && ['visibility', 'focus', 'pagehide', 'resume'].includes(e.source)) ||
+    (e.durationMs !== undefined && (e.source !== 'camera' || !Number.isSafeInteger(e.durationMs) || e.durationMs < 0 || e.durationMs > 7200000)))) {
     throw new Error('Registro de incidencias inválido.');
   }
-  return value.map(({ id, kind, source }) => ({ id, kind, source }));
+  return value.map(({ id, kind, source, durationMs }) => ({ id, kind, source, ...(durationMs === undefined ? {} : { durationMs }) }));
+}
+
+export function validateMonitoring(value: unknown): Monitoring {
+  const input = value as Monitoring | undefined;
+  if (!input || input.consent !== true || !['camera', 'unavailable'].includes(input.mode) ||
+    (input.mode === 'unavailable' && !['permission', 'device', 'unsupported', 'technical', 'accessibility'].includes(input.reason ?? ''))) {
+    throw new Error('Revisa y acepta las condiciones del control de cámara antes de continuar.');
+  }
+  return { mode: input.mode, consent: true, ...(input.mode === 'unavailable' ? { reason: input.reason } : {}) };
 }
