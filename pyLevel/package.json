@@ -6,6 +6,9 @@
     "node": ">=22.12.0"
   },
   "scripts": {
+    "db:migrate": "node --experimental-strip-types scripts/migrate.mjs",
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "check": "astro check",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
@@ -19,7 +22,12 @@
     "pg": "^8.23.1"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@electric-sql/pglite": "^0.5.10",
+    "@electric-sql/pglite-socket": "^0.2.13",
     "@types/bcryptjs": "^3.0.0",
-    "@types/pg": "^8.23.1"
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
+    "typescript": "^6.0.3"
   }
 }

@@ -185,18 +185,23 @@ const briefing = exercise?.briefing;
       </div>
     </dialog>
   )}
+  <p id="practice-progress" role="status">Inicia sesión para guardar tu actividad en Progreso y métricas. Al pulsar «Probar» se usan las pruebas públicas originales, aunque hayas editado tests/.</p>
 </main>
 
 <script>
   import { catalogs } from './catalog';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
+  import { trackActivity, practiceMessage } from './activity-client';
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const editor = el<HTMLTextAreaElement>('code');
   const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
   const exerciseId = document.querySelector('main')?.dataset.exerciseId;
   const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
   let exercise = exercises[0];
+  void trackActivity(exercise.id, mode, 'opened').then(saved => {
+    if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. «Probar» utiliza las pruebas públicas originales, aunque hayas editado tests/.';
+  });
   let files: Record<string, string> = {};
   let selected = 'main.py';
   let controller: AbortController | null = null;
@@ -275,7 +280,8 @@ const briefing = exercise?.briefing;
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando programa…';
     el('output').textContent = '';
     try {
-      const result = await execute({ ...files }, action, controller.signal);
+      const result = await execute({ ...files }, action, controller.signal, { exerciseId: exercise.id, mode });
+      el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
       const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
       el('result').textContent = result.status === 'completed'
@@ -302,7 +308,7 @@ const briefing = exercise?.briefing;
   });
   load(); controls(false);
   async function health() {
-    try { const response = await fetch('/api/health'); online = response.ok && (await response.json()).status === 'online'; }
+    try { const response = await fetch('/api/practice/health'); online = response.ok && (await response.json()).status === 'online'; }
     catch { online = false; }
     el('connection').textContent = online ? '● Ejecutor conectado' : '○ Ejecutor no disponible';
     controls(controller !== null);

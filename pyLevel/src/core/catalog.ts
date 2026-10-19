@@ -99,7 +99,10 @@ const projectMetadata: Record<string, Pick<Exercise, 'difficulty' | 'topics' | '
 
 export const catalogs: Record<'classic' | 'contextual', Exercise[]> = {
   classic,
-  contextual: contextual.map(exercise => ({ ...exercise, ...projectMetadata[exercise.id] })),
+  contextual: contextual.map(exercise => ({
+    ...exercise, ...projectMetadata[exercise.id],
+    files: Object.fromEntries(Object.entries(exercise.files).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
+  })),
 };
 
 export const modePaths = { classic: 'clasicos', contextual: 'contextualizados' } as const;

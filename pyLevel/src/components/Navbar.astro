@@ -1,11 +1,10 @@
 ---
-import { getDefaultUser } from '../core/db';
-
 const pathname = Astro.url.pathname;
 const isHome = pathname === '/' || pathname === '';
 const isExercises = pathname.startsWith('/ejercicios');
 
-const user = await getDefaultUser();
+// Static pages must never embed another account's database profile.
+const user = { displayName: 'Invitado', email: '', bio: 'Inicia sesión para continuar', initials: 'PL' };
 const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiante';
 ---
 
@@ -66,6 +65,9 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
             </a>
           </div>
         </div>
+        <a href="/examen/" class:list={['nav-item', { active: pathname.startsWith('/examen') }]}>
+          <span aria-hidden="true">▤</span><span>Examen</span>
+        </a>
       </nav>
     </div>
 
@@ -197,14 +199,13 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
               </svg>
               <span>Mi Perfil</span>
             </a>
-            <a href="/ejercicios/" class="menu-item" role="menuitem">
+            <a href="/progreso/" class="menu-item" role="menuitem">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
               <span>Progreso y Métricas</span>
-              <span class="pill-badge">3 resueltos</span>
             </a>
-            <a href="#configuracion" class="menu-item" role="menuitem">
+            <a href="/perfil#personal-title" class="menu-item" role="menuitem">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -268,6 +269,7 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
         <a href="/ejercicios/clasicos/" class="mobile-sublink">&lt;/&gt; Ejercicios Clásicos</a>
         <a href="/ejercicios/contextualizados/" class="mobile-sublink">{'{ }'} Contextualizados</a>
       </div>
+      <a href="/examen/" class:list={['mobile-nav-item', { active: pathname.startsWith('/examen') }]}>Examen de Python</a>
     </div>
 
     <div class="mobile-drawer-footer">
@@ -1007,12 +1009,6 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
   const mobileDrawer = document.getElementById('mobile-drawer');
 
   // --- Dark / Light Theme Logic ---
-  function getPreferredTheme(): 'light' | 'dark' {
-    const saved = localStorage.getItem('pylevel-theme');
-    if (saved === 'dark' || saved === 'light') return saved;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-
   function applyTheme(theme: 'light' | 'dark') {
     const root = document.documentElement;
     root.setAttribute('data-theme', theme);
@@ -1086,7 +1082,6 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
       const res = await fetch('/api/auth/me');
       const data = await res.json();
       if (data.user) {
-        localStorage.setItem('pylevel:current_user', JSON.stringify(data.user));
         const initials = (data.user.displayName || 'US')
           .split(' ')
           .map((n: string) => n[0])
@@ -1108,17 +1103,27 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
         if (dropName) dropName.textContent = data.user.displayName;
         if (dropEmail) dropEmail.textContent = data.user.email;
         if (dropBio && data.user.bio) dropBio.textContent = data.user.bio;
+        const mobileName = document.getElementById('mobile-name');
+        const mobileEmail = document.getElementById('mobile-email');
+        const mobileAvatar = document.getElementById('mobile-avatar');
+        if (mobileName) mobileName.textContent = data.user.displayName;
+        if (mobileEmail) mobileEmail.textContent = data.user.email;
+        if (mobileAvatar) mobileAvatar.textContent = initials;
       }
     } catch {}
   }
   checkAuthSession();
+  window.addEventListener('pylevel:profile-updated', checkAuthSession);
 
   logoutBtn?.addEventListener('click', async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } catch {}
-    localStorage.removeItem('pylevel:current_user');
-    window.location.href = '/login';
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+      if (!response.ok) throw new Error('logout');
+      localStorage.removeItem('pylevel:current_user');
+      window.location.href = '/login';
+    } catch {
+      if (logoutBtn) logoutBtn.textContent = 'No se pudo cerrar sesión. Reintentar';
+    }
   });
 
   // Close when clicking outside

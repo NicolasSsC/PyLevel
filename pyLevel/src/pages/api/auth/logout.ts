@@ -1,11 +1,14 @@
 export const prerender = false;
 
 import type { APIRoute } from 'astro';
+import { endSession } from '../../../lib/session';
+import { json } from '../../../lib/http';
 
 export const POST: APIRoute = async ({ cookies }) => {
-  cookies.delete('pylevel_session', { path: '/' });
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  try {
+    await endSession(cookies);
+    return json({ ok: true });
+  } catch {
+    return json({ error: 'No se pudo cerrar la sesión. Inténtalo nuevamente.' }, 503);
+  }
 };

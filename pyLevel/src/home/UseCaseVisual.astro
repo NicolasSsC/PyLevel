@@ -1,0 +1,69 @@
+---
+interface Props { kind: 'ai' | 'robot' | 'data' | 'web' }
+const { kind } = Astro.props;
+---
+<div class:list={['use-visual', `visual-${kind}`]} aria-hidden="true">
+  <div class="visual-top"><span class="visual-dots"><i></i><i></i><i></i></span><span>{kind === 'ai' ? 'ideas / inteligencia.py' : kind === 'robot' ? 'ideas / movimiento.py' : kind === 'data' ? 'ideas / descubrir.py' : 'ideas / construir.py'}</span><span class="visual-indicator"></span></div>
+  {kind === 'ai' && <div class="neural-scene">
+    <div class="scene-grid"></div>
+    <svg viewBox="0 0 600 270" fill="none" class="neural-svg">
+      <g class="neural-lines" stroke="currentColor" stroke-width="1.2"><path d="M90 65 245 45 400 80 520 135M90 65 245 135 400 190 520 135M90 135 245 45 400 135 520 135M90 135 245 135 400 80 520 135M90 205 245 135 400 135 520 135M90 205 245 225 400 190 520 135M90 65 245 225 400 80M90 205 245 45 400 190" /></g>
+      <path class="signal-path" d="M90 205 245 135 400 80 520 135" stroke="#ffd343" stroke-width="2.4" />
+      {[65,135,205].map(y => <g><circle cx="90" cy={y} r="13" fill="var(--visual-bg)" stroke="#72b9f5" stroke-width="2"/><circle cx="90" cy={y} r="4" fill="#72b9f5"/></g>)}
+      {[45,135,225].map(y => <g><circle cx="245" cy={y} r="16" fill="var(--visual-bg)" stroke="#72b9f5" stroke-width="2"/><circle cx="245" cy={y} r="5" fill="#72b9f5"/></g>)}
+      {[80,135,190].map(y => <g><circle cx="400" cy={y} r="12" fill="var(--visual-bg)" stroke="#72b9f5" stroke-width="2"/><circle cx="400" cy={y} r="3.5" fill="#72b9f5"/></g>)}
+      <circle cx="520" cy="135" r="29" fill="#ffd343" fill-opacity=".08" stroke="#ffd343" stroke-opacity=".3"/><circle cx="520" cy="135" r="16" fill="#ffd343"/><path d="m513 135 5 5 9-10" stroke="#152232" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="scene-caption"><span>datos</span><span>aprendizaje</span><span>posibilidades</span></div>
+  </div>}
+  {kind === 'robot' && <div class="robot-scene">
+    <div class="scene-grid"></div>
+    <svg viewBox="0 0 600 300" fill="none" class="robot-svg">
+      <ellipse cx="290" cy="265" rx="152" ry="17" fill="#ffd343" fill-opacity=".04"/>
+      <path d="M85 263h420" stroke="#53647b" stroke-opacity=".45"/>
+      <path d="M243 252v-24h92v24M225 252h128v12H225z" fill="#233447" stroke="#7596ac" stroke-width="2"/>
+      <path d="m285 222-71-105" stroke="#355069" stroke-width="39" stroke-linecap="round"/>
+      <path d="m285 222-71-105" stroke="#ffd343" stroke-width="24" stroke-linecap="round"/>
+      <g class="robot-forearm"><path d="m214 117 134-40" stroke="#355069" stroke-width="31" stroke-linecap="round"/><path d="m214 117 134-40" stroke="#69b9f0" stroke-width="19" stroke-linecap="round"/>
+      <path d="m348 77 39 43" stroke="#355069" stroke-width="23" stroke-linecap="round"/><path d="m348 77 39 43" stroke="#69b9f0" stroke-width="12" stroke-linecap="round"/>
+      <circle cx="348" cy="77" r="13" fill="#1a2b3e" stroke="#8bcdf9" stroke-width="3"/><circle cx="348" cy="77" r="4" fill="#8bcdf9"/>
+      <path d="m378 124-6 21 14 13m7-43 19 9 1 19" stroke="#ffd343" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="387" cy="120" r="9" fill="#1a2b3e" stroke="#ffd343" stroke-width="3"/></g>
+      <circle cx="214" cy="117" r="23" fill="#1a2b3e" stroke="#ffd343" stroke-width="3"/><circle cx="214" cy="117" r="9" fill="#ffd343"/>
+      <circle cx="285" cy="222" r="19" fill="#1a2b3e" stroke="#ffd343" stroke-width="3"/><circle cx="285" cy="222" r="6" fill="#ffd343"/>
+      <path d="M430 185v28m-14-14h28" stroke="#75bfed" stroke-opacity=".8" stroke-width="1.5"/><path d="M402 176h56v46h-56z" stroke="#75bfed" stroke-opacity=".25" stroke-dasharray="4 5"/>
+      <path d="M146 86a90 90 0 0 1 112-40" stroke="#ffd343" stroke-opacity=".3" stroke-dasharray="4 7"/>
+    </svg>
+    <div class="robot-command"><span>&gt;</span> mover_brazo(90)</div>
+    <span class="coordinate">x: imaginación<br/>y: movimiento</span>
+  </div>}
+  {kind === 'data' && <div class="data-scene">
+    <div class="data-summary"><div><span>DE LOS DATOS</span><strong>A una nueva perspectiva.</strong></div><span class="data-symbol">↗</span></div>
+    <div class="chart-area"><div class="chart-grid"><i></i><i></i><i></i><i></i></div>
+      <div class="chart-bars">{[27,44,36,61,49,76,68,91,81,100].map((height, i) => <div class="chart-column"><span style={`--bar-height:${height}%;--bar-delay:${i * 45}ms`}></span></div>)}</div>
+      <svg viewBox="0 0 500 130" preserveAspectRatio="none" class="chart-trend" fill="none"><path d="M0 115C35 115 35 90 60 90S110 106 145 75 195 85 225 57 270 73 305 39 350 53 385 25 438 35 500 5" stroke="#ffd343" stroke-width="2" stroke-linecap="round"/></svg>
+    </div><div class="chart-labels"><span>Explora</span><span>Encuentra patrones</span><span>Comprende</span></div>
+  </div>}
+  {kind === 'web' && <div class="web-scene">
+    <div class="mock-app"><div class="mock-sidebar"><div class="mock-brand"><span></span><span></span></div><i></i><i></i><i></i><i></i><div class="mock-avatar"></div></div>
+      <div class="mock-main"><div class="mock-header"><span>Tu próxima aplicación</span><span class="mock-dot"></span></div><div class="mock-banner"><span class="mock-spark">✳</span><div><strong>De una idea a algo real.</strong><span>Hecho con Python. Creado por ti.</span></div></div><div class="mock-cards"><div><span>◈</span><i></i><i></i></div><div><span>↗</span><i></i><i></i></div><div><span>⌘</span><i></i><i></i></div></div><div class="mock-code"><span class="mock-purple">def</span> <span class="mock-blue">crear_algo_increible</span>():<br/>&nbsp;&nbsp;&nbsp;&nbsp;<span class="mock-purple">return</span> <span class="mock-yellow">tu_idea</span></div></div>
+    </div><div class="app-label"><span></span> imaginación → aplicación</div>
+  </div>}
+</div>
+<style>
+  .use-visual { --visual-bg: #102133; background: var(--visual-bg); border: 1px solid #2b3e51; border-radius: 16px; color: #d3e1ed; overflow: hidden; position: relative; aspect-ratio: 1.8; }
+  .visual-top { height: 40px; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; border-bottom: 1px solid #ffffff0c; background: #ffffff03; color: #7892aa; font: 10px var(--font-mono); letter-spacing: .1px; }
+  .visual-dots { display: flex; gap: 4px; }.visual-dots i { width: 5px; height: 5px; border-radius: 50%; background: #6c82954d; }.visual-indicator { width: 5px; height: 5px; border-radius: 50%; background: #ffd343; box-shadow: 0 0 12px #ffd34344; }
+  .scene-grid { position: absolute; inset: 0; opacity: .18; background-image: radial-gradient(#8bcdf9 1px, transparent 1px); background-size: 24px 24px; mask-image: radial-gradient(ellipse, black, transparent 75%); }
+  .neural-scene { position: relative; padding: 14px 20px 18px; }.neural-svg { width: 100%; height: auto; display: block; }.neural-lines { color: #5c91ba; opacity: .27; }.signal-path { stroke-dasharray: 8 16; animation: signal 5s linear infinite; }.scene-caption { display: flex; justify-content: space-around; color: #8ba2b8; font: 9px var(--font-mono); letter-spacing: 2px; }
+  .robot-scene { position: relative; }.robot-svg { display: block; width: 100%; height: auto; }.robot-command { position: absolute; left: 25px; top: 25px; padding: 10px 12px; border: 1px solid #79b6e029; border-radius: 6px; font: 10px var(--font-mono); background: #102133b3; color: #b8cddf; }.robot-command > span { color: #ffd343; margin-right: 7px; }.coordinate { position: absolute; right: 22px; bottom: 24px; color: #849eb5; font: 9px/1.8 var(--font-mono); }.robot-forearm { transform-origin: 214px 117px; animation: move-arm 8s ease-in-out infinite; }
+  .data-scene { padding: 26px 30px 20px; }.data-summary { display: flex; justify-content: space-between; gap: 10px; align-items: center; }.data-summary div > span { display: block; color: #7e99af; font: 8px var(--font-mono); letter-spacing: 2px; }.data-summary strong { display: block; margin-top: 8px; font-size: 16px; font-weight: 500; letter-spacing: -.4px; }.data-symbol { color: #ffd343; font: 30px var(--font-mono); }.chart-area { position: relative; height: 135px; margin-top: 24px; border-bottom: 1px solid #7ba5c044; }.chart-grid { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between; }.chart-grid i { border-top: 1px dashed #6b91ad26; }.chart-bars { position: absolute; inset: 0 0 0; display: flex; align-items: flex-end; gap: 12px; padding: 0 7px; }.chart-column { height: 100%; flex: 1; display: flex; align-items: flex-end; }.chart-column > span { display: block; width: 100%; height: var(--bar-height); background: linear-gradient(#5dace7, #286192); border-radius: 4px 4px 0 0; transform-origin: bottom; }.chart-trend { position: absolute; width: 100%; height: 105px; left: 0; top: 1px; }.chart-labels { display: flex; justify-content: space-between; color: #7c98ad; font: 9px var(--font-mono); margin-top: 14px; }
+  .web-scene { position: relative; padding: 25px 30px; }.mock-app { background: #172b3e; border: 1px solid #4c6f8652; display: flex; border-radius: 10px; overflow: hidden; box-shadow: 0 18px 50px #0002; transform: perspective(900px) rotateX(3deg) rotateY(-5deg); }.mock-sidebar { width: 46px; padding: 15px 10px; background: #112437; display: flex; flex-direction: column; gap: 16px; flex-shrink: 0; }.mock-brand { width: 20px; height: 17px; position: relative; margin: 0 auto 14px; }.mock-brand span { position: absolute; width: 12px; height: 12px; border-radius: 3px; background: #73b8ee; }.mock-brand span:last-child { right: 0; bottom: 0; background: #ffd343; }.mock-sidebar > i { display: block; height: 4px; width: 12px; background: #59768c70; margin: 0 auto; border-radius: 2px; }.mock-avatar { margin: auto auto 0; width: 15px; height: 15px; border-radius: 50%; background: #3c5c79; }.mock-main { flex: 1; min-width: 0; padding: 17px; }.mock-header { display: flex; align-items: center; justify-content: space-between; color: #9fb7cc; font-size: 9px; }.mock-dot { width: 7px; height: 7px; border-radius: 50%; background: #ffd343; }.mock-banner { background: linear-gradient(120deg, #355f85, #244462); padding: 15px; border: 1px solid #80b8dc26; border-radius: 6px; display: flex; align-items: center; gap: 13px; margin: 16px 0 10px; }.mock-spark { font-size: 28px; color: #ffd343; }.mock-banner strong { display: block; font-size: 12px; font-weight: 600; }.mock-banner div > span { display: block; font-size: 8px; color: #a4c1d7; margin-top: 6px; }.mock-cards { display: flex; gap: 8px; }.mock-cards > div { flex: 1; padding: 10px; border: 1px solid #7292ab24; border-radius: 5px; }.mock-cards span { display: block; color: #7dc0ed; font-size: 15px; margin-bottom: 8px; }.mock-cards i { display: block; width: 70%; height: 3px; background: #69849b4d; margin-top: 5px; }.mock-cards i:last-child { width: 40%; }.mock-code { margin-top: 14px; font: 9px/1.9 var(--font-mono); color: #abc4d7; }.mock-purple { color: #bea6ea; }.mock-blue { color: #8acafa; }.mock-yellow { color: #f5d477; }.app-label { position: absolute; bottom: 15px; right: 16px; background: #102133; border: 1px solid #698aa23d; padding: 10px 12px; border-radius: 7px; color: #b9cfdd; font: 9px var(--font-mono); box-shadow: 0 8px 20px #0003; }.app-label > span { display: inline-block; width: 5px; height: 5px; border-radius: 50%; background: #ffd343; margin-right: 7px; }
+  :global(.home-motion [data-reveal]:not(.is-visible)) .chart-column > span { transform: scaleY(.04); }
+  :global(.home-motion [data-reveal].is-visible) .chart-column > span { transition: transform .9s cubic-bezier(.2,.75,.25,1) var(--bar-delay); transform: scaleY(1); }
+  @keyframes signal { to { stroke-dashoffset: -144; } } @keyframes move-arm { 0%,100% { transform: rotate(0); } 50% { transform: rotate(8deg); } }
+  @media(max-width: 600px) { .visual-top { font-size: 8px; padding: 0 12px; height: 32px; }.neural-scene { padding: 4px 10px 12px; }.scene-caption { font-size: 7px; letter-spacing: 1px; }.robot-command { font-size: 8px; top: 14px; left: 14px; padding: 7px 9px; }.coordinate { font-size: 7px; bottom: 16px; right: 15px; }.data-scene { padding: 16px 18px; }.data-summary strong { font-size: 13px; }.data-summary div > span { font-size: 7px; }.chart-area { margin-top: 18px; height: clamp(75px, 22vw, 135px); }.chart-trend { height: 85%; }.chart-bars { gap: 8px; }.chart-labels { font-size: 7px; margin-top: 10px; }.web-scene { padding: 15px 20px 18px; }.mock-sidebar { width: 32px; padding: 10px 6px; gap: 10px; }.mock-main { padding: 11px; }.mock-banner { padding: 10px; gap: 8px; margin-top: 12px; }.mock-banner strong { font-size: 10px; }.mock-banner div > span { font-size: 6px; }.mock-spark { font-size: 23px; }.mock-cards > div { padding: 8px; }.mock-cards span { margin-bottom: 4px; font-size: 11px; }.mock-code { font-size: 7px; margin-top: 8px; }.app-label { padding: 8px; font-size: 7px; bottom: 8px; right: 8px; } }
+  @media(prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  :global(.home-page:not(.home-motion)) .signal-path, :global(.home-page:not(.home-motion)) .robot-forearm { animation: none; }
+  :global(.use-story:not(.is-active)) .signal-path, :global(.use-story:not(.is-active)) .robot-forearm { animation-play-state: paused; }
+</style>

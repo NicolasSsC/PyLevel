@@ -163,7 +163,7 @@ import AppLayout from '../layouts/AppLayout.astro';
         }
 
         showAlert('¡Cuenta creada con éxito! Redirigiendo a tu perfil...', false);
-        localStorage.setItem('pylevel:current_user', JSON.stringify(data.user));
+        localStorage.removeItem('pylevel:current_user');
 
         setTimeout(() => {
           window.location.href = '/perfil';

@@ -24,15 +24,19 @@ const { exercise } = Astro.props;
   <section class="terminal" aria-label="Salida del programa"><div class="terminal-heading"><h2>TERMINAL <span>· SALIDA</span></h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Ejecuta tu código para ver el resultado aquí.</pre></section>
   </div>
   <div class="sequence"><button type="button" disabled aria-describedby="sequence-note"><span aria-hidden="true">▷</span> Ver secuencia de ejecución</button><span id="sequence-note">Próximamente</span></div>
-  <p class="practice-note">Probar comprueba los resultados con casos públicos. No registra una calificación final.</p>
+  <p class="practice-note" id="practice-progress" role="status">Inicia sesión para guardar tus resultados en Progreso y métricas. Las pruebas públicas no son una calificación de examen.</p>
 </main>
 <script>
   import { classic } from './classic-exercises';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
+  import { trackActivity, practiceMessage } from './activity-client';
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const exercise = classic.find(item => item.id === document.querySelector('main')?.dataset.exerciseId)!;
+  void trackActivity(exercise.id, 'classic', 'opened').then(saved => {
+    if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. Usa «Probar» para registrar ejercicios superados.';
+  });
   const editor = el<HTMLTextAreaElement>('python-code');
   const files = restore(exercise.id, exercise.files);
   // Practice tests come from the catalogue, never from an old browser draft.
@@ -69,7 +73,7 @@ const { exercise } = Astro.props;
     solutionButton.disabled = !Array.isArray(savedHints?.viewed) || !savedHints.viewed.includes(0);
   } catch { /* A hint can still unlock the solution when storage is unavailable. */ }
   solutionButton.addEventListener('click', () => {
-    if (!solutionButton.disabled) solutionDialog.showModal();
+    if (!solutionButton.disabled) { solutionDialog.showModal(); void trackActivity(exercise.id, 'classic', 'solution'); }
   });
   el('solution-close').addEventListener('click', () => solutionDialog.close());
   solutionDialog.addEventListener('close', () => solutionButton.focus());
@@ -80,6 +84,7 @@ const { exercise } = Astro.props;
     hintButton.setAttribute('aria-expanded', String(open));
     hintButton.textContent = open ? 'Ocultar pista' : 'Ver pista';
     if (open) {
+      void trackActivity(exercise.id, 'classic', 'hint');
       solutionButton.disabled = false;
       try {
         localStorage.setItem(`pylevel:hints:${exercise.id}`, JSON.stringify({ viewed: [0] }));
@@ -102,7 +107,8 @@ const { exercise } = Astro.props;
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando…';
     el('output').textContent = '';
     try {
-      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal);
+      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal, { exerciseId: exercise.id, mode: 'classic' });
+      el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
       const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
       el('result').textContent = result.status === 'completed'
@@ -118,7 +124,7 @@ const { exercise } = Astro.props;
   el('stop').addEventListener('click', () => controller?.abort());
   async function health() {
     try {
-      const response = await fetch('/api/health', { signal: AbortSignal.timeout(5000) });
+      const response = await fetch('/api/practice/health', { signal: AbortSignal.timeout(5000) });
       online = response.ok && (await response.json()).status === 'online';
     } catch { online = false; }
     el('connection').textContent = online ? '● Ejecutor conectado' : '○ Ejecutor no disponible';

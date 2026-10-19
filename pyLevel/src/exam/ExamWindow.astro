@@ -1,0 +1,210 @@
+---
+import { exam } from './definition';
+import type { UserProfile } from '../lib/db';
+interface Props { user: UserProfile }
+const { user } = Astro.props;
+---
+<main class="exam" id="exam-app" data-user-id={user.id}>
+  <header class="exam-heading">
+    <div>
+      <a class="back-link" href="/ejercicios/">← Volver a ejercicios</a>
+      <p class="eyebrow">EVALUACIÓN · PYTHON 01</p>
+      <h1>{exam.title}</h1>
+      <p class="subtitle">Un espacio para demostrar lo que sabes.</p>
+    </div>
+    <div class="student"><span class="student-icon" aria-hidden="true">Py</span><div><small>ESTUDIANTE</small><strong>{user.displayName}</strong></div></div>
+  </header>
+
+  <p id="exam-message" class="message" role="status" aria-live="polite">Cargando tu examen…</p>
+  <div id="exam-warning" class="warning" role="alert" hidden>
+    <div><strong>Se detectó una salida de la ventana.</strong><p>La incidencia quedó registrada. Puedes continuar; no se aplican penalizaciones automáticas.</p></div>
+    <button id="dismiss-warning" type="button" aria-label="Cerrar aviso">×</button>
+  </div>
+
+  <section id="exam-intro" class="intro" hidden aria-labelledby="intro-title">
+    <div class="intro-main panel">
+      <span class="label">ANTES DE COMENZAR</span>
+      <h2 id="intro-title">Todo listo para tu siguiente paso.</h2>
+      <p>Resuelve tres retos de programación. Escribe tu código Python en cada respuesta y revisa tu trabajo antes de entregarlo.</p>
+      <div class="facts">
+        <div><strong>{exam.durationMinutes} min</strong><span>Tiempo disponible</span></div>
+        <div><strong>{exam.questions.length} retos</strong><span>Respuesta en código</span></div>
+        <div><strong>100 puntos</strong><span>Pendientes de revisión</span></div>
+      </div>
+      <h3>Así funciona este examen</h3>
+      <ul class="rules">
+        <li>El tiempo comienza al pulsar «Comenzar examen» y continúa aunque cierres la página.</li>
+        <li>Guardamos tus respuestas automáticamente. Puedes retomar este mismo intento al volver.</li>
+        <li>Al finalizar el tiempo se cierra el intento con las últimas respuestas guardadas en el servidor.</li>
+        <li>La entrega será revisada. Esta primera versión no ejecuta ni califica automáticamente tu código.</li>
+      </ul>
+      <label class="consent"><input type="checkbox" id="exam-consent" /><span>Entiendo que se registran las salidas de pestaña o ventana y las señales de conexión durante el examen.</span></label>
+      <button id="exam-start" class="primary" type="button" disabled>Comenzar examen <span aria-hidden="true">→</span></button>
+    </div>
+    <aside class="intro-side panel">
+      <span class="side-symbol" aria-hidden="true">&lt;/&gt;</span>
+      <h3>Tu concentración cuenta</h3>
+      <p>Mantén esta ventana abierta y prepara lo necesario antes de comenzar.</p>
+      <div class="monitor-note"><span class="dot"></span><strong>Registro de actividad</strong></div>
+      <p>Al regresar de otra ventana verás un aviso. Una pérdida de foco no implica una falta académica.</p>
+      <p>Un cierre y una pérdida de conexión pueden producir señales similares; no se distinguen con certeza.</p>
+    </aside>
+  </section>
+
+  <section id="exam-workspace" hidden aria-label="Examen en curso">
+    <div class="exam-toolbar panel">
+      <div class="running"><span class="dot"></span><strong id="attempt-label">Examen en curso</strong><span class="divider">/</span><span id="exam-progress">0 de 3 respuestas</span></div>
+      <div class="time"><span>TIEMPO RESTANTE</span><strong id="exam-timer" role="timer" aria-label="Tiempo restante">30:00</strong></div>
+    </div>
+    <div class="workspace-grid">
+      <aside class="question-sidebar panel">
+        <span class="label">TU EXAMEN</span>
+        <nav aria-label="Preguntas del examen">
+          {exam.questions.map((q, i) => (
+            <button type="button" class="question-nav" data-question={i} aria-current={i === 0 ? 'step' : undefined}>
+              <span class="question-number">{String(i + 1).padStart(2, '0')}</span><span><strong>{q.title}</strong><small>{q.points} puntos · <span data-answer-state={q.id}>Sin responder</span></small></span>
+            </button>
+          ))}
+        </nav>
+        <div class="sidebar-bottom"><span class="label">SEGUIMIENTO</span><p><span class="dot"></span> <span id="incident-count">0 salidas registradas</span></p><p>Las incidencias se revisan por separado de tus respuestas.</p></div>
+      </aside>
+      <div>
+        {exam.questions.map((q, i) => (
+          <article class="question panel" data-question-panel={i} hidden={i !== 0} aria-labelledby={`title-${q.id}`}>
+            <div class="question-meta"><span class="label">RETO {String(i + 1).padStart(2, '0')} / 03</span><span class="points">{q.points} puntos</span></div>
+            <h2 id={`title-${q.id}`}>{q.title}</h2>
+            <span class="topic">{q.topic}</span>
+            <p class="statement">{q.statement}</p>
+            <div class="example"><span class="label">EJEMPLOS DE COMPORTAMIENTO</span><pre>{q.example}</pre></div>
+            <div class="editor-heading"><label for={`answer-${q.id}`}>Tu solución · main.py</label><span>Python 3</span></div>
+            <textarea id={`answer-${q.id}`} data-answer={q.id} class="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="12000" aria-describedby="editor-help" disabled>{q.starter}</textarea>
+          </article>
+        ))}
+        <div class="editor-footer"><span id="editor-help">Tab inserta 4 espacios · Máximo 12.000 caracteres por respuesta</span><span id="save-state" role="status" aria-live="polite">Sin cambios pendientes</span></div>
+        <div class="question-controls"><button id="question-prev" class="secondary" type="button" disabled>← Anterior</button><button id="question-next" class="secondary" type="button">Siguiente →</button></div>
+        <footer class="submit-bar panel"><div><strong>¿Terminaste tu examen?</strong><p>Revisa tus respuestas. La entrega cierra este intento.</p></div><div class="submit-actions"><button id="exam-save" class="secondary" type="button">Guardar ahora</button><button id="exam-submit" class="primary" type="button">Revisar y entregar →</button></div></footer>
+      </div>
+    </div>
+  </section>
+
+  <section id="exam-result" class="panel result" hidden aria-labelledby="result-title">
+    <span class="result-icon" aria-hidden="true">✓</span><span class="label">INTENTO FINALIZADO</span>
+    <h2 id="result-title">Examen entregado</h2><p id="result-description"></p>
+    <div class="result-facts"><div><small>RESPUESTAS GUARDADAS</small><strong id="result-answers"></strong></div><div><small>SALIDAS REGISTRADAS</small><strong id="result-incidents"></strong></div><div><small>CALIFICACIÓN</small><strong>Pendiente de revisión</strong></div></div>
+    <p class="receipt" id="result-receipt"></p>
+    <details><summary>Ver mis respuestas e incidencias</summary><div id="result-review"></div></details>
+    <a class="primary" href="/ejercicios/">Volver a ejercicios →</a>
+  </section>
+
+  <dialog id="submit-dialog" aria-labelledby="submit-title"><form method="dialog"><span class="label">ÚLTIMA REVISIÓN</span><h2 id="submit-title">¿Entregar tu examen?</h2><p id="submit-summary"></p><p>Después de entregar no podrás editar tus respuestas.</p><div class="dialog-actions"><button class="secondary" value="cancel">Seguir revisando</button><button class="primary" value="submit">Entregar examen</button></div></form></dialog>
+  <dialog id="conflict-dialog" aria-labelledby="conflict-title"><form method="dialog"><h2 id="conflict-title">Hay otra versión guardada</h2><p>Otra pestaña actualizó tus respuestas. Tus cambios siguen en esta ventana. Elige qué versión quieres conservar.</p><div class="dialog-actions"><button class="secondary" value="server">Cargar versión guardada</button><button class="primary" value="local">Guardar esta versión</button></div></form></dialog>
+  <noscript><p class="message">Activa JavaScript para realizar el examen. El intento no se ha iniciado.</p></noscript>
+</main>
+
+<script>
+  import { initExam } from './client';
+  initExam();
+</script>
+
+<style>
+  .exam { max-width: 1280px; padding: 38px 32px 72px; margin: 0 auto; }
+  [hidden] { display: none !important; }
+  .exam-heading, .student, .exam-toolbar, .running, .question-meta, .editor-heading, .editor-footer, .question-controls, .submit-bar, .submit-actions, .dialog-actions, .warning { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .exam-heading { margin-bottom: 28px; }
+  .back-link { font-size: 13px; color: var(--color-text-secondary); text-decoration: none; }
+  .eyebrow, .label { color: var(--color-text-secondary); font: 600 11px var(--font-mono); letter-spacing: 1.4px; }
+  .eyebrow { margin: 28px 0 10px; color: var(--color-primary); }
+  h1 { font-size: clamp(28px, 4vw, 38px); letter-spacing: -1.4px; margin: 0; line-height: 1.2; }
+  .subtitle { color: var(--color-text-secondary); margin: 10px 0 0; font-size: 15px; }
+  .student { justify-content: flex-start; padding: 14px 18px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); }
+  .student-icon { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; color: var(--color-primary); background: var(--color-primary-light); font-weight: 800; }
+  .student small, .student strong { display: block; max-width: 240px; overflow-wrap: anywhere; }
+  small { color: var(--color-text-secondary); font-size: 10px; letter-spacing: .6px; }
+  .student strong { font-size: 13px; margin-top: 4px; }
+  .panel { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 14px; box-shadow: var(--card-shadow); }
+  .message { border-radius: 9px; background: var(--color-primary-light); padding: 14px 18px; color: var(--color-text-primary); font-size: 14px; }
+  .message[data-error='true'] { border: 1px solid var(--danger-color); }
+  .intro { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; }
+  .intro-main { padding: 34px; }
+  h2 { font-size: 27px; letter-spacing: -.7px; margin: 14px 0; }
+  h3 { font-size: 16px; margin: 24px 0 12px; }
+  p, li { line-height: 1.65; }
+  .intro-main > p, .intro-side p, .rules { color: var(--color-text-secondary); font-size: 14px; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); margin: 28px 0; padding: 22px 0; border-block: 1px solid var(--color-border); gap: 12px; }
+  .facts strong, .facts span { display: block; }
+  .facts strong { font-size: 22px; letter-spacing: -.7px; }
+  .facts span { color: var(--color-text-secondary); font-size: 12px; margin-top: 6px; }
+  .rules { padding-left: 18px; }
+  .rules li { padding-left: 5px; margin: 10px 0; }
+  .consent { display: flex; gap: 12px; align-items: flex-start; margin: 28px 0 22px; padding: 16px; background: var(--color-surface-hover); border: 1px solid var(--color-border); border-radius: 9px; font-size: 13px; line-height: 1.6; }
+  input[type='checkbox'] { accent-color: var(--color-primary); width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; }
+  button, a.primary { font-family: inherit; }
+  .primary, .secondary { display: inline-flex; align-items: center; justify-content: center; gap: 18px; padding: 12px 18px; border-radius: 8px; font-size: 13px; font-weight: 650; cursor: pointer; text-decoration: none; }
+  .primary { background: #3776ab; color: #fff; border: 1px solid #3776ab; }
+  .primary:hover { background: #2b5e8a; }
+  .secondary { background: var(--color-surface); border: 1px solid var(--color-border); color: var(--color-text-primary); }
+  .secondary:hover { background: var(--color-surface-hover); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
+  .intro-side { padding: 28px; align-self: start; }
+  .side-symbol { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 15px; color: var(--color-primary); background: var(--color-primary-light); font: 700 22px var(--font-mono); }
+  .monitor-note { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--color-border); font-size: 13px; }
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--success-color); margin-right: 6px; }
+  .warning { padding: 16px 20px; border: 1px solid var(--color-accent-gold); border-left-width: 4px; border-radius: 9px; margin-bottom: 20px; background: var(--color-surface); font-size: 13px; }
+  .warning p { margin: 4px 0 0; color: var(--color-text-secondary); }
+  .warning button { border: 0; background: transparent; color: var(--color-text-primary); font-size: 26px; cursor: pointer; }
+  .exam-toolbar { padding: 18px 24px; margin-bottom: 22px; }
+  .running { justify-content: flex-start; gap: 8px; font-size: 13px; flex-wrap: wrap; }
+  #exam-progress, .divider { color: var(--color-text-secondary); }
+  .divider { padding: 0 12px; }
+  .time { text-align: right; flex-shrink: 0; }
+  .time span { display: block; font: 10px var(--font-mono); letter-spacing: 1px; color: var(--color-text-secondary); }
+  .time strong { display: block; font: 600 30px var(--font-mono); margin-top: 4px; }
+  .time strong[data-urgent='true'] { color: var(--danger-color); }
+  .workspace-grid { display: grid; grid-template-columns: 264px minmax(0, 1fr); gap: 22px; align-items: start; }
+  .question-sidebar { padding: 22px 14px; }
+  .question-sidebar > .label { padding: 0 10px; }
+  .question-sidebar nav { margin-top: 18px; display: grid; gap: 8px; }
+  .question-nav { border: 1px solid transparent; background: transparent; color: var(--color-text-primary); display: flex; gap: 12px; text-align: left; padding: 14px 10px; width: 100%; border-radius: 9px; cursor: pointer; }
+  .question-nav[aria-current='step'] { background: var(--color-primary-light); border-color: var(--color-primary); }
+  .question-number { font: 600 13px var(--font-mono); color: var(--color-primary); padding-top: 1px; }
+  .question-nav strong { display: block; font-size: 12px; line-height: 1.5; }
+  .question-nav small { display: block; font-size: 10px; margin-top: 5px; letter-spacing: 0; }
+  .sidebar-bottom { border-top: 1px solid var(--color-border); margin: 26px 10px 0; padding-top: 22px; }
+  .sidebar-bottom p { font-size: 12px; color: var(--color-text-secondary); }
+  .question { padding: 28px; overflow: hidden; }
+  .points { background: var(--color-primary-light); color: var(--color-primary); padding: 5px 9px; border-radius: 6px; font-size: 11px; font-weight: 650; }
+  .question h2 { margin: 18px 0 6px; }
+  .topic { font-size: 12px; color: var(--color-text-secondary); }
+  .statement { font-size: 14px; margin: 24px 0; }
+  .example { padding: 18px; background: var(--color-surface-hover); border: 1px solid var(--color-border); border-radius: 8px; }
+  pre { font: 12px/1.8 var(--font-mono); white-space: pre-wrap; overflow-wrap: anywhere; margin: 10px 0 0; }
+  .editor-heading { margin-top: 26px; padding: 12px 16px; background: #192a3d; color: #cad8e5; border-radius: 8px 8px 0 0; font: 12px var(--font-mono); border: 1px solid #2c4058; }
+  .editor-heading span { font-size: 10px; color: #94acc4; }
+  .code-editor { display: block; resize: vertical; width: 100%; min-height: 250px; padding: 20px; background: #0c1623; color: #e2e8f0; caret-color: #ffd343; border: 1px solid #2c4058; border-top: 0; border-radius: 0 0 8px 8px; font: 13px/1.85 var(--font-mono); tab-size: 4; outline-offset: -2px; }
+  .code-editor:focus { outline: 2px solid var(--color-primary); }
+  .editor-footer { padding: 12px 2px; font-size: 10px; color: var(--color-text-secondary); align-items: flex-start; }
+  #save-state { text-align: right; }
+  .question-controls { margin: 8px 0 24px; }
+  .submit-bar { padding: 22px; }
+  .submit-bar strong { font-size: 13px; }
+  .submit-bar p { font-size: 11px; color: var(--color-text-secondary); margin: 5px 0 0; }
+  .submit-actions { gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .result { max-width: 900px; margin: 0 auto; padding: 40px; }
+  .result-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: var(--success-color); background: var(--color-primary-light); font-size: 25px; margin-bottom: 24px; }
+  .result > p { color: var(--color-text-secondary); font-size: 14px; }
+  .result-facts { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 16px; border-block: 1px solid var(--color-border); padding: 24px 0; margin: 28px 0 20px; }
+  .result-facts small, .result-facts strong { display: block; }
+  .result-facts strong { margin-top: 10px; font-size: 17px; }
+  .receipt { overflow-wrap: anywhere; font-family: var(--font-mono); font-size: 11px !important; }
+  details { margin: 24px 0; }
+  summary { cursor: pointer; font-size: 14px; }
+  #result-review :global(pre) { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.8 var(--font-mono); background: var(--color-surface-hover); border: 1px solid var(--color-border); border-radius: 8px; padding: 16px; }
+  #result-review :global(li) { font-size: 12px; color: var(--color-text-secondary); }
+  dialog { max-width: 540px; width: calc(100% - 32px); padding: 30px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-surface); color: var(--color-text-primary); box-shadow: 0 24px 80px #0005; }
+  dialog::backdrop { background: #07111dbb; backdrop-filter: blur(3px); }
+  dialog p { color: var(--color-text-secondary); font-size: 14px; }
+  .dialog-actions { margin-top: 26px; flex-wrap: wrap; justify-content: flex-end; }
+  @media (max-width: 960px) { .intro { grid-template-columns: 1fr; } .intro-side { display: none; } .workspace-grid { grid-template-columns: 220px minmax(0, 1fr); } .submit-bar { align-items: flex-start; flex-direction: column; } .student { max-width: 220px; } }
+  @media (max-width: 680px) { .exam { padding: 24px 16px 48px; } .exam-heading { display: block; } .student { margin-top: 20px; max-width: none; width: fit-content; } .intro-main, .question, .result { padding: 22px; } .facts strong { font-size: 18px; } .facts span { font-size: 10px; } .workspace-grid { grid-template-columns: 1fr; } .question-sidebar { padding: 16px; } .question-sidebar nav { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; } .question-nav { display: block; padding: 10px 7px; } .question-nav strong { font-size: 10px; margin-top: 5px; } .question-nav small { font-size: 9px; } .sidebar-bottom { display: none; } .exam-toolbar { padding: 16px; gap: 10px; } .running { font-size: 11px; } .divider { display: none; } #exam-progress { width: 100%; } .time strong { font-size: 26px; } .time span { font-size: 8px; } .code-editor { padding: 14px; font-size: 12px; } .editor-footer { flex-direction: column; gap: 6px; } .result-facts { grid-template-columns: 1fr; } h2 { font-size: 23px; } .submit-actions { justify-content: flex-start; } }
+</style>
