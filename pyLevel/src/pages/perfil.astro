@@ -2,51 +2,454 @@
 export const prerender = false;
 import AccountShell from '../account/AccountShell.astro';
 import { currentUser } from '../lib/session';
-import { loadExamHistory } from '../account/data';
+import { loadExamHistory, loadProgress } from '../account/data';
 import { todayInBogota } from '../account/profile';
 
 let user = null;
 let exams: Awaited<ReturnType<typeof loadExamHistory>> = [];
+let progress: Awaited<ReturnType<typeof loadProgress>> | null = null;
 let unavailable = false;
-try { user = await currentUser(Astro.cookies); if (user) exams = await loadExamHistory(user.id); } catch { unavailable = true; }
-if (!user && !unavailable) return Astro.redirect('/login');
+try {
+  user = await currentUser(Astro.cookies);
+  if (user) [exams, progress] = await Promise.all([loadExamHistory(user.id), loadProgress(user.id)]);
+} catch {
+  unavailable = true;
+}
+
+if (!user && !unavailable) return Astro.redirect('/login?next=/perfil');
 if (unavailable) Astro.response.status = 503;
-const initials = user?.displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase();
-const date = (value: string) => new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'America/Bogota' }).format(new Date(value));
-const birthdayLabel = user?.birthday ? new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${user.birthday}T12:00:00Z`)) : 'Sin completar';
+
+const initials = user?.displayName
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map(n => n[0])
+  .join('')
+  .toUpperCase() || 'IS';
+
+const date = (value: string) =>
+  new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'America/Bogota' }).format(new Date(value));
+
+const birthdayLabel = user?.birthday
+  ? new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${user.birthday}T12:00:00Z`))
+  : 'Sin completar';
+
 const examStatus = { in_progress: 'En curso', submitted: 'Entregado', expired: 'Tiempo finalizado' };
+
+const competencias = progress?.topics.map(topic => ({
+  label: topic.name,
+  subLabel: `${topic.completed} de ${topic.total} ejercicios con pruebas públicas superadas`,
+  pct: Math.round(topic.completed / topic.total * 100),
+  color: '#3776AB',
+})) ?? [];
+const nextStep = progress?.feedback[0];
+const historial = progress?.recent ?? [];
+const resultLabels = { pending: 'En curso', passed: 'Correcto', failed: 'Por revisar', technical_error: 'Error técnico', cancelled: 'Cancelado' };
+const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
+  dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota',
+}).format(new Date(value));
+
 ---
-<AccountShell title="Mi perfil" description="Tus datos, tu cuenta y las evaluaciones que has realizado." active="perfil">
-  {unavailable || !user ? <section class="account-card account-empty"><h2>No pudimos cargar tu perfil</h2><p>Tu información sigue guardada. Vuelve a intentar cuando el servicio esté disponible.</p><a class="account-button secondary" href="/perfil">Volver a intentar</a></section> : <>
-    <div class="account-grid">
-      <section class="account-card" aria-labelledby="personal-title">
-        <div class="profile-identity"><div class="profile-avatar" id="account-avatar" aria-hidden="true">{initials}</div><div><h2 id="account-name">{user.displayName}</h2><p id="account-occupation">{user.occupation || 'Completa tu ocupación'}</p></div></div>
-        <form class="profile-form" id="profile-form" data-original-email={user.email}>
-          <h2 id="personal-title">Datos personales</h2><p class="account-muted">Mantén tu información al día. El cumpleaños y la ocupación son opcionales.</p>
-          <div class="profile-fields" style="margin-top:24px">
-            <div class="profile-field"><label for="profile-full-name">Nombre completo</label><input id="profile-full-name" name="displayName" autocomplete="name" maxlength="100" value={user.displayName} required /></div>
-            <div class="profile-field"><label for="profile-occupation">Ocupación</label><input id="profile-occupation" name="occupation" autocomplete="organization-title" maxlength="100" placeholder="Ej. Estudiante de ingeniería" value={user.occupation || ''} /></div>
-            <div class="profile-field"><label for="profile-birthday">Cumpleaños</label><input id="profile-birthday" name="birthday" type="date" autocomplete="bday" min="1900-01-01" max={todayInBogota()} value={user.birthday || ''} /><small>Solo se muestra en tu perfil.</small></div>
-            <div class="profile-field"><label for="profile-email">Correo electrónico</label><input id="profile-email" name="email" type="email" autocomplete="email" maxlength="254" value={user.email} required /><small>Este es el correo con el que inicias sesión.</small></div>
-            <div class="profile-field full" id="email-password-field" hidden><label for="profile-password">Confirma tu contraseña actual</label><input id="profile-password" name="currentPassword" type="password" autocomplete="current-password" maxlength="200" /><small>Necesaria para cambiar el correo. Se cerrarán tus otras sesiones.</small></div>
-          </div>
-          <div class="profile-actions"><span class="account-muted">Los cambios se guardan en tu cuenta.</span><button class="account-button primary" id="profile-save" type="submit">Guardar cambios →</button></div>
-          <p id="profile-status" class="account-notice" role="status" aria-live="polite" hidden></p>
-        </form>
-      </section>
-      <aside class="account-card" aria-labelledby="account-title">
-        <span class="account-label">TU CUENTA</span><h2 id="account-title" style="margin-top:12px">Un espacio personal</h2>
-        <dl class="account-details"><div><dt>CORREO DE ACCESO</dt><dd id="account-email">{user.email}</dd></div><div><dt>CUMPLEAÑOS</dt><dd id="account-birthday">{birthdayLabel}</dd></div><div><dt>MIEMBRO DESDE</dt><dd>{date(user.createdAt)}</dd></div><div><dt>EXÁMENES REALIZADOS</dt><dd>{exams.filter(e => e.status !== 'in_progress').length} finalizados{exams.some(e => e.status === 'in_progress') ? ` · ${exams.filter(e => e.status === 'in_progress').length} en curso` : ''}</dd></div></dl>
-        <div class="profile-session"><h3>Sesión actual</h3><p class="account-muted">Cierra tu sesión al terminar si utilizas un equipo compartido.</p><button id="profile-logout" class="account-button danger" type="button">Cerrar sesión</button><p id="logout-status" class="account-muted" role="status"></p></div>
-      </aside>
-    </div>
-    <section class="account-card account-section" aria-labelledby="exams-title">
-      <div class="section-top"><div><h2 id="exams-title">Mis exámenes</h2><p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p></div><span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span></div>
-      {exams.length ? <div class="account-table-wrap"><table class="account-table"><thead><tr><th>EXAMEN</th><th>FECHA DE INICIO</th><th>ESTADO</th><th>EVALUACIÓN</th><th></th></tr></thead><tbody>{exams.map(attempt => <tr><td><strong>{attempt.title}</strong><small>Intento {attempt.id.slice(0, 8)}</small></td><td>{date(attempt.startedAt)}</td><td><span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>{examStatus[attempt.status]}</span></td><td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td><td>{attempt.current && <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>}</td></tr>)}</tbody></table></div> : <div class="account-empty"><span aria-hidden="true">▤</span><h3>Aún no has realizado exámenes</h3><p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p><a class="account-button secondary" href="/examen/">Ver examen disponible →</a></div>}
+
+<AccountShell title="Mi perfil" description="Tus datos, tu cuenta y tu actividad en PyLevel." active="perfil">
+  {unavailable || !user ? (
+    <section class="account-card account-empty">
+      <h2>No pudimos cargar tu perfil</h2>
+      <p>Tu información sigue guardada. Vuelve a intentar cuando el servicio esté disponible.</p>
+      <a class="account-button secondary" href="/perfil">Volver a intentar</a>
     </section>
-  </>}
+  ) : (
+    <>
+      <!-- Grid de Cuenta Personal -->
+      <div class="account-grid">
+        <section class="account-card" aria-labelledby="personal-title">
+          <div class="profile-identity">
+            <div class="profile-avatar" id="account-avatar" aria-hidden="true">{initials}</div>
+            <div>
+              <h2 id="account-name">{user.displayName}</h2>
+              <p id="account-occupation">{user.occupation || 'Completa tu ocupación'}</p>
+            </div>
+          </div>
+          <form class="profile-form" id="profile-form" data-original-email={user.email}>
+            <h2 id="personal-title">Datos personales</h2>
+            <p class="account-muted">Mantén tu información al día. El cumpleaños y la ocupación son opcionales.</p>
+            <div class="profile-fields" style="margin-top:24px">
+              <div class="profile-field">
+                <label for="profile-full-name">Nombre completo</label>
+                <input id="profile-full-name" name="displayName" autocomplete="name" maxlength="100" value={user.displayName} required />
+              </div>
+              <div class="profile-field">
+                <label for="profile-occupation">Ocupación</label>
+                <input id="profile-occupation" name="occupation" autocomplete="organization-title" maxlength="100" placeholder="Ej. Estudiante de ingeniería" value={user.occupation || ''} />
+              </div>
+              <div class="profile-field">
+                <label for="profile-birthday">Cumpleaños</label>
+                <input id="profile-birthday" name="birthday" type="date" autocomplete="bday" min="1900-01-01" max={todayInBogota()} value={user.birthday || ''} />
+                <small>Solo se muestra en tu perfil.</small>
+              </div>
+              <div class="profile-field">
+                <label for="profile-email">Correo electrónico</label>
+                <input id="profile-email" name="email" type="email" autocomplete="email" maxlength="254" value={user.email} required />
+                <small>Este es el correo con el que inicias sesión.</small>
+              </div>
+              <div class="profile-field full" id="email-password-field" hidden>
+                <label for="profile-password">Confirma tu contraseña actual</label>
+                <input id="profile-password" name="currentPassword" type="password" autocomplete="current-password" maxlength="200" />
+                <small>Necesaria para cambiar el correo. Se cerrarán tus otras sesiones.</small>
+              </div>
+            </div>
+            <div class="profile-actions">
+              <span class="account-muted">Los cambios se guardan en tu cuenta.</span>
+              <button class="account-button primary" id="profile-save" type="submit">Guardar cambios →</button>
+            </div>
+            <p id="profile-status" class="account-notice" role="status" aria-live="polite" hidden></p>
+          </form>
+        </section>
+
+        <aside class="account-card" aria-labelledby="account-title">
+          <span class="account-label">TU CUENTA</span>
+          <h2 id="account-title" style="margin-top:12px">Un espacio personal</h2>
+          <dl class="account-details">
+            <div>
+              <dt>CORREO DE ACCESO</dt>
+              <dd id="account-email">{user.email}</dd>
+            </div>
+            <div>
+              <dt>CUMPLEAÑOS</dt>
+              <dd id="account-birthday">{birthdayLabel}</dd>
+            </div>
+            <div>
+              <dt>MIEMBRO DESDE</dt>
+              <dd>{date(user.createdAt)}</dd>
+            </div>
+            <div>
+              <dt>EXÁMENES REALIZADOS</dt>
+              <dd>
+                {exams.filter(e => e.status !== 'in_progress').length} finalizados
+                {exams.some(e => e.status === 'in_progress') ? ` · ${exams.filter(e => e.status === 'in_progress').length} en curso` : ''}
+              </dd>
+            </div>
+          </dl>
+          <div class="profile-session">
+            <h3>Sesión actual</h3>
+            <p class="account-muted">Cierra tu sesión al terminar si utilizas un equipo compartido.</p>
+            <button id="profile-logout" class="account-button danger" type="button">Cerrar sesión</button>
+            <p id="logout-status" class="account-muted" role="status"></p>
+          </div>
+        </aside>
+      </div>
+
+      {nextStep && <section class="priority-banner" aria-labelledby="priority-heading">
+        <div class="pb-content">
+          <div class="pb-badge"><span class="pb-dot" aria-hidden="true"></span>TU SIGUIENTE PASO</div>
+          <h2 id="priority-heading">{nextStep.title}</h2>
+          <p>{nextStep.text}</p>
+          <div class="pb-actions">
+            <a href={nextStep.href} class="account-button primary">{nextStep.action} →</a>
+            <a href="/progreso/" class="account-button secondary">Ver progreso y métricas</a>
+          </div>
+        </div>
+        <div class="pb-meta">
+          <div class="pb-stat"><span class="pbs-label">EJERCICIOS SUPERADOS</span><span class="pbs-value">{progress?.completed.length} de {progress?.total}</span></div>
+          <div class="pb-stat"><span class="pbs-label">EJECUCIONES Y PRUEBAS</span><span class="pbs-value">{progress?.attempts}</span></div>
+          <div class="pb-stat"><span class="pbs-label">EJERCICIOS EN PROGRESO</span><span class="pbs-value">{progress?.inProgress}</span></div>
+        </div>
+      </section>}
+
+      <!-- Avance real de práctica por tema -->
+      <section class="account-card account-section" aria-labelledby="comp-heading">
+        <div class="section-top">
+          <div>
+            <h2 id="comp-heading">Avance por temas</h2>
+            <p class="account-muted">Ejercicios superados por tema. Estos porcentajes no representan una calificación de competencias.</p>
+          </div>
+
+        </div>
+
+        <div class="comp-matrix">
+          {competencias.map(c => (
+            <div class="comp-block">
+              <div class="cb-header">
+                <div>
+                  <h3>{c.label}</h3>
+                  <p class="account-muted">{c.subLabel}</p>
+                </div>
+                <span class="cb-pct" style={`color:${c.color}`}>{c.pct}%</span>
+              </div>
+              <div class="bar-main-bg" role="progressbar" aria-label={`Ejercicios superados en ${c.label}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.pct}>
+                <div class="bar-main-fill" style={`width:${c.pct}%;background:${c.color}`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section class="account-card account-section" aria-labelledby="hist-heading">
+        <div class="section-top"><div><h2 id="hist-heading">Historial de práctica</h2><p class="account-muted">Últimas ejecuciones y pruebas registradas en tu cuenta. Las pruebas públicas orientan tu práctica.</p></div></div>
+        {historial.length ? <div class="account-table-wrap"><table class="account-table">
+          <thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead>
+          <tbody>{historial.map(item => <tr>
+            <td><a href={item.href}><strong>{item.title}</strong></a><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'}</small></td>
+            <td>{item.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td>
+            <td><span class:list={['account-status', item.result === 'passed' ? 'green' : item.result === 'failed' ? 'gold' : 'muted']}>{item.result === 'passed' && item.kind === 'test' ? 'Pruebas superadas' : resultLabels[item.result]}</span>{item.kind === 'test' && item.testsRun > 0 && <small>{item.testsRun} pruebas ejecutadas</small>}</td>
+            <td>{activityDate(item.createdAt)}</td>
+          </tr>)}</tbody>
+        </table></div> : <div class="account-empty"><h3>Aún no hay práctica registrada</h3><p>Ejecuta una solución o prueba un ejercicio para empezar tu historial.</p><a class="account-button secondary" href="/ejercicios/">Elegir un ejercicio →</a></div>}
+      </section>
+
+      <!-- Mis Exámenes -->
+      <section class="account-card account-section" aria-labelledby="exams-title">
+        <div class="section-top">
+          <div>
+            <h2 id="exams-title">Mis exámenes</h2>
+            <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
+          </div>
+          <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
+        </div>
+        {exams.length ? (
+          <div class="account-table-wrap">
+            <table class="account-table">
+              <thead>
+                <tr>
+                  <th>EXAMEN</th>
+                  <th>FECHA DE INICIO</th>
+                  <th>ESTADO</th>
+                  <th>EVALUACIÓN</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {exams.map(attempt => (
+                  <tr>
+                    <td>
+                      <strong>{attempt.title}</strong>
+                      <small>Intento {attempt.id.slice(0, 8)}</small>
+                    </td>
+                    <td>{date(attempt.startedAt)}</td>
+                    <td>
+                      <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
+                        {examStatus[attempt.status]}
+                      </span>
+                    </td>
+                    <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
+                    <td>
+                      {attempt.current && (
+                        <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="account-empty">
+            <span aria-hidden="true">▤</span>
+            <h3>Aún no has realizado exámenes</h3>
+            <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
+            <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
+          </div>
+        )}
+      </section>
+    </>
+  )}
 </AccountShell>
+
 <script>
   import { initProfile } from '../account/profile-client';
   initProfile();
 </script>
+
+<style>
+  .priority-banner {
+    background: linear-gradient(135deg, rgba(15, 31, 56, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
+    border: 1px solid rgba(55, 118, 171, 0.4);
+    border-radius: 14px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+    margin-top: 24px;
+  }
+  .pb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 700 10px ui-monospace, monospace;
+    letter-spacing: 1.5px;
+    color: #ffd43b;
+    margin-bottom: 12px;
+  }
+  .pb-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffd43b;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .priority-banner h2 {
+    font-size: 24px;
+    letter-spacing: -0.8px;
+    color: #e2e8f0;
+    margin: 0 0 10px;
+  }
+  .ph-accent {
+    color: #ffd43b;
+  }
+  .priority-banner p {
+    font-size: 13px;
+    line-height: 1.7;
+    color: #94a3b8;
+    margin: 0 0 20px;
+    max-width: 600px;
+  }
+  .pb-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .pb-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 240px;
+  }
+  .pb-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .pbs-label {
+    font: 600 10px ui-monospace, monospace;
+    letter-spacing: 1px;
+    color: #64748b;
+  }
+  .pbs-value {
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  .pbs-mono {
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+  }
+  .state-pending {
+    font: 700 11px ui-monospace, monospace;
+    color: #ffd43b;
+  }
+
+  .demo-badge-sm {
+    font: 700 10px ui-monospace, monospace;
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+
+  .comp-matrix {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  .comp-block {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .comp-block:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .cb-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .cb-header h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+  .cb-pct {
+    font: 700 16px ui-monospace, monospace;
+  }
+  .bar-main-bg {
+    height: 6px;
+    background: var(--color-border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .bar-main-fill {
+    height: 100%;
+    border-radius: 3px;
+  }
+  .evidencias {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .ev-item {
+    display: grid;
+    grid-template-columns: 200px 1fr 34px;
+    align-items: center;
+    gap: 10px;
+  }
+  .ev-label {
+    font-size: 11px;
+    color: #64748b;
+  }
+  .ev-bar-bg {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .ev-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+  }
+  .ev-pct {
+    font: 10px ui-monospace, monospace;
+    color: #64748b;
+    text-align: right;
+  }
+
+  .s-chip {
+    display: inline-block;
+    font: 700 10px ui-monospace, monospace;
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+  .state-ok {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .state-warn {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .state-err {
+    background: rgba(244, 63, 94, 0.15);
+    color: #f43f5e;
+    border: 1px solid rgba(244, 63, 94, 0.3);
+  }
+
+  @media (max-width: 900px) {
+    .priority-banner {
+      grid-template-columns: 1fr;
+    }
+    .pb-meta {
+      display: none;
+    }
+  }
+</style>

@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import tailwindcss from '@tailwindcss/vite';
 import node from '@astrojs/node';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +22,9 @@ export default defineConfig({
     ],
   },
   vite: {
+    plugins: [
+      tailwindcss(),
+    ],
     server: {
       proxy: {
         '/api/execute': 'http://127.0.0.1:8787',

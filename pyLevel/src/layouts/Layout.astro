@@ -1,6 +1,7 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import '../styles/theme.css';
+import '../styles/global.css';
 
 interface Props {
   title?: string;
@@ -8,7 +9,11 @@ interface Props {
   description?: string;
 }
 
-const { title = 'Ejercicios · PyLevel', hideNavbar = false, description = 'Explora proyectos Python, corrige errores y comprueba tus soluciones con pruebas.' } = Astro.props;
+const {
+  title = 'Ejercicios · PyLevel',
+  hideNavbar = false,
+  description = 'Explora proyectos Python, corrige errores y comprueba tus soluciones con pruebas.',
+} = Astro.props;
 ---
 <!doctype html>
 <html lang="es">

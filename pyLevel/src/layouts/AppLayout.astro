@@ -8,10 +8,11 @@ interface Props {
 
 const {
   title = 'PyLevel — Evaluación de Competencias Python',
+  description = 'Plataforma de evaluación mediante evidencia real de desempeño sobre proyectos Python. Exclusivo para estudiantes de Ingeniería de Software.',
 } = Astro.props;
 ---
 
-<Layout title={title}>
+<Layout title={title} description={description}>
   <div class="app-body">
     <slot />
   </div>
@@ -20,9 +21,9 @@ const {
 <style>
   .app-body {
     min-height: calc(100vh - 68px);
-    background: var(--color-bg);
-    color: var(--color-text-primary);
-    font-family: var(--font-sans);
+    background: var(--color-bg, #0B1120);
+    color: var(--color-text-primary, #E2E8F0);
+    font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
     box-sizing: border-box;
   }
 </style>

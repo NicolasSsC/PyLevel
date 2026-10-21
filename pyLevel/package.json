@@ -26,10 +26,12 @@
     "@astrojs/check": "^0.9.10",
     "@electric-sql/pglite": "^0.5.10",
     "@electric-sql/pglite-socket": "^0.2.13",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^26.6.5",
     "@types/pg": "^8.23.1",
     "esbuild": "^0.28.2",
+    "tailwindcss": "^4.3.3",
     "typescript": "^6.0.3"
   }
 }
