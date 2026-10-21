@@ -3,6 +3,8 @@ import { createServer } from 'node:http';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { getDefaultUser, getAllUsers } from './db.ts';
+
 const runner = fileURLToPath(new URL('../../../runner/execute.py', import.meta.url));
 const runtime = spawnSync('docker', ['info', '--format', '{{json .Runtimes}}'], { encoding: 'utf8', timeout: 5000 });
 const image = spawnSync('docker', ['image', 'inspect', process.env.PYLEVEL_IMAGE || 'pylevel-python:local'], { timeout: 5000 });
@@ -18,6 +20,24 @@ const reply = (res, status, data) => {
 const server = createServer(async (req, res) => {
   if (req.url === '/api/health' && req.method === 'GET') {
     reply(res, 200, { status: 'online', busy: active }); return;
+  }
+  if (req.url === '/api/user' && req.method === 'GET') {
+    try {
+      const user = await getDefaultUser();
+      reply(res, 200, user);
+    } catch {
+      reply(res, 500, { error: 'Error al consultar usuario de PostgreSQL' });
+    }
+    return;
+  }
+  if (req.url === '/api/users' && req.method === 'GET') {
+    try {
+      const users = await getAllUsers();
+      reply(res, 200, users);
+    } catch {
+      reply(res, 500, { error: 'Error al consultar usuarios de PostgreSQL' });
+    }
+    return;
   }
   if (req.url !== '/api/execute' || req.method !== 'POST') {
     reply(res, 404, { error: 'Ruta inexistente' }); return;

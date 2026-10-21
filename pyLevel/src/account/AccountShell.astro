@@ -1,0 +1,13 @@
+---
+import AppLayout from '../layouts/AppLayout.astro';
+import './account.css';
+interface Props { title: string; description: string; active: 'perfil' | 'progreso' }
+const { title, description, active } = Astro.props;
+---
+<AppLayout title={`${title} · PyLevel`}>
+  <main class="account-page">
+    <header class="account-heading"><div><p class="account-eyebrow">MI ESPACIO · PYLEVEL</p><h1>{title}</h1><p>{description}</p></div><a href="/ejercicios/" class="account-button secondary">Explorar ejercicios →</a></header>
+    <nav class="account-tabs" aria-label="Mi cuenta"><a href="/perfil" aria-current={active === 'perfil' ? 'page' : undefined}>Mi perfil</a><a href="/progreso/" aria-current={active === 'progreso' ? 'page' : undefined}>Progreso y métricas</a></nav>
+    <slot />
+  </main>
+</AppLayout>

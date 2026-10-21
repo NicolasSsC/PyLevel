@@ -1,15 +1,17 @@
 ---
 import type { ClassicExercise } from './classic-exercises';
+import BubbleSortAnimation from '../components/BubbleSortAnimation.astro';
 interface Props { exercise: ClassicExercise }
 const { exercise } = Astro.props;
 ---
 <main class="practice" data-exercise-id={exercise.id}>
-  <header><a class="brand" href="/ejercicios/">Py<span>Level</span></a><a class="back" href="/ejercicios/clasicos/">← Volver a ejercicios</a><span id="connection" role="status">Conectando ejecutor…</span></header>
+  <div class="workbench-subbar"><a class="back" href="/ejercicios/clasicos/">← Volver a ejercicios</a><span id="connection" role="status">Conectando ejecutor…</span></div>
   <section class="statement" aria-labelledby="exercise-title">
     <div class="title-row"><div><div class="metadata"><span>{exercise.difficulty}</span><span>Python · {exercise.topics.join(' / ')}</span></div><h1 id="exercise-title">{exercise.title}</h1></div></div>
     <div class="statement-content">{exercise.statement}</div>
     <div class="expected"><h2>Salida esperada</h2><pre>{exercise.expected.trimEnd()}</pre><p>Resultado de las llamadas de ejemplo incluidas en el editor.</p></div>
   </section>
+  {exercise.id === 'clasico_bubble_sort' && <BubbleSortAnimation />}
   <div class="help-toolbar"><span>Tu solución</span><div><button id="hint-toggle" class="hint-button" aria-expanded="false" aria-controls="hint-panel">Ver pista</button><button id="solution-toggle" class="secondary" disabled aria-haspopup="dialog" aria-controls="solution-dialog">Ver solución</button></div></div>
   <aside id="hint-panel" hidden aria-label="Pista del ejercicio"><strong>Una pista para continuar</strong><p>{exercise.hints[0]}</p><span id="hint-status" role="status"></span></aside>
   <dialog id="solution-dialog" aria-labelledby="solution-title"><div class="solution-heading"><h2 id="solution-title">Solución de referencia</h2><button id="solution-close" class="secondary" autofocus>Cerrar</button></div><p>{exercise.title}</p><pre tabindex="0"><code>{exercise.solution}</code></pre></dialog>
@@ -22,15 +24,19 @@ const { exercise } = Astro.props;
   <section class="terminal" aria-label="Salida del programa"><div class="terminal-heading"><h2>TERMINAL <span>· SALIDA</span></h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Ejecuta tu código para ver el resultado aquí.</pre></section>
   </div>
   <div class="sequence"><button type="button" disabled aria-describedby="sequence-note"><span aria-hidden="true">▷</span> Ver secuencia de ejecución</button><span id="sequence-note">Próximamente</span></div>
-  <p class="practice-note">Probar comprueba los resultados con casos públicos. No registra una calificación final.</p>
+  <p class="practice-note" id="practice-progress" role="status">Inicia sesión para guardar tus resultados en Progreso y métricas. Las pruebas públicas no son una calificación de examen.</p>
 </main>
 <script>
   import { classic } from './classic-exercises';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
+  import { trackActivity, practiceMessage } from './activity-client';
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const exercise = classic.find(item => item.id === document.querySelector('main')?.dataset.exerciseId)!;
+  void trackActivity(exercise.id, 'classic', 'opened').then(saved => {
+    if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. Usa «Probar» para registrar ejercicios superados.';
+  });
   const editor = el<HTMLTextAreaElement>('python-code');
   const files = restore(exercise.id, exercise.files);
   // Practice tests come from the catalogue, never from an old browser draft.
@@ -67,7 +73,7 @@ const { exercise } = Astro.props;
     solutionButton.disabled = !Array.isArray(savedHints?.viewed) || !savedHints.viewed.includes(0);
   } catch { /* A hint can still unlock the solution when storage is unavailable. */ }
   solutionButton.addEventListener('click', () => {
-    if (!solutionButton.disabled) solutionDialog.showModal();
+    if (!solutionButton.disabled) { solutionDialog.showModal(); void trackActivity(exercise.id, 'classic', 'solution'); }
   });
   el('solution-close').addEventListener('click', () => solutionDialog.close());
   solutionDialog.addEventListener('close', () => solutionButton.focus());
@@ -78,6 +84,7 @@ const { exercise } = Astro.props;
     hintButton.setAttribute('aria-expanded', String(open));
     hintButton.textContent = open ? 'Ocultar pista' : 'Ver pista';
     if (open) {
+      void trackActivity(exercise.id, 'classic', 'hint');
       solutionButton.disabled = false;
       try {
         localStorage.setItem(`pylevel:hints:${exercise.id}`, JSON.stringify({ viewed: [0] }));
@@ -100,7 +107,8 @@ const { exercise } = Astro.props;
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando…';
     el('output').textContent = '';
     try {
-      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal);
+      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal, { exerciseId: exercise.id, mode: 'classic' });
+      el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
       const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
       el('result').textContent = result.status === 'completed'
@@ -116,7 +124,7 @@ const { exercise } = Astro.props;
   el('stop').addEventListener('click', () => controller?.abort());
   async function health() {
     try {
-      const response = await fetch('/api/health', { signal: AbortSignal.timeout(5000) });
+      const response = await fetch('/api/practice/health', { signal: AbortSignal.timeout(5000) });
       online = response.ok && (await response.json()).status === 'online';
     } catch { online = false; }
     el('connection').textContent = online ? '● Ejecutor conectado' : '○ Ejecutor no disponible';
@@ -127,17 +135,16 @@ const { exercise } = Astro.props;
   window.addEventListener('pagehide', () => { clearInterval(healthInterval); controller?.abort(); });
 </script>
 <style>
-  :global(body){background:#112737;color:#e7eef4;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
   :global(*){box-sizing:border-box}
   .practice{max-width:1080px;margin:auto;padding:0 36px 40px}
-  header{height:82px;display:flex;align-items:center;gap:30px;border-bottom:1px solid #2b4559}
-  a{color:inherit;text-decoration:none}.brand{font-size:27px;font-weight:800;letter-spacing:-1px}.brand span{color:#ffd343}.back{color:#b4c8d9;font-size:12px}#connection{margin-left:auto;color:#99b2c5;font-size:11px}
-  .statement{padding:36px 0 28px}.title-row{display:flex;align-items:center;justify-content:space-between;gap:20px}.metadata{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#9eb8cc}.metadata>span:first-child{color:#ffd343}h1{font-size:32px;letter-spacing:-.8px;margin:12px 0 22px;line-height:1.2}.statement-content{white-space:pre-wrap;font-size:14px;line-height:1.85;color:#c5d5e2;max-width:850px}
-  button{font:inherit;font-size:12px;cursor:pointer;border-radius:6px;padding:10px 16px;border:1px solid transparent}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:2px solid #ffd343;outline-offset:4px}.hint-button{align-self:flex-start;margin-top:24px;border-color:#88793c;color:#ffd343;background:#ffd3430a;white-space:nowrap}.hint-button span{margin-right:8px}.hint-button:hover{background:#ffd34316}
-  #hint-panel{margin-top:22px;background:#ffd3430a;border:1px solid #6e643b;border-left:3px solid #ffd343;border-radius:7px;padding:18px 22px;max-width:850px}#hint-panel strong{font-size:13px;color:#ffd343}#hint-panel p{font-size:13px;line-height:1.8;color:#d6dfdf;margin:10px 0}#hint-status{font-size:10px;color:#b9bc9c}
-  .expected{margin-top:24px;display:grid;grid-template-columns:140px 1fr;align-items:start;gap:0 20px;padding:18px 20px;background:#193448;border:1px solid #2c4c63;border-radius:8px}.expected h2{font-size:12px;font-weight:500;color:#a9c5da;margin:3px 0}.expected pre{font:13px/1.65 ui-monospace,Consolas,monospace;margin:0;color:#ffd969;overflow-x:auto}.expected p{grid-column:2;font-size:10px;color:#91adc2;margin:9px 0 0}
-  .coding{border:1px solid #334956;border-radius:10px;overflow:hidden;background:#1b2026}.editor-heading{height:44px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#182029;border-bottom:1px solid #2b3743;color:#bdcbd6;font:12px ui-monospace,Consolas,monospace}.file-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3776ab;margin-right:8px}#saved{color:#849bab;font-size:10px}.editor-body{display:flex;height:310px;overflow:hidden;background:#1b2026}#line-numbers{flex:0 0 52px;text-align:right;margin:0;padding:20px 14px 20px 0;color:#697b89;overflow:hidden;user-select:none;font:14px/26px ui-monospace,Consolas,monospace}textarea{display:block;flex:1;min-width:0;width:100%;resize:none;border:0;background:transparent;color:#d7e4ed;padding:20px 18px 20px 0;font:14px/26px ui-monospace,Consolas,monospace;tab-size:4;outline-offset:-3px;white-space:pre}textarea:focus-visible{outline:1px solid #3776ab}.editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;background:#18232d;border-top:1px solid #2b3743}.editor-toolbar>span{font:10px ui-monospace,monospace;color:#8299ac}.editor-toolbar>div{display:flex;gap:8px}.primary{background:#ffd343;color:#20394d;font-weight:650}.secondary{background:#243b4e;color:#cbdce8;border-color:#3c566a}
-  .sequence{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#1d3247;border:1px solid #304e67;border-radius:7px;padding:8px 16px;margin:12px 0}.sequence button{background:none;color:#c3d8e9;padding:4px 0}.sequence button span{margin-right:8px;color:#ffd343}.sequence>span{font-size:10px;color:#91a9be}.terminal{background:#141f28;border:1px solid #2d4558;border-radius:9px;overflow:hidden}.terminal-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #293d4c}h2{margin:0}.terminal h2{font:11px ui-monospace,monospace;letter-spacing:1px;color:#c3d1dd}.terminal h2 span{color:#7f97aa}#result{font-size:10px;color:#aec5d7}#output{font:13px/1.8 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;min-height:155px;max-height:350px;overflow:auto;margin:0;padding:18px 20px;color:#cadce8}.practice-note{font-size:10px;color:#8ca8bd;line-height:1.7;margin:16px 0 0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  .workbench-subbar{height:52px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border);margin-bottom:6px}
+  a{color:inherit;text-decoration:none}.back{color:var(--color-text-secondary);font-size:12px;display:inline-flex;align-items:center;gap:6px;transition:color .15s}.back:hover{color:var(--color-primary)}#connection{margin-left:auto;color:var(--color-text-muted);font-size:11px}
+  .statement{padding:36px 0 28px}.title-row{display:flex;align-items:center;justify-content:space-between;gap:20px}.metadata{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--color-text-secondary)}.metadata>span:first-child{color:var(--diff-medium, var(--color-primary));font-weight:700}h1{font-size:32px;letter-spacing:-.8px;margin:12px 0 22px;line-height:1.2;color:var(--color-text-primary)}.statement-content{white-space:pre-wrap;font-size:14px;line-height:1.85;color:var(--color-text-secondary);max-width:850px}
+  button{font:inherit;font-size:12px;cursor:pointer;border-radius:6px;padding:10px 16px;border:1px solid transparent}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px}.hint-button{align-self:flex-start;margin-top:24px;border:1px solid var(--color-border);color:var(--color-primary);background:var(--color-primary-light);font-weight:600;white-space:nowrap;transition:all .15s}:global(html.dark) .hint-button{border-color:#88793c;color:#ffd343;background:#ffd3430a}.hint-button:hover{filter:brightness(0.95)}
+  #hint-panel{margin-top:22px;background:var(--color-surface-hover);border:1px solid var(--color-border);border-left:4px solid var(--color-primary);border-radius:7px;padding:18px 22px;max-width:850px}:global(html.dark) #hint-panel{background:#ffd3430a;border-color:#6e643b;border-left:4px solid #ffd343}#hint-panel strong{font-size:13px;color:var(--color-text-primary)}#hint-panel p{font-size:13px;line-height:1.8;color:var(--color-text-secondary);margin:10px 0}#hint-status{font-size:10px;color:var(--color-text-muted)}
+  .expected{margin-top:24px;display:grid;grid-template-columns:140px 1fr;align-items:start;gap:0 20px;padding:18px 20px;background:var(--card-bg);border:1px solid var(--color-border);border-radius:8px;box-shadow:var(--card-shadow)}:global(html.dark) .expected{background:#193448;border-color:#2c4c63}.expected h2{font-size:12px;font-weight:600;color:var(--color-text-primary);margin:3px 0}.expected pre{font:13px/1.65 ui-monospace,Consolas,monospace;margin:0;color:var(--color-text-primary);font-weight:600;overflow-x:auto}:global(html.dark) .expected pre{color:#ffd969}.expected p{grid-column:2;font-size:10px;color:var(--color-text-muted);margin:9px 0 0}
+  .coding{border:1px solid #334956;border-radius:10px;overflow:hidden;background:#1b2026}.editor-heading{height:44px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#182029;border-bottom:1px solid #2b3743;color:#bdcbd6;font:12px ui-monospace,Consolas,monospace}.file-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#3776ab;margin-right:8px}#saved{color:#849bab;font-size:10px}.editor-body{display:flex;height:310px;overflow:hidden;background:#1b2026}#line-numbers{flex:0 0 52px;text-align:right;margin:0;padding:20px 14px 20px 0;color:#697b89;overflow:hidden;user-select:none;font:14px/26px ui-monospace,Consolas,monospace}textarea{display:block;flex:1;min-width:0;width:100%;resize:none;border:0;background:transparent;color:#d7e4ed;padding:20px 18px 20px 0;font:14px/26px ui-monospace,Consolas,monospace;tab-size:4;outline-offset:-3px;white-space:pre}textarea:focus-visible{outline:1px solid #3776ab}.editor-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 18px;background:#18232d;border-top:1px solid #2b3743}.editor-toolbar>span{font:10px ui-monospace,monospace;color:#8299ac}.editor-toolbar>div{display:flex;gap:8px}.primary{background:var(--color-accent-yellow,#ffd343);color:#193248;font-weight:700}.secondary{background:#243b4e;color:#cbdce8;border-color:#3c566a}
+  .sequence{display:flex;align-items:center;justify-content:space-between;gap:15px;background:#1d3247;border:1px solid #304e67;border-radius:7px;padding:8px 16px;margin:12px 0}.sequence button{background:none;color:#c3d8e9;padding:4px 0}.sequence button span{margin-right:8px;color:#ffd343}.sequence>span{font-size:10px;color:#91a9be}.terminal{background:#141f28;border:1px solid #2d4558;border-radius:9px;overflow:hidden}.terminal-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid #293d4c}h2{margin:0}.terminal h2{font:11px ui-monospace,monospace;letter-spacing:1px;color:#c3d1dd}.terminal h2 span{color:#7f97aa}#result{font-size:10px;color:#aec5d7}#output{font:13px/1.8 ui-monospace,Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;min-height:155px;max-height:350px;overflow:auto;margin:0;padding:18px 20px;color:#cadce8}.practice-note{font-size:10px;color:var(--color-text-muted);line-height:1.7;margin:16px 0 0}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
   @media(max-width:650px){.practice{padding:0 16px 28px}header{height:auto;min-height:80px;flex-wrap:wrap;padding:15px 0;gap:12px 20px}#connection{width:100%;margin:0}.statement{padding-top:26px}h1{font-size:26px}.title-row{gap:10px}.hint-button{padding:9px 12px}.metadata{font-size:10px}.expected{grid-template-columns:1fr;gap:10px}.expected p{grid-column:1}.editor-toolbar{flex-wrap:wrap}.editor-toolbar>div{margin-left:auto}.editor-heading{padding:0 12px}#saved{font-size:9px}.sequence{padding:10px 12px}.sequence button{font-size:11px}.terminal-heading{flex-wrap:wrap}.editor-body{height:300px}}
 </style>
 <style>

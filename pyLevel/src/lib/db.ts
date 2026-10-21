@@ -1,6 +1,14 @@
 import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import crypto from 'node:crypto';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+// Asegurar carga de variables de entorno en cualquier contexto de ejecución
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+dotenv.config({ path: join(__dirname, '../../.env') });
 
 const { Pool } = pg;
 
@@ -9,11 +17,12 @@ let pool: pg.Pool | null = null;
 export function getDbPool(): pg.Pool {
   if (pool) return pool;
 
-  const host = process.env.PGHOST || import.meta.env.PGHOST || 'dpg-db8p7oivcj2c73ano9e0-a.ohio-postgres.render.com';
-  const port = parseInt(process.env.PGPORT || import.meta.env.PGPORT || '5432', 10);
-  const user = process.env.PGUSER || import.meta.env.PGUSER || 'pylevel_user';
-  const password = process.env.PGPASSWORD || import.meta.env.PGPASSWORD || 'zMFsAVHvCBqdfdLJ54bIaYVwHjCP1U22';
-  const database = process.env.PGDATABASE || import.meta.env.PGDATABASE || 'pylevel';
+  const rawHost = process.env.PGHOST || process.env.DB_HOST || 'dpg-db8p7oivcj2c73ano9e0-a.ohio-postgres.render.com';
+  const host = rawHost.trim();
+  const port = parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
+  const user = (process.env.PGUSER || process.env.DB_USER || 'pylevel_user').trim();
+  const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
+  const database = (process.env.PGDATABASE || process.env.DB_NAME || 'pylevel').trim();
 
   pool = new Pool({
     host,
@@ -21,7 +30,9 @@ export function getDbPool(): pg.Pool {
     user,
     password,
     database,
-    ssl: { rejectUnauthorized: false },
+    // Explicit opt-out is limited to local development/test databases.
+    ssl: process.env.DB_SSL === 'false' && ['127.0.0.1', 'localhost', '::1'].includes(host)
+      ? false : { rejectUnauthorized: false },
     max: 5,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
@@ -36,6 +47,8 @@ export interface UserProfile {
   displayName: string;
   avatarUrl: string | null;
   bio: string | null;
+  occupation: string | null;
+  birthday: string | null;
   isActive: boolean;
   createdAt: string;
 }
@@ -105,6 +118,8 @@ export async function registerUser(params: {
       displayName,
       avatarUrl: null,
       bio,
+      occupation: null,
+      birthday: null,
       isActive: createdUser.is_active,
       createdAt: createdUser.created_at.toISOString(),
     };
@@ -133,7 +148,7 @@ export async function loginUser(params: {
 
   const res = await db.query(
     `SELECT u.id, u.email, u.password_hash, u.is_active, u.created_at,
-            p.display_name, p.avatar_url, p.bio
+            p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
      WHERE LOWER(u.email) = $1`,
@@ -161,6 +176,8 @@ export async function loginUser(params: {
     displayName: row.display_name || row.email.split('@')[0],
     avatarUrl: row.avatar_url,
     bio: row.bio,
+    occupation: row.occupation,
+    birthday: row.birthday,
     isActive: row.is_active,
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };
@@ -173,7 +190,7 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
   const db = getDbPool();
   const res = await db.query(
     `SELECT u.id, u.email, u.is_active, u.created_at,
-            p.display_name, p.avatar_url, p.bio
+            p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
      WHERE u.id = $1`,
@@ -188,6 +205,8 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
     displayName: row.display_name || row.email.split('@')[0],
     avatarUrl: row.avatar_url,
     bio: row.bio,
+    occupation: row.occupation,
+    birthday: row.birthday,
     isActive: row.is_active,
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };

@@ -129,10 +129,11 @@ import AppLayout from '../layouts/AppLayout.astro';
         }
 
         showAlert('¡Sesión iniciada con éxito! Redirigiendo...', false);
-        localStorage.setItem('pylevel:current_user', JSON.stringify(data.user));
+        localStorage.removeItem('pylevel:current_user');
 
         setTimeout(() => {
-          window.location.href = '/perfil';
+          const next = new URLSearchParams(window.location.search).get('next');
+          window.location.href = next === '/examen/' || next === '/progreso/' ? next : '/perfil';
         }, 800);
       } catch (err: any) {
         showAlert('Error de conexión con el servidor de autenticación.');

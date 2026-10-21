@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import AccountShell from '../account/AccountShell.astro';
+import { currentUser } from '../lib/session';
+import { loadProgress } from '../account/data';
+
+let user = null;
+let progress: Awaited<ReturnType<typeof loadProgress>> | null = null;
+let unavailable = false;
+try { user = await currentUser(Astro.cookies); if (user) progress = await loadProgress(user.id); } catch { unavailable = true; }
+if (!user && !unavailable) return Astro.redirect('/login?next=/progreso/');
+if (unavailable) Astro.response.status = 503;
+const date = (value: string) => new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota' }).format(new Date(value));
+const resultLabels = { pending: 'En curso', passed: 'Correcto', failed: 'Por revisar', technical_error: 'Error técnico', cancelled: 'Cancelado' };
+const maxDay = Math.max(1, ...(progress?.days.map(d => d.attempts) ?? []));
+---
+<AccountShell title="Progreso y métricas" description="Tus ejercicios, tus avances y un siguiente paso basado en tu actividad." active="progreso">
+  {unavailable || !progress ? <section class="account-card account-empty"><h2>No pudimos cargar tu progreso</h2><p>No se ha perdido tu actividad. Inténtalo nuevamente cuando el servicio esté disponible.</p><a class="account-button secondary" href="/progreso/">Volver a intentar</a></section> : <>
+    <section class="metric-cards" aria-label="Resumen de mi actividad">
+      <article class="account-card metric-card"><span>Ejercicios superados</span><strong>{progress.completed.length}<small> / {progress.total}</small></strong><small>Con pruebas públicas superadas</small></article>
+      <article class="account-card metric-card"><span>En progreso</span><strong>{progress.inProgress}</strong><small>Ejercicios con intentos pendientes</small></article>
+      <article class="account-card metric-card"><span>Ejecuciones y pruebas</span><strong>{progress.attempts}</strong><small>{progress.tests} {progress.tests === 1 ? 'prueba' : 'pruebas'} · {progress.attempts - progress.tests} ejecuciones</small></article>
+      <article class="account-card metric-card"><span>Días activos</span><strong>{progress.activeDays}<small> / 7</small></strong><small>Con ejecuciones en la última semana</small></article>
+    </section>
+    <div class="metric-columns">
+      <section class="account-card" aria-labelledby="learning-title"><span class="account-label">TU RECORRIDO</span><h2 id="learning-title" style="margin-top:12px">Avance en el catálogo</h2><p class="account-muted">Cada ejercicio cuenta una vez, aunque repitas sus pruebas.</p>
+        <div class="progress-total"><strong>{progress.percentage}%</strong><span>{progress.completed.length} de {progress.total} ejercicios</span></div><div class="account-progress" role="progressbar" aria-label="Ejercicios del catálogo superados" aria-valuenow={progress.completed.length} aria-valuemin="0" aria-valuemax={progress.total}><span style={`width:${progress.percentage}%`}></span></div>
+        <div class="topic-list">{progress.topics.slice(0, 6).map(topic => <div class="topic-row"><div><span>{topic.name}</span><small>{topic.completed} de {topic.total}</small></div><div class="account-progress" aria-hidden="true"><span style={`width:${topic.completed / topic.total * 100}%`}></span></div></div>)}</div>
+        <p class="account-footnote">Estos valores indican ejercicios superados por tema; no representan una calificación de competencias.</p>
+      </section>
+      <section class="account-card" aria-labelledby="activity-title"><span class="account-label">ÚLTIMOS 7 DÍAS</span><h2 id="activity-title" style="margin-top:12px">Tu ritmo de práctica</h2><p class="account-muted">Ejecuciones y pruebas registradas por día, en hora de Colombia.</p>
+        <div class="activity-chart" role="img" aria-label={progress.days.map(d => `${d.label} ${d.key}: ${d.attempts} intentos`).join('; ')}>{progress.days.map(day => <div class="activity-day" aria-hidden="true"><div class="activity-bar"><small>{day.attempts}</small><span style={`height:${day.attempts / maxDay * 100}%`}></span></div><span>{day.label}</span></div>)}</div>
+        <div class="profile-session"><h3>{progress.activeDays ? `${progress.activeDays} ${progress.activeDays === 1 ? 'día de práctica' : 'días de práctica'} esta semana` : 'Todavía no hay actividad esta semana'}</h3><p class="account-muted">{progress.activeDays >= 3 ? 'Has practicado en varios días. Continúa con uno de tus ejercicios pendientes.' : 'Un reto breve puede ayudarte a mantener la práctica. Elige un ejercicio y revisa sus resultados.'}</p><a class="account-button secondary" href="/ejercicios/">Continuar practicando →</a></div>
+      </section>
+    </div>
+    <section class="account-section" aria-labelledby="feedback-title"><div class="section-top"><div><h2 id="feedback-title" style="font-size:19px;margin:0 0 8px">Feedback para tu siguiente paso</h2><p class="account-muted">Recomendaciones de PyLevel basadas en tus intentos, pruebas y ayudas consultadas.</p></div></div>
+      <div class="feedback-grid">{progress.feedback.map((item, i) => <article class:list={['account-card', 'feedback-card', item.tone]}><span class="account-label">PYLEVEL · {String(i + 1).padStart(2, '0')}</span><h3>{item.title}</h3><p>{item.text}</p><a href={item.href}>{item.action} →</a></article>)}</div>
+    </section>
+    <section class="account-card account-section" aria-labelledby="exercises-title"><div class="section-top"><div><h2 id="exercises-title">Mis ejercicios realizados</h2><p class="account-muted">Ejercicios en los que ejecutaste código o pruebas con esta cuenta.</p></div><span class="section-count">{progress.worked.length} ejercicios</span></div>
+      {progress.worked.length ? <>
+        <div class="account-filters" role="group" aria-label="Filtrar mis ejercicios"><button type="button" data-progress-filter="all" aria-pressed="true">Todos ({progress.worked.length})</button><button type="button" data-progress-filter="completed" aria-pressed="false">Superados ({progress.completed.length})</button><button type="button" data-progress-filter="in_progress" aria-pressed="false">En progreso ({progress.inProgress})</button></div>
+        <div class="account-table-wrap"><table class="account-table"><thead><tr><th>EJERCICIO</th><th>ESTADO</th><th>INTENTOS</th><th>ÚLTIMA ACTIVIDAD</th><th></th></tr></thead><tbody>{progress.worked.map(item => <tr data-progress-state={item.completedAt ? 'completed' : 'in_progress'}><td><strong>{item.title}</strong><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'} · {item.difficulty} · {item.topics.join(', ')}</small></td><td><span class:list={['account-status', item.completedAt ? 'green' : 'gold']}>{item.completedAt ? 'Superado' : 'En progreso'}</span></td><td>{item.attempts}<small>{item.tests} pruebas · {item.hints} pistas</small></td><td>{date(item.lastActivityAt)}</td><td><a href={item.href}>{item.completedAt ? 'Repasar →' : 'Continuar →'}</a></td></tr>)}</tbody></table></div>
+        <p class="account-muted" id="progress-filter-empty" role="status" hidden>No hay ejercicios con este estado.</p>
+      </> : <div class="account-empty"><span aria-hidden="true">&lt;/&gt;</span><h3>Tu primer ejercicio te espera</h3><p>Ejecuta una solución o pulsa «Probar» para empezar a registrar tu recorrido. Los borradores antiguos del navegador no se asignan automáticamente a tu cuenta.</p><a class="account-button primary" href="/ejercicios/">Elegir un ejercicio →</a></div>}
+    </section>
+    {progress.recent.length > 0 && <section class="account-card account-section" aria-labelledby="recent-title"><div class="section-top"><div><h2 id="recent-title">Actividad reciente</h2><p class="account-muted">Últimos 20 intentos. Un error técnico o una cancelación no elimina avances anteriores.</p></div></div><div class="account-table-wrap"><table class="account-table"><thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead><tbody>{progress.recent.map(row => <tr><td><a href={row.href}>{row.title}</a></td><td>{row.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td><td><span class:list={['account-status', row.result === 'passed' ? 'green' : row.result === 'failed' ? 'gold' : 'muted']}>{row.result === 'passed' && row.kind === 'test' ? 'Pruebas superadas' : resultLabels[row.result]}</span>{row.kind === 'test' && row.testsRun > 0 && <small>{row.testsRun} pruebas ejecutadas</small>}</td><td>{date(row.createdAt)}</td></tr>)}</tbody></table></div></section>}
+    <p class="account-footnote">La actividad se registra desde esta versión, al trabajar con la sesión iniciada. Las pruebas públicas sirven para orientar tu práctica; los exámenes y su revisión se consultan en <a href="/perfil">Mi perfil</a>.</p>
+  </>}
+</AccountShell>
+<script>
+  const filters = document.querySelectorAll<HTMLButtonElement>('[data-progress-filter]');
+  filters.forEach(button => button.addEventListener('click', () => {
+    filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    let visible = 0;
+    document.querySelectorAll<HTMLElement>('[data-progress-state]').forEach(row => { row.hidden = button.dataset.progressFilter !== 'all' && row.dataset.progressState !== button.dataset.progressFilter; if (!row.hidden) visible++; });
+    const empty = document.getElementById('progress-filter-empty'); if (empty) empty.hidden = visible !== 0;
+  }));
+</script>
