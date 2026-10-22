@@ -91,12 +91,21 @@
     </div>
 
     <!-- Contenedor de Mensajes -->
-    <div id="pybot-messages" class="messages-container" tabindex="0" aria-live="polite">
+    <div id="pybot-messages" class="messages-container" aria-live="polite">
       <!-- Mensaje inicial de bienvenida -->
       <div class="msg-row bot-row">
         <div class="msg-bubble bot-bubble">
-          <p>¡Hola! 👋 Soy <strong>PyBot</strong> 🤖, tu tutor pedagógico de Python en PyLevel.</p>
-          <p>Puedo resolver tus dudas sobre sintaxis 🐍, estructuras de datos 📦, o darte pistas si estás atascado en un ejercicio 💡. ¿En qué te puedo orientar hoy? 🚀</p>
+          <div class="bubble-header">
+            <span class="sender-name bot-name-tag">PyBot 🤖</span>
+            <span class="bot-badge">TUTOR</span>
+          </div>
+          <div class="bubble-content">
+            <p>¡Hola! 👋 Soy <strong>PyBot</strong>, tu tutor pedagógico de Python en PyLevel.</p>
+            <p>Puedo resolver tus dudas sobre sintaxis 🐍, estructuras de datos 📦 o darte pistas si estás atascado en un ejercicio 💡. ¿En qué te puedo orientar hoy? 🚀</p>
+          </div>
+          <div class="bubble-footer">
+            <span class="bubble-time">En línea</span>
+          </div>
         </div>
       </div>
 
@@ -164,10 +173,28 @@
   interface ChatMessage {
     rol: 'user' | 'bot';
     contenido: string;
+    hora?: string;
   }
 
   const STORAGE_KEY = 'pylevel_pybot_history';
   let history: ChatMessage[] = [];
+
+  // Helper de hora en formato WhatsApp (ej: "11:24 p. m.")
+  function getFormattedTime(): string {
+    const now = new Date();
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Escape HTML seguro para mensajes de usuario
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+      .replace(/\n/g, '<br />');
+  }
 
   // Cargar historial previo de localStorage
   try {
@@ -185,7 +212,7 @@
     if (chipsWrap) chipsWrap.hidden = true;
 
     history.forEach(msg => {
-      appendMessageToDOM(msg.rol, msg.contenido, false);
+      appendMessageToDOM(msg.rol, msg.contenido, false, msg.hora);
     });
     scrollToBottom();
   }
@@ -278,9 +305,18 @@
       history = [];
       localStorage.removeItem(STORAGE_KEY);
       messagesContainer.innerHTML = `
-        <div class="msg-row bot-row">
+        <div class="msg-row bot-row animate-in">
           <div class="msg-bubble bot-bubble">
-            <p>¡Conversación reiniciada! 🔄 ¿En qué tema o ejercicio de Python te gustaría que nos enfoquemos ahora? 🐍</p>
+            <div class="bubble-header">
+              <span class="sender-name bot-name-tag">PyBot 🤖</span>
+              <span class="bot-badge">TUTOR</span>
+            </div>
+            <div class="bubble-content">
+              <p>¡Conversación reiniciada! 🔄 ¿En qué tema o ejercicio de Python te gustaría que nos enfoquemos ahora? 🐍</p>
+            </div>
+            <div class="bubble-footer">
+              <span class="bubble-time">${getFormattedTime()}</span>
+            </div>
           </div>
         </div>
       `;
@@ -335,9 +371,10 @@
   async function enviarMensaje(texto: string) {
     if (chipsWrap) chipsWrap.hidden = true;
 
+    const userTime = getFormattedTime();
     // Agregar mensaje del usuario al DOM y al historial
-    appendMessageToDOM('user', texto, true);
-    history.push({ rol: 'user', contenido: texto });
+    appendMessageToDOM('user', texto, true, userTime);
+    history.push({ rol: 'user', contenido: texto, hora: userTime });
     saveHistory();
     scrollToBottom();
 
@@ -355,7 +392,7 @@
         },
         body: JSON.stringify({
           mensaje: texto,
-          historial: history.slice(-6),
+          historial: history.slice(-6).map(h => ({ rol: h.rol, contenido: h.contenido })),
           contexto: contexto || {},
           stream: true,
         }),
@@ -373,12 +410,24 @@
         const decoder = new TextDecoder();
         let sseBuffer = '';
         let fullBotReply = '';
+        const botTime = getFormattedTime();
 
-        // Crear la fila y burbuja del bot
+        // Crear la fila y burbuja del bot con estructura completa
         const row = document.createElement('div');
         row.className = 'msg-row bot-row animate-in';
         const bubble = document.createElement('div');
         bubble.className = 'msg-bubble bot-bubble';
+        bubble.innerHTML = `
+          <div class="bubble-header">
+            <span class="sender-name bot-name-tag">PyBot 🤖</span>
+            <span class="bot-badge">TUTOR</span>
+          </div>
+          <div class="bubble-content"></div>
+          <div class="bubble-footer">
+            <span class="bubble-time">${botTime}</span>
+          </div>
+        `;
+        const contentDiv = bubble.querySelector('.bubble-content') as HTMLElement;
         row.appendChild(bubble);
 
         let attached = false;
@@ -410,7 +459,7 @@
                   attached = true;
                 }
                 fullBotReply += parsed.token;
-                bubble.innerHTML = formatMarkdown(fullBotReply) + '<span class="chat-cursor"></span>';
+                contentDiv.innerHTML = formatMarkdown(fullBotReply) + '<span class="chat-cursor"></span>';
                 scrollToBottom();
               }
             } catch {}
@@ -422,16 +471,17 @@
           setTyping(false);
           messagesContainer.appendChild(row);
         }
-        bubble.innerHTML = formatMarkdown(fullBotReply || '¡Listo! 🚀');
-        history.push({ rol: 'bot', contenido: fullBotReply || '¡Listo! 🚀' });
+        contentDiv.innerHTML = formatMarkdown(fullBotReply || '¡Listo! 🚀');
+        history.push({ rol: 'bot', contenido: fullBotReply || '¡Listo! 🚀', hora: botTime });
         saveHistory();
       } else {
         // Fallback estándar JSON
         const data = await response.json();
         const respuestaBot = data.respuesta || (data.success ? '¡Listo! 🚀' : 'Ocurrió un error al procesar tu consulta.');
         setTyping(false);
-        appendMessageToDOM('bot', respuestaBot, true);
-        history.push({ rol: 'bot', contenido: respuestaBot });
+        const botTime = getFormattedTime();
+        appendMessageToDOM('bot', respuestaBot, true, botTime);
+        history.push({ rol: 'bot', contenido: respuestaBot, hora: botTime });
         saveHistory();
       }
     } catch (err: any) {
@@ -459,7 +509,8 @@
     return `<p>${html}</p>`;
   }
 
-  function appendMessageToDOM(rol: 'user' | 'bot', texto: string, animate: boolean) {
+  function appendMessageToDOM(rol: 'user' | 'bot', texto: string, animate: boolean, hora?: string) {
+    const time = hora || getFormattedTime();
     const row = document.createElement('div');
     row.className = `msg-row ${rol}-row ${animate ? 'animate-in' : ''}`;
 
@@ -467,9 +518,32 @@
     bubble.className = `msg-bubble ${rol}-bubble`;
 
     if (rol === 'bot') {
-      bubble.innerHTML = formatMarkdown(texto);
+      bubble.innerHTML = `
+        <div class="bubble-header">
+          <span class="sender-name bot-name-tag">PyBot 🤖</span>
+          <span class="bot-badge">TUTOR</span>
+        </div>
+        <div class="bubble-content">${formatMarkdown(texto)}</div>
+        <div class="bubble-footer">
+          <span class="bubble-time">${time}</span>
+        </div>
+      `;
     } else {
-      bubble.textContent = texto;
+      bubble.innerHTML = `
+        <div class="bubble-header user-header">
+          <span class="sender-name user-name-tag">Tú</span>
+        </div>
+        <div class="bubble-content">${escapeHtml(texto)}</div>
+        <div class="bubble-footer user-footer">
+          <span class="bubble-time">${time}</span>
+          <span class="bubble-checks" title="Enviado">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 7 17l-5-5" />
+              <path d="m22 10-7.5 7.5L13 16" />
+            </svg>
+          </span>
+        </div>
+      `;
     }
 
     row.appendChild(bubble);
@@ -496,9 +570,240 @@
   renderHistory();
 </script>
 
+<style is:global>
+  /* =========================================================================
+     ESTILOS GLOBALES PARA MENSAJES Y BURBUJAS DE PYBOT (ESTILO WHATSAPP DARK)
+     (Garantiza que elementos generados dinámicamente por JS hereden los estilos)
+     ========================================================================= */
+
+  /* Contenedor de mensajes: eliminar completamente scroll horizontal */
+  #pybot-messages {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+  }
+
+  #pybot-messages::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  #pybot-messages::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #pybot-messages::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+  }
+
+  #pybot-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Filas de mensaje */
+  .pybot-panel .msg-row {
+    display: flex;
+    width: 100%;
+    margin-bottom: 2px;
+  }
+
+  .pybot-panel .msg-row.animate-in {
+    animation: pybot-fade-msg 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes pybot-fade-msg {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Alineación WhatsApp: Usuario a la derecha, Bot a la izquierda */
+  .pybot-panel .user-row {
+    justify-content: flex-end;
+  }
+
+  .pybot-panel .bot-row {
+    justify-content: flex-start;
+  }
+
+  /* Burbuja base */
+  .pybot-panel .msg-bubble {
+    position: relative;
+    padding: 8px 12px 6px;
+    font-size: 13px;
+    line-height: 1.5;
+    word-break: break-word;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Burbuja de Usuario (Estilo WhatsApp Dark: Verde esmeralda distintivo #005c4b) */
+  .pybot-panel .user-bubble {
+    max-width: 82%;
+    background: #005c4b;
+    color: #ffffff;
+    border-radius: 12px 12px 2px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Burbuja de PyBot (Estilo WhatsApp Dark Recibido: Gris pizarra oscuro con acento cyan) */
+  .pybot-panel .bot-bubble {
+    max-width: 86%;
+    background: #202c33;
+    color: #e9edef;
+    border-radius: 12px 12px 12px 2px;
+    border: 1px solid rgba(56, 189, 248, 0.22);
+  }
+
+  /* Cabecera interna de la burbuja */
+  .pybot-panel .bubble-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .pybot-panel .user-header {
+    display: none;
+  }
+
+  .pybot-panel .bot-name-tag {
+    color: #38bdf8;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+  }
+
+  .pybot-panel .bot-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    letter-spacing: 0.5px;
+  }
+
+  /* Contenido del mensaje */
+  .pybot-panel .bubble-content {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .pybot-panel .bubble-content p {
+    margin: 0 0 6px;
+  }
+
+  .pybot-panel .bubble-content p:last-child {
+    margin: 0;
+  }
+
+  .pybot-panel .user-bubble .bubble-content {
+    color: #ffffff;
+  }
+
+  .pybot-panel .bot-bubble .bubble-content {
+    color: #e9edef;
+  }
+
+  .pybot-panel .bot-bubble strong {
+    color: #38bdf8;
+    font-weight: 600;
+  }
+
+  /* Pie de burbuja con hora y ticks de WhatsApp */
+  .pybot-panel .bubble-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 3px;
+    margin-left: auto;
+    font-size: 10px;
+    user-select: none;
+  }
+
+  .pybot-panel .user-bubble .bubble-time {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .pybot-panel .bot-bubble .bubble-time {
+    color: #8696a0;
+  }
+
+  .pybot-panel .bubble-checks {
+    display: flex;
+    align-items: center;
+    color: #53bdeb; /* Doble check azul WhatsApp */
+  }
+
+  /* Bloques de código dentro del chat (sin desbordes ni barras blancas nativas) */
+  .pybot-panel .chat-code-block {
+    background: #0d1520;
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin: 6px 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: #e0f2fe;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(56, 189, 248, 0.25) transparent;
+  }
+
+  .pybot-panel .chat-code-block::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .pybot-panel .chat-code-block::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.25);
+    border-radius: 4px;
+  }
+
+  .pybot-panel .chat-inline-code {
+    background: rgba(56, 189, 248, 0.14);
+    color: #7dd3fc;
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+  }
+
+  .pybot-panel .chat-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 13px;
+    background-color: #38bdf8;
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: pybot-cursor-blink 0.8s infinite;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.8);
+  }
+
+  @keyframes pybot-cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+
 <style>
   /* =========================================================================
-     ESTILOS DEL BOTÓN FLOTANTE Y PANEL DE CHAT PYBOT (100% SOBRIO, SIN EMOJIS)
+     ESTILOS DEL BOTÓN FLOTANTE Y PANEL DE CHAT PYBOT (ESTILO MODERNO WHATSAPP)
      ========================================================================= */
 
   .pybot-widget-container {
@@ -591,17 +896,17 @@
     position: fixed;
     bottom: 94px;
     right: 24px;
-    width: 380px;
+    width: 385px;
     max-width: calc(100vw - 36px);
     height: 530px;
     max-height: calc(100vh - 120px);
-    background: #0B1120;
+    background: #0b141a; /* Fondo WhatsApp Dark */
     border: 1px solid rgba(56, 189, 248, 0.3);
     border-radius: 16px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.15);
-    display: none; /* Oculto por defecto */
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75), 0 0 1px rgba(255, 255, 255, 0.15);
+    display: none;
     flex-direction: column;
-    overflow: hidden;
+    overflow: hidden !important;
   }
 
   .pybot-panel.is-open {
@@ -624,11 +929,11 @@
     }
   }
 
-  /* Header */
+  /* Header estilo WhatsApp Dark */
   .panel-header {
-    background: #0e172a;
+    background: #111b21;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 14px 18px;
+    padding: 12px 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -641,11 +946,11 @@
   }
 
   .avatar-bubble {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
     background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.3);
+    border: 1.5px solid rgba(56, 189, 248, 0.35);
     color: #38bdf8;
     display: grid;
     place-items: center;
@@ -666,7 +971,7 @@
 
   .bot-status {
     font-size: 11px;
-    color: #94a3b8;
+    color: #10b981;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -688,7 +993,7 @@
   .header-action-btn {
     background: transparent;
     border: none;
-    color: #64748b;
+    color: #8696a0;
     padding: 6px;
     border-radius: 6px;
     cursor: pointer;
@@ -699,7 +1004,7 @@
 
   .header-action-btn:hover {
     color: #f1f5f9;
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   /* Banner de contexto de ejercicio */
@@ -735,93 +1040,14 @@
   /* Área de mensajes */
   .messages-container {
     flex: 1;
-    padding: 18px 16px;
+    padding: 14px 14px;
     overflow-y: auto;
+    overflow-x: hidden !important;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 10px;
     outline: none;
-  }
-
-  .messages-container::-webkit-scrollbar {
-    width: 5px;
-  }
-
-  .messages-container::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.12);
-    border-radius: 3px;
-  }
-
-  .msg-row {
-    display: flex;
-    width: 100%;
-  }
-
-  .msg-row.animate-in {
-    animation: fade-message 0.2s ease-out;
-  }
-
-  @keyframes fade-message {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .user-row {
-    justify-content: flex-end;
-  }
-
-  .bot-row {
-    justify-content: flex-start;
-  }
-
-  .msg-bubble {
-    max-width: 88%;
-    padding: 10px 14px;
-    border-radius: 12px;
-    font-size: 13px;
-    line-height: 1.55;
-    word-break: break-word;
-  }
-
-  .user-bubble {
-    background: #1d4ed8;
-    color: #ffffff;
-    border-bottom-right-radius: 3px;
-  }
-
-  .bot-bubble {
-    background: #111e33;
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-bottom-left-radius: 3px;
-  }
-
-  .bot-bubble p {
-    margin: 0 0 8px;
-  }
-
-  .bot-bubble p:last-child {
-    margin: 0;
-  }
-
-  .bot-bubble strong {
-    color: #38bdf8;
-  }
-
-  .chat-cursor {
-    display: inline-block;
-    width: 2px;
-    height: 14px;
-    background-color: #38bdf8;
-    margin-left: 2px;
-    vertical-align: middle;
-    animation: cursor-blink 0.8s infinite;
-    box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
-  }
-
-  @keyframes cursor-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+    background: #0b141a;
   }
 
   /* Chips de preguntas sugeridas */
@@ -829,23 +1055,23 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin-top: 4px;
+    margin-top: 6px;
   }
 
   .quick-chip {
-    background: rgba(56, 189, 248, 0.06);
-    border: 1px solid rgba(56, 189, 248, 0.16);
+    background: #111b21;
+    border: 1px solid rgba(56, 189, 248, 0.2);
     color: #7dd3fc;
     font-size: 12px;
-    padding: 7px 11px;
-    border-radius: 7px;
+    padding: 7px 12px;
+    border-radius: 8px;
     text-align: left;
     cursor: pointer;
     transition: background 0.15s ease, border-color 0.15s ease;
   }
 
   .quick-chip:hover {
-    background: rgba(56, 189, 248, 0.14);
+    background: rgba(56, 189, 248, 0.12);
     border-color: #38bdf8;
     color: #f0f9ff;
   }
@@ -857,7 +1083,8 @@
     align-items: center;
     gap: 10px;
     font-size: 11.5px;
-    color: #64748b;
+    color: #8696a0;
+    background: #0b141a;
   }
 
   .typing-indicator.is-active {
@@ -877,7 +1104,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #38bdf8;
+    background: #00a884;
     animation: typing-dot 1.2s infinite ease-in-out both;
   }
 
@@ -889,11 +1116,11 @@
     40% { transform: scale(1); opacity: 1; }
   }
 
-  /* Barra de entrada inferior */
+  /* Barra de entrada inferior estilo WhatsApp */
   .panel-input-bar {
-    background: #0e172a;
+    background: #111b21;
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 10px 14px;
+    padding: 10px 12px;
     display: flex;
     align-items: flex-end;
     gap: 8px;
@@ -901,67 +1128,48 @@
 
   .chat-input {
     flex: 1;
-    background: #080d1a;
+    background: #202c33;
     color: #f8fafc;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 8px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 9px 14px;
     font-size: 13px;
     resize: none;
     outline: none;
     font-family: inherit;
     box-sizing: border-box;
     max-height: 100px;
+    transition: border-color 0.15s ease;
   }
 
   .chat-input:focus {
-    border-color: #38bdf8;
+    border-color: #00a884;
   }
 
   .send-btn {
-    background: #38bdf8;
-    color: #0c1929;
+    background: #00a884;
+    color: #ffffff;
     border: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     display: grid;
     place-items: center;
     cursor: pointer;
     flex-shrink: 0;
-    transition: background 0.15s ease, opacity 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease, opacity 0.15s ease;
   }
 
   .send-btn:hover:not(:disabled) {
-    background: #7dd3fc;
+    background: #02b690;
+    transform: scale(1.05);
   }
 
   .send-btn:disabled {
-    opacity: 0.4;
+    opacity: 0.35;
     cursor: not-allowed;
-  }
-
-  /* Estilos de código en respuestas de PyBot */
-  :global(.chat-code-block) {
-    background: #080d18;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 6px;
-    padding: 10px 12px;
-    margin: 8px 0;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 11.5px;
-    line-height: 1.5;
-    overflow-x: auto;
-    color: #f1f5f9;
-  }
-
-  :global(.chat-inline-code) {
-    background: rgba(56, 189, 248, 0.12);
-    color: #7dd3fc;
-    padding: 2px 5px;
-    border-radius: 4px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 12px;
+    background: #2a3942;
+    color: #8696a0;
   }
 
   @media (max-width: 480px) {
