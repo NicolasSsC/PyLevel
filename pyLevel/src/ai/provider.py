@@ -68,12 +68,22 @@ class GeminiProvider:
                 self.api_key = clave
         return bool(self.api_key and len(self.api_key) > 10)
 
-    def consultar(self, prompt: str, system_instruction: str = "", max_tokens: int = 800, temperature: float = 0.4, timeout: Optional[float] = None) -> Optional[str]:
-        """Realiza una petición HTTP a la API REST de Gemini iterando modelos compatibles"""
+    def consultar(self, prompt: str, system_instruction: str = "", max_tokens: int = 800, temperature: float = 0.4, timeout: Optional[float] = None, json_mode: bool = False, response_schema: Optional[Dict[str, Any]] = None) -> Optional[str]:
+        """Realiza una petición HTTP a la API REST de Gemini iterando modelos compatibles con soporte para JSON estricto"""
         if not self.tiene_api_key():
             return None
 
         effective_timeout = timeout if timeout is not None else self.timeout
+
+        gen_config: Dict[str, Any] = {
+            "temperature": temperature,
+            "maxOutputTokens": max_tokens
+        }
+
+        if json_mode or response_schema:
+            gen_config["responseMimeType"] = "application/json"
+            if response_schema:
+                gen_config["responseSchema"] = response_schema
 
         payload: Dict[str, Any] = {
             "contents": [
@@ -81,10 +91,7 @@ class GeminiProvider:
                     "parts": [{"text": prompt}]
                 }
             ],
-            "generationConfig": {
-                "temperature": temperature,
-                "maxOutputTokens": max_tokens
-            }
+            "generationConfig": gen_config
         }
         if system_instruction:
             payload["systemInstruction"] = {

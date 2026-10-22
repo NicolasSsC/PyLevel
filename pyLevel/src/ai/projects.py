@@ -78,7 +78,23 @@ REGLAS OBLIGATORIAS:
 - Devuelve ÚNICAMENTE el objeto JSON sin bloques explicativos ni texto adicional fuera del JSON.
 """
             sys_inst = "Eres un arquitecto de software y diseñador pedagógico senior de proyectos en Python. Creas arquitecturas originales, limpias, modulares y con suites de pruebas automatizadas en test_runner libres de errores de sintaxis."
-            raw_resp = self.provider.consultar(prompt, sys_inst, max_tokens=3500, temperature=0.85)
+            schema_proyecto = {
+                "type": "OBJECT",
+                "properties": {
+                    "nombre": {"type": "STRING"},
+                    "dificultad": {"type": "STRING"},
+                    "temas": {"type": "ARRAY", "items": {"type": "STRING"}},
+                    "descripcion": {"type": "STRING"},
+                    "enunciado": {"type": "STRING"},
+                    "reglas": {"type": "ARRAY", "items": {"type": "STRING"}},
+                    "criterios_aceptacion": {"type": "ARRAY", "items": {"type": "STRING"}},
+                    "archivo_entrada": {"type": "STRING"},
+                    "archivos": {"type": "OBJECT"},
+                    "test_runner": {"type": "STRING"}
+                },
+                "required": ["nombre", "dificultad", "temas", "descripcion", "enunciado", "reglas", "criterios_aceptacion", "archivo_entrada", "archivos", "test_runner"]
+            }
+            raw_resp = self.provider.consultar(prompt, sys_inst, max_tokens=3500, temperature=0.85, json_mode=True, response_schema=schema_proyecto)
             if raw_resp:
                 try:
                     clean = raw_resp.strip()
@@ -335,7 +351,17 @@ Devuelve OBLIGATORIAMENTE un JSON estricto con la siguiente estructura:
 Devuelve ÚNICAMENTE el objeto JSON sin bloques de código exteriores.
 """
             sys_inst = "Eres PyBot, un arquitecto de software y profesor senior de Python. Diseñas código limpio, elegante, perfectamente comentado y con explicaciones didácticas de nivel profesional."
-            raw = self.provider.consultar(prompt, sys_inst, max_tokens=3200, temperature=0.2)
+            schema_solucion_proj = {
+                "type": "OBJECT",
+                "properties": {
+                    "codigo_resuelto": {"type": "STRING"},
+                    "explicacion_paso_a_paso": {"type": "STRING"},
+                    "buenas_practicas": {"type": "STRING"},
+                    "criterios_resueltos": {"type": "STRING"}
+                },
+                "required": ["codigo_resuelto", "explicacion_paso_a_paso", "buenas_practicas", "criterios_resueltos"]
+            }
+            raw = self.provider.consultar(prompt, sys_inst, max_tokens=3200, temperature=0.2, json_mode=True, response_schema=schema_solucion_proj)
             if raw:
                 try:
                     clean = raw.strip()

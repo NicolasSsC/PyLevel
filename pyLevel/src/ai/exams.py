@@ -116,7 +116,22 @@ Estructura JSON por cada pregunta:
 }}
 """
                 sys_inst = "Eres un examinador de certificaciones oficiales de Python. Devuelve estrictamente el array JSON con las preguntas sin markdown ni texto conversacional."
-                resp = self.provider.consultar(prompt, sys_inst, max_tokens=4000, temperature=0.35, timeout=35.0)
+                schema_lote = {
+                    "type": "ARRAY",
+                    "items": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "id": {"type": "INTEGER"},
+                            "area": {"type": "STRING"},
+                            "enunciado": {"type": "STRING"},
+                            "opciones": {"type": "ARRAY", "items": {"type": "STRING"}},
+                            "respuesta_correcta": {"type": "STRING"},
+                            "explicacion": {"type": "STRING"}
+                        },
+                        "required": ["id", "area", "enunciado", "opciones", "respuesta_correcta", "explicacion"]
+                    }
+                }
+                resp = self.provider.consultar(prompt, sys_inst, max_tokens=4000, temperature=0.35, timeout=35.0, json_mode=True, response_schema=schema_lote)
                 resultado = []
                 if resp:
                     preguntas_lote = self._parse_json_array_robust(resp)
@@ -448,7 +463,20 @@ Estructura JSON requerida:
 }}
 """
             sys_inst = "Eres un autor de exámenes técnicos de Python. Devuelve estrictamente el JSON sin explicaciones adicionales."
-            resp = self.provider.consultar(prompt, sys_inst, max_tokens=1200, temperature=0.4)
+            schema_pregunta = {
+                "type": "OBJECT",
+                "properties": {
+                    "enunciado": {"type": "STRING"},
+                    "tipo": {"type": "STRING"},
+                    "dificultad": {"type": "STRING"},
+                    "tema": {"type": "STRING"},
+                    "opciones": {"type": "ARRAY", "items": {"type": "STRING"}},
+                    "respuesta_correcta": {"type": "STRING"},
+                    "explicacion": {"type": "STRING"}
+                },
+                "required": ["enunciado", "tipo", "dificultad", "tema", "opciones", "respuesta_correcta", "explicacion"]
+            }
+            resp = self.provider.consultar(prompt, sys_inst, max_tokens=1200, temperature=0.4, json_mode=True, response_schema=schema_pregunta)
             if resp:
                 try:
                     clean = resp.strip()
@@ -642,7 +670,29 @@ Estructura JSON requerida:
 }}
 """
             sys_inst = "Eres un examinador senior de Python. Devuelve únicamente el objeto JSON con las 20 preguntas del banco sin formato markdown adicional."
-            resp = self.provider.consultar(prompt, sys_inst, max_tokens=4000, temperature=0.35, timeout=40.0)
+            item_schema = {
+                "type": "OBJECT",
+                "properties": {
+                    "enunciado": {"type": "STRING"},
+                    "tipo": {"type": "STRING"},
+                    "dificultad": {"type": "STRING"},
+                    "tema": {"type": "STRING"},
+                    "opciones": {"type": "ARRAY", "items": {"type": "STRING"}},
+                    "respuesta_correcta": {"type": "STRING"},
+                    "explicacion": {"type": "STRING"}
+                },
+                "required": ["enunciado", "tipo", "dificultad", "tema", "opciones", "respuesta_correcta", "explicacion"]
+            }
+            schema_banco = {
+                "type": "OBJECT",
+                "properties": {
+                    "sintaxis": {"type": "ARRAY", "items": item_schema},
+                    "poo": {"type": "ARRAY", "items": item_schema},
+                    "algoritmos": {"type": "ARRAY", "items": item_schema}
+                },
+                "required": ["sintaxis", "poo", "algoritmos"]
+            }
+            resp = self.provider.consultar(prompt, sys_inst, max_tokens=4000, temperature=0.35, timeout=40.0, json_mode=True, response_schema=schema_banco)
             if resp:
                 try:
                     clean = resp.strip()

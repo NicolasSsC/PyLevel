@@ -65,8 +65,33 @@ REGLAS OBLIGATORIAS:
 - Debe tener al menos 3 casos de prueba (al menos 1 oculto con 'visible': false).
 - Devuelve ÚNICAMENTE el objeto JSON sin texto adicional ni bloques explicativos.
 """
+            schema_reto = {
+                "type": "OBJECT",
+                "properties": {
+                    "titulo": {"type": "STRING"},
+                    "dificultad": {"type": "STRING"},
+                    "tema": {"type": "STRING"},
+                    "descripcion": {"type": "STRING"},
+                    "enunciado": {"type": "STRING"},
+                    "nombre_funcion": {"type": "STRING"},
+                    "codigo_inicial": {"type": "STRING"},
+                    "casos_prueba": {
+                        "type": "ARRAY",
+                        "items": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "entrada": {"type": "ARRAY"},
+                                "esperado": {},
+                                "visible": {"type": "BOOLEAN"}
+                            },
+                            "required": ["entrada", "esperado", "visible"]
+                        }
+                    }
+                },
+                "required": ["titulo", "dificultad", "tema", "descripcion", "enunciado", "nombre_funcion", "codigo_inicial", "casos_prueba"]
+            }
             sys_inst = "Eres un diseñador experto de ejercicios técnicos de Python para plataformas como LeetCode y Codewars. Generas ejercicios originales, sin ambigüedades y con casos de prueba perfectamente congruentes en JSON."
-            raw_resp = self.provider.consultar(prompt, sys_inst, temperature=0.85)
+            raw_resp = self.provider.consultar(prompt, sys_inst, temperature=0.85, json_mode=True, response_schema=schema_reto)
             if raw_resp:
                 try:
                     clean = raw_resp.strip()
@@ -419,7 +444,17 @@ Devuelve OBLIGATORIAMENTE un JSON estricto con la siguiente estructura:
 Devuelve ÚNICAMENTE el objeto JSON sin bloques de código exteriores.
 """
             sys_inst = "Eres PyBot, profesor senior de algoritmos en Python. Entregas soluciones óptimas, elegantes, perfectamente comentadas y con explicaciones didácticas de nivel profesional."
-            raw = self.provider.consultar(prompt, sys_inst, max_tokens=2800, temperature=0.2)
+            schema_solucion = {
+                "type": "OBJECT",
+                "properties": {
+                    "codigo_resuelto": {"type": "STRING"},
+                    "explicacion_paso_a_paso": {"type": "STRING"},
+                    "complejidad": {"type": "STRING"},
+                    "buenas_practicas": {"type": "STRING"}
+                },
+                "required": ["codigo_resuelto", "explicacion_paso_a_paso", "complejidad", "buenas_practicas"]
+            }
+            raw = self.provider.consultar(prompt, sys_inst, max_tokens=2800, temperature=0.2, json_mode=True, response_schema=schema_solucion)
             if raw:
                 try:
                     clean = raw.strip()
