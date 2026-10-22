@@ -26,12 +26,75 @@ export type Exercise = {
   expected: string;
   files: Record<string, string>;
   briefing?: ContextualBriefing;
+  category?: string;
+  testCasesCount?: number;
+  projectNumber?: number;
+  criteriaCount?: number;
+  filesCount?: number;
+  isAI?: boolean;
 };
 
-const projectMetadata: Record<string, Pick<Exercise, 'difficulty' | 'topics' | 'description' | 'briefing'>> = {
+const projectMetadata: Record<string, Partial<Exercise>> = {
+  '01_gestor_tareas': {
+    difficulty: 'Fácil',
+    topics: ['POO', 'modularizacion', 'listas'],
+    projectNumber: 1,
+    filesCount: 3,
+    criteriaCount: 6,
+    isAI: false,
+    description: 'Construye un sistema modular de gestión de tareas dividiendo la entidad Tarea y el controlador GestorTareas en módulos independientes que se comunican entre sí.',
+  },
+  '02_transacciones_bancarias': {
+    difficulty: 'Medio',
+    topics: ['POO', 'manejo_de_errores', 'diccionarios'],
+    projectNumber: 2,
+    filesCount: 3,
+    criteriaCount: 6,
+    isAI: false,
+    description: 'Desarrolla una aplicación bancaria con validación de fondos, excepciones personalizadas para saldo insuficiente y reporte consolidado de saldos.',
+  },
+  '03_enrutador_paquetes': {
+    difficulty: 'Difícil',
+    topics: ['estructuras_de_datos', 'algoritmos', 'modularizacion'],
+    projectNumber: 3,
+    filesCount: 3,
+    criteriaCount: 6,
+    isAI: false,
+    description: 'Diseña un conmutador de paquetes de red con cola de prioridades QoS, descarte ante saturación de búfer y tabla de reenvío por saltos.',
+  },
+  '04_flota_envios': {
+    difficulty: 'Medio',
+    topics: ['POO', 'transporte', 'logica'],
+    projectNumber: 4,
+    filesCount: 3,
+    criteriaCount: 5,
+    isAI: true,
+    description: 'Coordina vehículos de reparto con control de capacidad máxima de peso, estado en tránsito y cálculo de consumo de combustible.',
+  },
+  '05_biblioteca_poo': {
+    difficulty: 'Medio',
+    topics: ['POO', 'modularizacion', 'listas'],
+    projectNumber: 5,
+    filesCount: 3,
+    criteriaCount: 6,
+    isAI: true,
+    description: 'Diseña un catálogo de libros con control de préstamos, búsqueda insensible a mayúsculas por autor y validación estricta de ISBN.',
+  },
+  '06_ecosistema_espacial': {
+    difficulty: 'Fácil',
+    topics: ['POO', 'simulacion', 'clases'],
+    projectNumber: 6,
+    filesCount: 3,
+    criteriaCount: 5,
+    isAI: true,
+    description: 'Simula el soporte vital de una estación espacial administrando módulos de oxígeno, energía solar y reciclaje de agua.',
+  },
   '01_inventario_juan': {
     difficulty: 'Fácil',
     topics: ['Validación', 'Reglas de negocio'],
+    projectNumber: 7,
+    filesCount: 4,
+    criteriaCount: 6,
     description: 'Corrige las ventas por unidad sin impedir cantidades fraccionarias en productos por peso.',
     briefing: {
       situacion: 'La tienda de Juan vende manzanas por unidades completas (no fraccionables) y arroz por kilogramos (sí fraccionario). Actualmente el sistema tiene un defecto: permite registrar ventas imposibles como 1.5 manzanas y descuenta existencias erróneas del inventario.',
@@ -54,6 +117,9 @@ const projectMetadata: Record<string, Pick<Exercise, 'difficulty' | 'topics' | '
   '02_agenda_salas': {
     difficulty: 'Medio',
     topics: ['Fechas', 'Intervalos'],
+    projectNumber: 8,
+    filesCount: 4,
+    criteriaCount: 4,
     description: 'Permite reservas consecutivas y detecta los solapamientos reales entre horarios.',
     briefing: {
       situacion: 'Una universidad gestiona salas de estudio donde una reserva puede iniciar en el mismo minuto exacto que termina la anterior (ej. 09:00 a 10:00 y de 10:00 a 11:00). Actualmente el sistema rechaza reservas consecutivas válidas interpretándolas incorrectamente como solapamientos.',
@@ -76,6 +142,9 @@ const projectMetadata: Record<string, Pick<Exercise, 'difficulty' | 'topics' | '
   '03_pagos_factura': {
     difficulty: 'Difícil',
     topics: ['Estado', 'Idempotencia'],
+    projectNumber: 9,
+    filesCount: 4,
+    criteriaCount: 5,
     description: 'Evita cobros duplicados al recibir de nuevo una misma referencia de pago.',
     briefing: {
       situacion: 'Una pasarela de pagos registra abonos a facturas. Cuando ocurren reintentos automáticos por inestabilidad de red, el cliente puede enviar dos veces la misma operación con idéntica referencia. Actualmente el sistema cobra dos veces y descuenta doble saldo.',

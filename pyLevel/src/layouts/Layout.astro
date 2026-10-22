@@ -1,5 +1,6 @@
 ---
 import Navbar from '../components/Navbar.astro';
+import PyBotWidget from '../components/PyBotWidget.astro';
 import '../styles/theme.css';
 import '../styles/global.css';
 
@@ -44,6 +45,7 @@ const {
 	<body>
 		{!hideNavbar && <Navbar />}
 		<slot />
+		<PyBotWidget />
 	</body>
 </html>
 
