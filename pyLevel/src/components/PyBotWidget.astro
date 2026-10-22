@@ -331,7 +331,7 @@
     enviarMensaje(texto);
   });
 
-  // Función principal para enviar y recibir
+  // Función principal para enviar y recibir con soporte SSE Streaming
   async function enviarMensaje(texto: string) {
     if (chipsWrap) chipsWrap.hidden = true;
 
@@ -341,7 +341,7 @@
     saveHistory();
     scrollToBottom();
 
-    // Activar loader de escritura
+    // Activar loader de escritura mientras esperamos el primer token
     setTyping(true);
 
     try {
@@ -349,11 +349,15 @@
 
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
+        },
         body: JSON.stringify({
           mensaje: texto,
           historial: history.slice(-6),
           contexto: contexto || {},
+          stream: true,
         }),
       });
 
@@ -361,16 +365,80 @@
         throw new Error(`Error en servidor (${response.status})`);
       }
 
-      const data = await response.json();
-      const respuestaBot = data.respuesta || (data.success ? '¡Listo! 🚀' : 'Ocurrió un error al procesar tu consulta.');
-      appendMessageToDOM('bot', respuestaBot, true);
-      history.push({ rol: 'bot', contenido: respuestaBot });
-      saveHistory();
+      const contentType = response.headers.get('content-type') || '';
+
+      if (contentType.includes('text/event-stream') && response.body) {
+        // Modo Streaming palabra por palabra en tiempo real
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let sseBuffer = '';
+        let fullBotReply = '';
+
+        // Crear la fila y burbuja del bot
+        const row = document.createElement('div');
+        row.className = 'msg-row bot-row animate-in';
+        const bubble = document.createElement('div');
+        bubble.className = 'msg-bubble bot-bubble';
+        row.appendChild(bubble);
+
+        let attached = false;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split('\n');
+          sseBuffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed.startsWith('data:')) continue;
+            const dataStr = trimmed.slice(5).trim();
+            if (!dataStr) continue;
+
+            if (dataStr === '[DONE]') {
+              break;
+            }
+
+            try {
+              const parsed = JSON.parse(dataStr);
+              if (parsed.token) {
+                if (!attached) {
+                  setTyping(false);
+                  messagesContainer.appendChild(row);
+                  attached = true;
+                }
+                fullBotReply += parsed.token;
+                bubble.innerHTML = formatMarkdown(fullBotReply) + '<span class="chat-cursor"></span>';
+                scrollToBottom();
+              }
+            } catch {}
+          }
+        }
+
+        // Finalizar streaming: quitar cursor y guardar en historial
+        if (!attached && fullBotReply) {
+          setTyping(false);
+          messagesContainer.appendChild(row);
+        }
+        bubble.innerHTML = formatMarkdown(fullBotReply || '¡Listo! 🚀');
+        history.push({ rol: 'bot', contenido: fullBotReply || '¡Listo! 🚀' });
+        saveHistory();
+      } else {
+        // Fallback estándar JSON
+        const data = await response.json();
+        const respuestaBot = data.respuesta || (data.success ? '¡Listo! 🚀' : 'Ocurrió un error al procesar tu consulta.');
+        setTyping(false);
+        appendMessageToDOM('bot', respuestaBot, true);
+        history.push({ rol: 'bot', contenido: respuestaBot });
+        saveHistory();
+      }
     } catch (err: any) {
+      setTyping(false);
       const errorMsg = 'No pude conectar con PyBot en este momento. Verifica tu conexión e inténtalo nuevamente. ⚠️';
       appendMessageToDOM('bot', errorMsg, false);
     } finally {
-      // Siempre desactivar loader al terminar
       setTyping(false);
       scrollToBottom();
     }
@@ -738,6 +806,22 @@
 
   .bot-bubble strong {
     color: #38bdf8;
+  }
+
+  .chat-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background-color: #38bdf8;
+    margin-left: 2px;
+    vertical-align: middle;
+    animation: cursor-blink 0.8s infinite;
+    box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
+  }
+
+  @keyframes cursor-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
   }
 
   /* Chips de preguntas sugeridas */

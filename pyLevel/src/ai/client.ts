@@ -1,6 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import fs from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +37,39 @@ const pendingRequests = new Map<string, PendingRequest>();
 
 function getPythonCommand(): string {
   return process.platform === 'win32' ? 'python' : 'python3';
+}
+
+export function getGeminiApiKey(): string | null {
+  if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > 10) {
+    return process.env.GEMINI_API_KEY;
+  }
+  const candidatePaths = [
+    join(process.cwd(), '.gemini_key'),
+    join(process.cwd(), '.env'),
+    join(__dirname, '.gemini_key'),
+    join(__dirname, '.env'),
+    join(__dirname, '..', '..', '.gemini_key'),
+    join(__dirname, '..', '..', '.env'),
+    join(__dirname, '..', '..', '..', '.gemini_key'),
+    join(__dirname, '..', '..', '..', '.env'),
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        const content = fs.readFileSync(p, 'utf-8');
+        for (const line of content.split('\n')) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('GEMINI_API_KEY=')) {
+            const key = trimmed.split('=', 2)[1].replace(/["']/g, '').trim();
+            if (key.length > 10) return key;
+          } else if (p.endsWith('.gemini_key') && trimmed && !trimmed.startsWith('#') && trimmed.length > 10) {
+            return trimmed;
+          }
+        }
+      } catch {}
+    }
+  }
+  return null;
 }
 
 function getOrCreateWorker(): ChildProcess {
@@ -152,7 +186,6 @@ export function invokeAI<T = any>(payload: AIActionPayload, timeoutMs: number = 
         worker.stdin?.once('drain', () => {});
       }
     } catch (err: any) {
-      // Fallback a ejecución aislada si el worker persistente falla
       console.warn('[AI Client] Fallback a ejecución aislada:', err.message);
       invokeAIOneShot<T>(payload).then(resolve).catch(reject);
     }
@@ -204,5 +237,134 @@ export function invokeAIOneShot<T = any>(payload: AIActionPayload): Promise<T> {
 
     child.stdin.write(JSON.stringify(payload), 'utf-8');
     child.stdin.end();
+  });
+}
+
+/**
+ * Transmisión en tiempo real de chat token por token vía Server-Sent Events (SSE).
+ * Se conecta a Gemini streamGenerateContent directamente cuando hay clave,
+ * o simula streaming fluido sobre el motor pedagógico local en caso contrario.
+ */
+export async function streamChat(options: {
+  mensaje: string;
+  historial?: Array<{ rol: string; contenido: string }>;
+  contexto?: { tema?: string; codigo_actual?: string };
+}): Promise<ReadableStream<Uint8Array>> {
+  const encoder = new TextEncoder();
+  const apiKey = getGeminiApiKey();
+
+  if (apiKey) {
+    let ctxTexto = '';
+    if (options.contexto?.tema) {
+      ctxTexto += `Tema actual de trabajo: ${options.contexto.tema}.\n`;
+    }
+    if (options.contexto?.codigo_actual) {
+      ctxTexto += `Código que el estudiante tiene en pantalla:\n\`\`\`python\n${options.contexto.codigo_actual.slice(0, 600)}\n\`\`\`\n`;
+    }
+
+    let historialTexto = '';
+    if (options.historial) {
+      for (const h of options.historial.slice(-4)) {
+        const rol = h.rol === 'user' ? 'Estudiante' : 'PyBot';
+        historialTexto += `${rol}: ${h.contenido}\n`;
+      }
+    }
+
+    const prompt = `${ctxTexto}${historialTexto}Estudiante pregunta: "${options.mensaje.trim()}"\n\nPor favor responde de forma concisa, cordial, pedagógica y con código Python formateado cuando sea relevante.`;
+
+    const systemInstruction = 'Eres PyBot, el asistente inteligente y tutor amigable de Python en PyLevel. Explicas conceptos de programación de forma sencilla, usando analogías claras y snippets breves de código Python.';
+
+    const payload = {
+      contents: [{ parts: [{ text: prompt }] }],
+      systemInstruction: { parts: [{ text: systemInstruction }] },
+      generationConfig: {
+        temperature: 0.4,
+        maxOutputTokens: 1200,
+      },
+    };
+
+    const models = [
+      'gemini-flash-lite-latest',
+      'gemini-3.5-flash-lite',
+      'gemini-3-flash-preview',
+      'gemini-3.5-flash',
+    ];
+
+    for (const model of models) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
+        const resp = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (resp.ok && resp.body) {
+          return new ReadableStream({
+            async start(controller) {
+              const reader = resp.body!.getReader();
+              const decoder = new TextDecoder();
+              let sseBuffer = '';
+
+              try {
+                while (true) {
+                  const { done, value } = await reader.read();
+                  if (done) break;
+
+                  sseBuffer += decoder.decode(value, { stream: true });
+                  const lines = sseBuffer.split('\n');
+                  sseBuffer = lines.pop() ?? '';
+
+                  for (const line of lines) {
+                    const trimmed = line.trim();
+                    if (!trimmed.startsWith('data:')) continue;
+                    const jsonStr = trimmed.slice(5).trim();
+                    if (!jsonStr) continue;
+
+                    try {
+                      const data = JSON.parse(jsonStr);
+                      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                      if (text) {
+                        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ token: text })}\n\n`));
+                      }
+                    } catch {}
+                  }
+                }
+
+                controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+                controller.close();
+              } catch (err: any) {
+                controller.error(err);
+              }
+            },
+          });
+        }
+      } catch {
+        continue;
+      }
+    }
+  }
+
+  // Fallback garantizado: Motor pedagógico local
+  const localRes = await invokeAI({
+    action: 'chat',
+    data: {
+      mensaje: options.mensaje,
+      historial: options.historial,
+      contexto: options.contexto,
+    },
+  });
+
+  const textoFinal = localRes.respuesta || 'Hola, estoy analizando tu consulta de Python.';
+  return new ReadableStream({
+    async start(controller) {
+      const palabras = textoFinal.split(/(\s+)/);
+      for (const p of palabras) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ token: p })}\n\n`));
+        await new Promise(r => setTimeout(r, 12));
+      }
+      controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+      controller.close();
+    },
   });
 }
