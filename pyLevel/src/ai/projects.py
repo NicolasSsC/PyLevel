@@ -6,6 +6,7 @@ Maneja generación de arquitecturas modulares en Python, test runners automatiza
 import json
 import re
 import random
+import secrets
 from typing import Dict, Any, Optional, List
 from provider import GeminiProvider
 
@@ -231,7 +232,7 @@ REGLAS OBLIGATORIAS:
         if not compatibles:
             compatibles = banco_proyectos
 
-        seleccion = dict(random.choice(compatibles))
+        seleccion = dict(secrets.choice(compatibles))
         seleccion['es_ia'] = True
         return {
             'success': True,

@@ -19,7 +19,7 @@ export function getDbPool(): pg.Pool {
 
   const rawHost = process.env.PGHOST || process.env.DB_HOST || 'dpg-db8p7oivcj2c73ano9e0-a.ohio-postgres.render.com';
   const host = rawHost.trim();
-  const port = parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
+  const port = Number.parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
   const user = (process.env.PGUSER || process.env.DB_USER || 'pylevel_user').trim();
   const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
   const database = (process.env.PGDATABASE || process.env.DB_NAME || 'pylevel').trim();

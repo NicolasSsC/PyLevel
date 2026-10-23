@@ -6,6 +6,7 @@ Maneja generación con IA, banco algorítmico local, pistas socráticas y resolu
 import json
 import re
 import random
+import secrets
 from typing import Dict, Any, Optional, List
 from provider import GeminiProvider
 
@@ -216,7 +217,7 @@ REGLAS OBLIGATORIAS:
         if not compatibles:
             compatibles = banco_plantillas
 
-        seleccion = dict(random.choice(compatibles))
+        seleccion = dict(secrets.choice(compatibles))
         seleccion['es_ia'] = True
         seleccion['puntos_xp'] = puntos_xp
         seleccion['fuente'] = 'plantilla_offline'

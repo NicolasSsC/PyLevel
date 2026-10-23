@@ -16,7 +16,7 @@ export function getDbPool(): pg.Pool {
     const database = process.env.PGDATABASE || process.env.DB_NAME || 'pylevel';
     const user = process.env.PGUSER || process.env.DB_USER || 'pylevel_user';
     const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
-    const port = parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
+    const port = Number.parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
 
     pool = new Pool({
       host,

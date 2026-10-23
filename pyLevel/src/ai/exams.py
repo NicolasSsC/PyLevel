@@ -6,6 +6,7 @@ Maneja generación paralela de exámenes con IA, tolerancia a JSON imperfectos y
 import json
 import re
 import random
+import secrets
 import concurrent.futures
 from typing import Dict, Any, Optional, List
 from provider import GeminiProvider
@@ -415,7 +416,7 @@ Estructura JSON por cada pregunta:
         ]
 
         copia = list(banco)
-        random.shuffle(copia)
+        secrets.SystemRandom().shuffle(copia)
         return copia[:num_preguntas]
 
     def generar_pregunta_banco(self, area: str = 'sintaxis', dificultad: str = 'media', tema: str = '') -> Dict[str, Any]:
@@ -609,7 +610,7 @@ Estructura JSON requerida:
         if not compatibles:
             compatibles = candidatos_area
 
-        pregunta = dict(random.choice(compatibles))
+        pregunta = dict(secrets.choice(compatibles))
         pregunta['dificultad'] = dificultad
         if tema:
             pregunta['tema'] = tema
