@@ -1,8 +1,9 @@
-import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
+﻿import { FaceDetector, FilesetResolver } from '@mediapipe/tasks-vision';
 
 let detector: FaceDetector | null = null;
 const scope = self as unknown as { onmessage: (event: MessageEvent) => void; postMessage: (data: unknown) => void };
-scope.onmessage = async ({ data }) => {
+
+async function handleMessage(data: any): Promise<void> {
   try {
     if (data.type === 'init') {
       const files = await FilesetResolver.forVisionTasks('/vendor/mediapipe');
@@ -18,4 +19,8 @@ scope.onmessage = async ({ data }) => {
       } finally { data.frame.close(); }
     }
   } catch { scope.postMessage({ type: 'error' }); }
+}
+
+scope.onmessage = ({ data }) => {
+  void handleMessage(data);
 };

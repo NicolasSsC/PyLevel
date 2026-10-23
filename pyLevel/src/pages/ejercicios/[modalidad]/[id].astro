@@ -1,20 +1,43 @@
 ---
-import { catalogs, modePaths } from '../../../core/catalog';
+export const prerender = false;
+
+import { catalogs, type Exercise } from '../../../core/catalog';
 import Workbench from '../../../core/Workbench.astro';
 import ClassicWorkbench from '../../../core/ClassicWorkbench.astro';
-import { classic } from '../../../core/classic-exercises';
+import { classic, type ClassicExercise } from '../../../core/classic-exercises';
 import Layout from '../../../layouts/Layout.astro';
 
-export function getStaticPaths() {
-  return (['classic', 'contextual'] as const).flatMap(mode =>
-    catalogs[mode].map(exercise => ({
-      params: { modalidad: modePaths[mode], id: exercise.id },
-      props: { mode, exercise },
-    })),
-  );
+const { modalidad, id } = Astro.params;
+const mode = modalidad === 'clasicos' ? 'classic' : 'contextual';
+
+let exercise = catalogs[mode].find(e => e.id === id);
+
+if (!exercise) {
+  exercise = {
+    id: id || 'custom',
+    title: 'Desafío PyBot',
+    level: 'Inicial',
+    difficulty: 'Medio',
+    topics: ['Python', 'IA'],
+    description: 'Desafío generado con PyBot IA',
+    statement: '# Desafío generado con PyBot IA\n\nResuelve el ejercicio implementando la función o módulos requeridos.',
+    expected: '',
+    files: {
+      'main.py': '# Escribe tu solución aquí\n',
+      'tests/test_publico.py': 'import unittest\nfrom main import *\n',
+    },
+  };
 }
-const { mode, exercise } = Astro.props;
+
+const classicItem: ClassicExercise = mode === 'classic'
+  ? (classic.find(item => item.id === exercise!.id) || {
+      ...exercise!,
+      hints: ['Analiza la entrada y salida requerida por los casos de prueba.'],
+      solution: '# Consulta a PyBot para obtener la solución guiada\n',
+    })
+  : (null as any);
 ---
+
 <Layout title={`${exercise.title} · PyLevel`}>
-  {mode === 'classic' ? <ClassicWorkbench exercise={classic.find(item => item.id === exercise.id)!} /> : <Workbench mode={mode} exerciseId={exercise.id} />}
+  {mode === 'classic' ? <ClassicWorkbench exercise={classicItem} /> : <Workbench mode={mode} exerciseId={exercise.id} />}
 </Layout>

@@ -1,123 +1,1243 @@
 ---
-import { catalogs, modePaths } from '../core/catalog';
-interface Props { mode: 'classic' | 'contextual' }
+import { catalogs, modePaths, type Exercise } from '../core/catalog';
+
+interface Props {
+  mode: 'classic' | 'contextual';
+}
+
 const { mode } = Astro.props;
 const classic = mode === 'classic';
-const exercises = catalogs[mode];
+const initialExercises = catalogs[mode];
+
+// Dificultades ordenadas
 const difficulties = ['Fácil', 'Medio', 'Difícil'];
-// Only expose topics represented by the catalogue; future content adds its own tags.
-const topics = [...new Set(exercises.flatMap(exercise => exercise.topics))];
+
+// Extraer temas únicos del catálogo
+const topics = [...new Set(initialExercises.flatMap(e => e.topics))].sort();
 ---
-<main class="catalog">
-  <div class="catalog-subbar"><a class="back" href="/ejercicios/">← Modalidades</a><span class="language">Python <b>●</b></span></div>
-  <nav class="modes" aria-label="Modalidad"><a href="/ejercicios/clasicos/" aria-current={classic ? 'page' : undefined}>Ejercicios</a><a href="/ejercicios/contextualizados/" aria-current={!classic ? 'page' : undefined}>Ejercicios contextualizados</a></nav>
-  <section class="intro"><p class="eyebrow">{classic ? 'FUNDAMENTOS / PYTHON' : 'PROYECTOS / PYTHON'}</p><h1>{classic ? 'Ejercicios' : 'Ejercicios contextualizados'}</h1><p>{classic ? 'Elige qué lógica quieres trabajar. Encuentra un reto y construye tu solución.' : 'Explora un proyecto, comprende sus reglas y resuelve el problema.'}</p></section>
-  <div class="catalog-grid">
-    <section class="results" aria-label="Listado de ejercicios">
-      <div class="list-heading"><h2>Explora los desafíos</h2><span id="result-count" role="status">{exercises.length} {exercises.length === 1 ? 'ejercicio disponible' : 'ejercicios disponibles'}</span></div>
-      <div class="cards">
-        {exercises.map(exercise => <article class="exercise-card" data-difficulty={exercise.difficulty} data-topics={JSON.stringify(exercise.topics)}>
-          <div class="card-content"><h3><a href={`/ejercicios/${modePaths[mode]}/${exercise.id}/`}>{exercise.title}</a></h3><div class="metadata"><span class:list={['difficulty', { easy: exercise.difficulty === 'Fácil', medium: exercise.difficulty === 'Medio', hard: exercise.difficulty === 'Difícil' }]}>{exercise.difficulty}</span><span class="divider">/</span><span>{classic ? 'Función por completar' : 'Proyecto Python'}</span></div><p>{exercise.description}</p><ul class="tags" aria-label="Temas">{exercise.topics.map(topic => <li>{topic}</li>)}</ul></div>
-          <a class="solve" href={`/ejercicios/${modePaths[mode]}/${exercise.id}/`} aria-label={`Resolver ${exercise.title}`}>Resolver <span aria-hidden="true">→</span></a>
-        </article>)}
-      </div>
-      <div id="empty-results" hidden><h3>No hay ejercicios con estos filtros</h3><p>Prueba otra dificultad o tema, o limpia los filtros para ver el catálogo completo.</p></div>
-    </section>
-    <aside class="filters" aria-label="Filtros de ejercicios">
-      <div class="filter-heading"><h2>Filtros</h2><button id="clear-filters" type="button" disabled>Limpiar</button></div>
-      <fieldset><legend>Dificultad</legend>{difficulties.map(difficulty => <label><input type="checkbox" name="difficulty" value={difficulty} /><span>{difficulty}</span></label>)}</fieldset>
-      {classic && <fieldset><legend>Lógica que trabaja</legend>{topics.map(topic => <label><input type="checkbox" name="topic" value={topic} /><span>{topic}</span></label>)}</fieldset>}
-      <p class="filter-note">{classic ? 'Selecciona uno o varios temas. Se muestran ejercicios que coincidan con alguno de ellos y con la dificultad elegida.' : 'Selecciona una o varias dificultades para explorar los proyectos.'}</p>
-    </aside>
+
+<main class="catalog-page" data-mode={mode}>
+  <!-- Sub-barra superior con navegación contextual y cambio de modalidad -->
+  <div class="catalog-subbar">
+    <a class="nav-back" href="/ejercicios/">
+      <span aria-hidden="true">←</span> Volver a modalidades
+    </a>
+    <div class="mode-tabs" role="tablist" aria-label="Modalidades de práctica">
+      <a
+        href="/ejercicios/clasicos/"
+        class:list={['mode-tab', { active: classic }]}
+        role="tab"
+        aria-selected={classic ? 'true' : 'false'}
+      >
+        Desafíos Prácticos
+      </a>
+      <a
+        href="/ejercicios/contextualizados/"
+        class:list={['mode-tab', { active: !classic }]}
+        role="tab"
+        aria-selected={!classic ? 'true' : 'false'}
+      >
+        Proyectos Multi-archivo
+      </a>
+    </div>
+    <span class="lang-tag">Python 3 <b>●</b></span>
   </div>
+
+  <!-- Encabezado de la sección -->
+  <header class="catalog-header">
+    <p class="catalog-eyebrow">
+      {classic ? 'PRÁCTICA Y AUTO-CALIFICACIÓN' : 'ARQUITECTURA Y MODULARIZACIÓN'}
+    </p>
+    <h1 class="catalog-title">
+      {classic ? 'Desafíos Prácticos en Python' : 'Proyectos Prácticos Multi-archivo'}
+    </h1>
+    <p class="catalog-subtitle">
+      {classic
+        ? 'Escribe código real, resuelve los retos en el editor y califica tu solución con casos de prueba automatizados.'
+        : 'Desarrolla aplicaciones modulares, interactúa entre múltiples archivos Python y supera los criterios de aceptación.'}
+    </p>
+  </header>
+
+  <!-- Barra de Filtros, Búsqueda y Acción IA -->
+  <section class="catalog-toolbar" aria-label="Filtros y acciones">
+    <div class="toolbar-left">
+      <!-- Selector de dificultad (Pills) -->
+      <div class="difficulty-pills" role="radiogroup" aria-label="Filtrar por dificultad">
+        <button type="button" class="pill-btn active" data-difficulty="all">Todos</button>
+        <button type="button" class="pill-btn" data-difficulty="Fácil">Fácil</button>
+        <button type="button" class="pill-btn" data-difficulty="Medio">Media</button>
+        <button type="button" class="pill-btn" data-difficulty="Difícil">Difícil</button>
+      </div>
+
+      <!-- Filtros adicionales para proyectos multi-archivo -->
+      {!classic && (
+        <div class="extra-filters">
+          <select id="topic-select" class="theme-dropdown" aria-label="Filtrar por tema">
+            <option value="all">Todos los temas</option>
+            {topics.map(t => (
+              <option value={t}>#{t}</option>
+            ))}
+          </select>
+
+          <div class="search-box">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input
+              type="text"
+              id="search-input"
+              class="search-input"
+              placeholder="Buscar proyecto por nombre o tema..."
+              aria-label="Buscar proyectos"
+            />
+          </div>
+
+          <button type="button" id="clear-filters-btn" class="clear-btn">
+            Limpiar filtros
+          </button>
+        </div>
+      )}
+    </div>
+
+    <!-- Botón de acción Generar con IA -->
+    <div class="toolbar-right">
+      <button type="button" id="open-ai-modal-btn" class="ai-create-btn">
+        <svg class="spark-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+        <span>{classic ? 'Crear Reto con IA' : 'Crear Proyecto con IA'}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Grid de Tarjetas (Cards) -->
+  <section class="cards-grid" id="cards-container" aria-label="Listado de ejercicios">
+    {initialExercises.map((exercise, index) => {
+      const isEasy = exercise.difficulty === 'Fácil';
+      const isMedium = exercise.difficulty === 'Medio';
+      const isHard = exercise.difficulty === 'Difícil';
+      const diffClass = isEasy ? 'diff-easy' : isMedium ? 'diff-medium' : 'diff-hard';
+      const diffLabel = isEasy ? 'FACIL' : isMedium ? 'MEDIA' : 'DIFICIL';
+
+      const categoryText = classic
+        ? (exercise.category || (exercise.topics && exercise.topics[0] ? exercise.topics[0].toUpperCase() : 'ALGORITMOS'))
+        : `PROYECTO #${exercise.projectNumber || index + 1}`;
+
+      const linkHref = `/ejercicios/${modePaths[mode]}/${exercise.id}/`;
+
+      return (
+        <article
+          class="card-item"
+          data-id={exercise.id}
+          data-difficulty={exercise.difficulty}
+          data-topics={JSON.stringify(exercise.topics || [])}
+          data-title={exercise.title.toLowerCase()}
+        >
+          <!-- Cabecera de la tarjeta -->
+          <div class="card-header">
+            <div class="card-tags-group">
+              <span class="card-eyebrow-tag">{categoryText}</span>
+              {exercise.isAI && <span class="ai-badge">IA</span>}
+            </div>
+
+            <div class="card-meta-right">
+              <span class:list={['card-diff-chip', diffClass]}>{diffLabel}</span>
+            </div>
+          </div>
+
+          <!-- Título y descripción -->
+          <h2 class="card-title">
+            <a href={linkHref}>{exercise.title}</a>
+          </h2>
+          <p class="card-desc">{exercise.description}</p>
+
+          <!-- Hashtags para proyectos -->
+          {!classic && exercise.topics && (
+            <div class="card-hashtags" aria-label="Temas del proyecto">
+              {exercise.topics.map(topic => (
+                <span class="hashtag-chip">#{topic}</span>
+              ))}
+            </div>
+          )}
+
+          <!-- Pie de tarjeta con métricas y estado -->
+          <div class="card-footer">
+            <div class="footer-metric">
+              {classic ? (
+                <span>{exercise.testCasesCount || 5} casos de prueba</span>
+              ) : (
+                <span>
+                  {exercise.filesCount || Object.keys(exercise.files || {}).length || 3} archivos • {exercise.criteriaCount || 6} criterios
+                </span>
+              )}
+            </div>
+
+            <div class="footer-status" data-status-id={exercise.id}>
+              <span class="status-indicator pending">Pendiente</span>
+            </div>
+          </div>
+        </article>
+      );
+    })}
+  </section>
+
+  <!-- Mensaje de estado vacío cuando ningún filtro coincide -->
+  <div id="no-results-state" class="empty-results-box" hidden>
+    <div class="empty-icon" aria-hidden="true">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"/></svg>
+    </div>
+    <h3>No se encontraron resultados</h3>
+    <p>No hay desafíos que coincidan con los filtros seleccionados. Prueba con otra combinación o genera uno nuevo con PyBot.</p>
+    <button type="button" id="reset-filter-action" class="reset-link-btn">Restablecer filtros</button>
+  </div>
+
+  <!-- MODAL: Crear con IA (PyBot) -->
+  <dialog id="ai-generator-modal" class="ai-modal" aria-labelledby="modal-heading">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-spark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+          </div>
+          <div>
+            <h2 id="modal-heading">{classic ? 'Generar Reto con PyBot IA' : 'Generar Proyecto con PyBot IA'}</h2>
+            <p class="modal-subtext">PyBot diseñará automáticamente el enunciado, código inicial y casos de prueba.</p>
+          </div>
+        </div>
+        <button type="button" id="close-modal-btn" class="modal-close" aria-label="Cerrar modal">✕</button>
+      </div>
+
+      <form id="ai-generator-form" class="modal-form">
+        <div class="form-group">
+          <label for="ai-theme-input">Tema o concepto a trabajar</label>
+          <input
+            type="text"
+            id="ai-theme-input"
+            class="form-input"
+            placeholder={classic ? 'Ej: Listas, Cadenas, Recursión, Diccionarios...' : 'Ej: Ecosistema Espacial, Tienda Online, Simulación IoT...'}
+            required
+          />
+          <div class="theme-suggestions">
+            <span class="sugg-label">Sugerencias:</span>
+            {classic ? (
+              <>
+                <button type="button" class="sugg-btn" data-val="Listas y Ciclos">Listas</button>
+                <button type="button" class="sugg-btn" data-val="Cadenas y Manipulación">Cadenas</button>
+                <button type="button" class="sugg-btn" data-val="Diccionarios">Diccionarios</button>
+                <button type="button" class="sugg-btn" data-val="Algoritmos y Lógica">Algoritmos</button>
+              </>
+            ) : (
+              <>
+                <button type="button" class="sugg-btn" data-val="Arquitectura y POO">POO</button>
+                <button type="button" class="sugg-btn" data-val="Simulación de Ecosistema">Ecosistema</button>
+                <button type="button" class="sugg-btn" data-val="Motor de Reservas">Reservas</button>
+                <button type="button" class="sugg-btn" data-val="Event Bus reactivo">Eventos</button>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="ai-diff-select">Nivel de dificultad</label>
+          <select id="ai-diff-select" class="form-select">
+            <option value="facil">Fácil</option>
+            <option value="media" selected>Media</option>
+            <option value="dificil">Difícil</option>
+            <option value="extrema">Extrema</option>
+          </select>
+        </div>
+
+        <div id="ai-modal-error" class="modal-error-box" hidden></div>
+
+        <!-- Vista de progreso mientras se genera -->
+        <div id="ai-loading-box" class="modal-loading-box" hidden>
+          <div class="pulse-loader" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <p id="ai-loading-status" class="loading-text">PyBot está estructurando los casos de prueba y las funciones...</p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" id="cancel-ai-btn" class="modal-btn secondary">Cancelar</button>
+          <button type="submit" id="submit-ai-btn" class="modal-btn primary">
+            Generar con PyBot
+          </button>
+        </div>
+      </form>
+    </div>
+  </dialog>
 </main>
+
 <script>
-  const inputs = [...document.querySelectorAll<HTMLInputElement>('.filters input')];
-  const cards = [...document.querySelectorAll<HTMLElement>('.exercise-card')];
-  const clear = document.querySelector<HTMLButtonElement>('#clear-filters')!;
-  const count = document.querySelector('#result-count')!;
-  const empty = document.querySelector<HTMLElement>('#empty-results')!;
-  function update() {
-    const selected = (name: string) => inputs.filter(input => input.name === name && input.checked).map(input => input.value);
-    const difficulty = selected('difficulty');
-    const topics = selected('topic');
-    let visible = 0;
-    for (const card of cards) {
+  // Inicialización de lógica interactiva del catálogo y PyBot
+  const page = document.querySelector<HTMLElement>('.catalog-page')!;
+  const mode = page.dataset.mode as 'classic' | 'contextual';
+  const isClassic = mode === 'classic';
+
+  // Elementos de filtrado
+  const pillButtons = document.querySelectorAll<HTMLButtonElement>('.pill-btn');
+  const cardsContainer = document.getElementById('cards-container')!;
+  const noResults = document.getElementById('no-results-state')!;
+  const topicSelect = document.getElementById('topic-select') as HTMLSelectElement | null;
+  const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+  const clearBtn = document.getElementById('clear-filters-btn') as HTMLButtonElement | null;
+  const resetBtn = document.getElementById('reset-filter-action');
+
+  let currentDiff = 'all';
+  let currentTopic = 'all';
+  let currentQuery = '';
+
+  function filterCards() {
+    const cards = document.querySelectorAll<HTMLElement>('.card-item');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cardDiff = card.dataset.difficulty || '';
       const cardTopics: string[] = JSON.parse(card.dataset.topics || '[]');
-      const matches = (!difficulty.length || difficulty.includes(card.dataset.difficulty!)) && (!topics.length || topics.some(topic => cardTopics.includes(topic)));
-      card.hidden = !matches;
-      if (matches) visible++;
+      const cardTitle = card.dataset.title || '';
+
+      const matchDiff = currentDiff === 'all' || cardDiff.toLowerCase() === currentDiff.toLowerCase() || (currentDiff === 'Medio' && cardDiff === 'Medio');
+      const matchTopic = currentTopic === 'all' || cardTopics.includes(currentTopic);
+      const matchQuery = !currentQuery || cardTitle.includes(currentQuery) || cardTopics.some(t => t.toLowerCase().includes(currentQuery));
+
+      const isMatch = matchDiff && matchTopic && matchQuery;
+      card.style.display = isMatch ? 'flex' : 'none';
+      if (isMatch) visibleCount++;
+    });
+
+    if (noResults) {
+      noResults.hidden = visibleCount > 0;
     }
-    count.textContent = `${visible} ${visible === 1 ? 'ejercicio disponible' : 'ejercicios disponibles'}`;
-    empty.hidden = visible !== 0;
-    clear.disabled = !inputs.some(input => input.checked);
   }
-  inputs.forEach(input => input.addEventListener('change', update));
-  clear.addEventListener('click', () => { inputs.forEach(input => input.checked = false); update(); });
-  // Reconcile browser-restored checkbox state when returning from the editor.
-  window.addEventListener('pageshow', update);
-  update();
+
+  // Eventos de pills
+  pillButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      pillButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentDiff = btn.dataset.difficulty || 'all';
+      filterCards();
+    });
+  });
+
+  // Evento de dropdown de temas
+  if (topicSelect) {
+    topicSelect.addEventListener('change', () => {
+      currentTopic = topicSelect.value;
+      filterCards();
+    });
+  }
+
+  // Evento de búsqueda por texto
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      currentQuery = searchInput.value.trim().toLowerCase();
+      filterCards();
+    });
+  }
+
+  // Botón limpiar filtros
+  function resetFilters() {
+    currentDiff = 'all';
+    currentTopic = 'all';
+    currentQuery = '';
+    pillButtons.forEach(b => b.classList.toggle('active', b.dataset.difficulty === 'all'));
+    if (topicSelect) topicSelect.value = 'all';
+    if (searchInput) searchInput.value = '';
+    filterCards();
+  }
+
+  if (clearBtn) clearBtn.addEventListener('click', resetFilters);
+  if (resetBtn) resetBtn.addEventListener('click', resetFilters);
+
+  // Comprobar estado de completado en localStorage
+  function updateCompletionStatuses() {
+    try {
+      const progressRaw = localStorage.getItem('pylevel_progress') || '{}';
+      const progress = JSON.parse(progressRaw);
+      const statusEls = document.querySelectorAll<HTMLElement>('.footer-status');
+
+      statusEls.forEach(el => {
+        const id = el.dataset.statusId;
+        if (id && progress[id] && progress[id].completed) {
+          el.innerHTML = '<span class="status-indicator completed">Resuelto</span>';
+        }
+      });
+    } catch {
+      // Ignorar fallback
+    }
+  }
+
+  updateCompletionStatuses();
+
+  // =========================================================================
+  // MODAL Y GENERACIÓN CON PYBOT
+  // =========================================================================
+  const modal = document.getElementById('ai-generator-modal') as HTMLDialogElement;
+  const openModalBtn = document.getElementById('open-ai-modal-btn');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const cancelModalBtn = document.getElementById('cancel-ai-btn');
+  const aiForm = document.getElementById('ai-generator-form') as HTMLFormElement;
+  const themeInput = document.getElementById('ai-theme-input') as HTMLInputElement;
+  const diffSelect = document.getElementById('ai-diff-select') as HTMLSelectElement;
+  const loadingBox = document.getElementById('ai-loading-box')!;
+  const loadingStatus = document.getElementById('ai-loading-status')!;
+  const errorBox = document.getElementById('ai-modal-error')!;
+  const submitBtn = document.getElementById('submit-ai-btn') as HTMLButtonElement;
+
+  if (openModalBtn && modal) {
+    openModalBtn.addEventListener('click', () => {
+      if (typeof modal.showModal === 'function') {
+        modal.showModal();
+      } else {
+        modal.setAttribute('open', 'true');
+      }
+      themeInput.focus();
+    });
+  }
+
+  function hideModal() {
+    if (modal) {
+      if (typeof modal.close === 'function') {
+        modal.close();
+      } else {
+        modal.removeAttribute('open');
+      }
+      loadingBox.hidden = true;
+      errorBox.hidden = true;
+      submitBtn.disabled = false;
+    }
+  }
+
+  if (closeModalBtn) closeModalBtn.addEventListener('click', hideModal);
+  if (cancelModalBtn) cancelModalBtn.addEventListener('click', hideModal);
+
+  // Botones de sugerencias de temas
+  document.querySelectorAll<HTMLButtonElement>('.sugg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (themeInput && btn.dataset.val) {
+        themeInput.value = btn.dataset.val;
+      }
+    });
+  });
+
+  // Enviar generación a la API de PyBot
+  if (aiForm) {
+    aiForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const tema = themeInput.value.trim();
+      const dificultad = diffSelect.value;
+
+      loadingBox.hidden = false;
+      errorBox.hidden = true;
+      submitBtn.disabled = true;
+
+      const loadingMessages = isClassic
+        ? ['PyBot está redactando el desafío...', 'Estructurando casos de prueba automáticos...', 'Compilando solución y validando assertions...']
+        : ['PyBot está diseñando la arquitectura modular...', 'Generando archivos y contratos de clases...', 'Construyendo suite test_runner...'];
+
+      let msgIndex = 0;
+      const interval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % loadingMessages.length;
+        if (loadingStatus) loadingStatus.textContent = loadingMessages[msgIndex];
+      }, 1500);
+
+      try {
+        const endpoint = isClassic ? '/api/ai/generate-challenge' : '/api/ai/generate-project';
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tema, dificultad }),
+        });
+
+        clearInterval(interval);
+
+        if (!res.ok) {
+          throw new Error(`Error en el servidor (${res.status})`);
+        }
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'No se pudo generar el desafío.');
+        }
+
+        // Crear dinámicamente la nueva tarjeta en la interfaz
+        const nuevo = isClassic ? data.reto : data.proyecto;
+        const nuevoId = isClassic ? `ia_${Date.now()}` : `ia_proj_${Date.now()}`;
+        const nuevoTitulo = nuevo.titulo || nuevo.nombre || 'Desafío Generado con IA';
+        const diffText = (nuevo.dificultad || dificultad).toLowerCase();
+        const diffDisplay = diffText === 'facil' ? 'FACIL' : diffText === 'media' ? 'MEDIA' : 'DIFICIL';
+        const diffClass = diffText === 'facil' ? 'diff-easy' : diffText === 'media' ? 'diff-medium' : 'diff-hard';
+
+        // Guardar el ejercicio generado en sessionStorage/localStorage para que el editor pueda cargarlo
+        try {
+          const customStoreKey = isClassic ? 'pylevel_custom_challenges' : 'pylevel_custom_projects';
+          const stored = JSON.parse(localStorage.getItem(customStoreKey) || '{}');
+          stored[nuevoId] = {
+            id: nuevoId,
+            ...nuevo,
+            isAI: true,
+          };
+          localStorage.setItem(customStoreKey, JSON.stringify(stored));
+        } catch {
+          // Ignorar almacenamiento si falla
+        }
+
+        // Crear elemento HTML e insertarlo al inicio del grid
+        const article = document.createElement('article');
+        article.className = 'card-item card-new-highlight';
+        article.dataset.id = nuevoId;
+        article.dataset.difficulty = diffDisplay === 'FACIL' ? 'Fácil' : diffDisplay === 'MEDIA' ? 'Medio' : 'Difícil';
+        article.dataset.topics = JSON.stringify(isClassic ? [nuevo.tema || tema] : nuevo.temas || [tema]);
+        article.dataset.title = nuevoTitulo.toLowerCase();
+
+        const categoryTag = isClassic ? (nuevo.tema || tema).toUpperCase() : `PROYECTO IA #${document.querySelectorAll('.card-item').length + 1}`;
+        const targetHref = `/ejercicios/${isClassic ? 'clasicos' : 'contextualizados'}/${nuevoId}/`;
+
+        article.innerHTML = `
+          <div class="card-header">
+            <div class="card-tags-group">
+              <span class="card-eyebrow-tag">${categoryTag}</span>
+              <span class="ai-badge">IA NUEVO</span>
+            </div>
+            <div class="card-meta-right">
+              <span class="card-diff-chip ${diffClass}">${diffDisplay}</span>
+            </div>
+          </div>
+          <h2 class="card-title">
+            <a href="${targetHref}">${nuevoTitulo}</a>
+          </h2>
+          <p class="card-desc">${nuevo.descripcion || nuevo.enunciado?.slice(0, 140) + '...'}</p>
+          ${!isClassic && nuevo.temas ? `<div class="card-hashtags">${nuevo.temas.map((t: string) => `<span class="hashtag-chip">#${t}</span>`).join('')}</div>` : ''}
+          <div class="card-footer">
+            <div class="footer-metric">
+              <span>${isClassic ? `${nuevo.casos_prueba?.length || 4} casos de prueba` : `${Object.keys(nuevo.archivos || {}).length || 3} archivos • ${nuevo.criterios_aceptacion?.length || 4} criterios`}</span>
+            </div>
+            <div class="footer-status">
+              <span class="status-indicator pending">Pendiente</span>
+            </div>
+          </div>
+        `;
+
+        cardsContainer.prepend(article);
+        hideModal();
+
+        // Scroll suave hacia la nueva tarjeta
+        article.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (err: any) {
+        clearInterval(interval);
+        loadingBox.hidden = true;
+        errorBox.hidden = false;
+        errorBox.textContent = `Error: ${err.message || 'Ocurrió un error al generar.'}`;
+        submitBtn.disabled = false;
+      }
+    });
+  }
 </script>
+
 <style>
-  .catalog { max-width: 1280px; margin: 0 auto; padding: 0 24px 72px; }
-  .catalog-subbar { height: 54px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border); margin-bottom: 4px; }
-  a { color: inherit; text-decoration: none; }
-  a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 4px; }
-  .back { color: var(--color-text-secondary); font-size: 12px; display: inline-flex; align-items: center; gap: 6px; transition: color 0.15s ease; }
-  .back:hover { color: var(--color-primary); }
-  .language { margin-left: auto; font: 12px var(--font-mono, monospace); color: var(--color-text-secondary); }
-  .language b { margin-left: 8px; color: var(--color-accent-gold); }
-  .modes { display: flex; gap: 30px; border-bottom: 1px solid var(--color-border); padding-top: 25px; }
-  .modes a { padding-bottom: 16px; color: var(--color-text-secondary); font-size: 13.5px; font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; }
-  .modes a:hover { color: var(--color-text-primary); }
-  .modes a[aria-current="page"] { color: var(--modes-active, var(--color-primary)); border-bottom-color: var(--modes-active, var(--color-primary)); font-weight: 600; }
-  .intro { padding: 45px 0 38px; }
-  .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--eyebrow-color, var(--color-primary)); margin: 0 0 14px; text-transform: uppercase; }
-  h1 { font-size: 38px; line-height: 1.15; letter-spacing: -1px; color: var(--color-text-primary); margin: 0 0 16px; font-weight: 700; }
-  .intro > p:last-child { color: var(--color-text-secondary); font-size: 14.5px; line-height: 1.7; margin: 0; }
-  .catalog-grid { display: grid; grid-template-columns: minmax(0, 1fr) 265px; gap: 36px; align-items: start; }
-  .list-heading { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px; }
-  h2 { font-size: 14px; font-weight: 700; color: var(--color-text-primary); margin: 0; letter-spacing: -0.2px; }
-  .list-heading > span { font-size: 12px; color: var(--color-text-muted); font-weight: 500; }
-  .cards { display: grid; gap: 16px; }
-  .exercise-card { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 26px 28px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; box-shadow: var(--card-shadow); transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease; }
-  .exercise-card:hover { transform: translateY(-2px); border-color: var(--color-primary); box-shadow: var(--card-shadow-hover); }
-  .exercise-card[hidden] { display: none; }
-  .card-content { min-width: 0; }
-  h3 { font-size: 20px; letter-spacing: -0.35px; margin: 0 0 10px; font-weight: 650; }
-  h3 a { color: var(--color-text-primary); text-decoration: none; transition: color 0.15s ease; }
-  h3 a:hover { color: var(--color-primary); text-decoration: underline; }
-  .metadata { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; font-size: 11.5px; color: var(--color-text-secondary); }
-  .divider { color: var(--color-border); }
-  .difficulty { font-weight: 700; }
-  .easy { color: var(--diff-easy, #0284c7); }
-  .medium { color: var(--diff-medium, #b45309); }
-  .hard { color: var(--diff-hard, #dc2626); }
-  .card-content p { font-size: 13.5px; line-height: 1.7; color: var(--color-text-secondary); margin: 12px 0 16px; }
-  .tags { display: flex; gap: 7px; flex-wrap: wrap; padding: 0; margin: 0; list-style: none; }
-  .tags li { font-size: 11px; font-weight: 500; border: 1px solid var(--color-border); background: var(--color-surface-hover); border-radius: 6px; padding: 3px 9px; color: var(--color-text-secondary); }
-  .solve { flex-shrink: 0; display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 8px; background: var(--color-accent-yellow, #ffd343); color: #193248; font-size: 12.5px; font-weight: 700; border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease; }
-  .solve:hover { background: #ffe072; transform: translateX(2px); box-shadow: 0 4px 12px rgba(213, 168, 21, 0.25); }
-  .solve span { transition: transform 0.15s ease; }
-  .solve:hover span { transform: translateX(3px); }
-  .filters { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 22px 20px; box-shadow: var(--card-shadow); position: sticky; top: 84px; }
-  .filter-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border-subtle); }
-  .filter-heading h2 { font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--color-text-primary); margin: 0; }
-  .filter-heading button { background: none; border: 1px solid transparent; border-radius: 5px; color: var(--color-primary); font-size: 11.5px; font-weight: 600; cursor: pointer; padding: 3px 8px; transition: all 0.15s; }
-  :global(html.dark) .filter-heading button { color: var(--color-accent-gold); }
-  .filter-heading button:hover:not(:disabled) { background: var(--color-primary-light); }
-  .filter-heading button:disabled { color: var(--color-text-muted); cursor: default; opacity: 0.5; }
-  fieldset { border: 0; border-bottom: 1px solid var(--color-border-subtle); padding: 0 0 16px; margin: 0 0 18px; min-width: 0; }
-  legend { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--color-primary); padding: 0; margin-bottom: 12px; }
-  :global(html.dark) legend { color: var(--color-accent-gold); }
-  fieldset label { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--color-text-primary); cursor: pointer; margin-bottom: 4px; padding: 6px 8px; border-radius: 6px; transition: background 0.12s; }
-  fieldset label:hover { background: var(--color-surface-hover); }
-  input { width: 16px; height: 16px; margin: 0; accent-color: var(--color-primary); cursor: pointer; border-radius: 3px; }
-  :global(html.dark) input { accent-color: var(--color-accent-gold); }
-  .filter-note { font-size: 11.5px; line-height: 1.6; color: var(--color-text-secondary); margin: 0; }
-  #empty-results { border: 1px dashed var(--color-border); background: var(--card-bg); border-radius: 12px; padding: 35px; color: var(--color-text-secondary); text-align: center; }
-  #empty-results h3 { font-size: 18px; color: var(--color-text-primary); margin: 0 0 8px; }
-  #empty-results p { font-size: 13px; line-height: 1.8; margin: 0; }
-  @media(max-width:850px) { .catalog-grid { grid-template-columns: 1fr; } .filters { position: static; grid-row: 1; padding: 20px; border-radius: 12px; } .filter-heading { margin-bottom: 16px; } fieldset { display: flex; flex-wrap: wrap; gap: 10px 16px; padding-bottom: 14px; margin-bottom: 16px; } fieldset label { margin: 0; } .filter-note { margin-bottom: 0; } .catalog-grid { gap: 24px; } }
-  @media(max-width:550px) { .catalog { padding: 0 18px 40px; } .language { display: none; } h1 { font-size: 30px; } .intro { padding: 32px 0; } .modes { gap: 20px; } .modes a { font-size: 12px; } .exercise-card { align-items: flex-start; flex-direction: column; padding: 22px; } .solve { align-self: flex-end; } .list-heading { align-items: flex-start; flex-direction: column; gap: 8px; } }
+  /* =========================================================================
+     ESTILOS MODERNOS Y PRECISOS DEL CATÁLOGO PYLEVEL (DARK THEME PROFUNDO)
+     ========================================================================= */
+
+  .catalog-page {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 24px 28px 80px;
+    color: #e2e8f0;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  /* Sub-barra superior */
+  .catalog-subbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 32px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .nav-back {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s ease;
+  }
+
+  .nav-back:hover {
+    color: #38bdf8;
+  }
+
+  .mode-tabs {
+    display: flex;
+    gap: 8px;
+    background: #0f172a;
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mode-tab {
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-decoration: none;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.18s ease;
+  }
+
+  .mode-tab:hover {
+    color: #f1f5f9;
+  }
+
+  .mode-tab.active {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  }
+
+  .lang-tag {
+    font: 600 12px ui-monospace, monospace;
+    color: #64748b;
+  }
+
+  .lang-tag b {
+    color: #ffd43b;
+    margin-left: 4px;
+  }
+
+  /* Encabezado */
+  .catalog-header {
+    margin-bottom: 28px;
+  }
+
+  .catalog-eyebrow {
+    font: 700 11px ui-monospace, monospace;
+    letter-spacing: 2px;
+    color: #38bdf8;
+    margin: 0 0 10px;
+  }
+
+  .catalog-title {
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    color: #f8fafc;
+    margin: 0 0 10px;
+  }
+
+  .catalog-subtitle {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #94a3b8;
+    max-width: 820px;
+    margin: 0;
+  }
+
+  /* Barra de filtros y acción IA */
+  .catalog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .difficulty-pills {
+    display: flex;
+    gap: 6px;
+    background: #0f172a;
+    padding: 4px;
+    border-radius: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .pill-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .pill-btn:hover {
+    color: #f8fafc;
+  }
+
+  .pill-btn.active {
+    background: #1e293b;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  .extra-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .theme-dropdown {
+    background: #0f172a;
+    color: #cbd5e1;
+    font-size: 13px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 13px;
+    color: #64748b;
+    pointer-events: none;
+  }
+
+  .search-input {
+    background: #0f172a;
+    color: #f8fafc;
+    font-size: 13px;
+    padding: 8px 14px 8px 34px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    width: 260px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .search-input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  }
+
+  .clear-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 12.5px;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.15s ease;
+  }
+
+  .clear-btn:hover {
+    color: #f8fafc;
+  }
+
+  /* Botón de Crear con IA */
+  .ai-create-btn {
+    background: #10b981;
+    color: #022c22;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+    transition: all 0.18s ease;
+  }
+
+  .ai-create-btn:hover {
+    background: #34d399;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.38);
+  }
+
+  .spark-icon {
+    font-size: 14px;
+    color: #022c22;
+  }
+
+  /* Grid de Cards */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 22px;
+  }
+
+  .card-item {
+    background: #0e1626;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .card-item:hover {
+    transform: translateY(-3px);
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .card-new-highlight {
+    border-color: rgba(16, 185, 129, 0.5);
+    animation: glow-pulse 2s ease-in-out;
+  }
+
+  @keyframes glow-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    50% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.3); }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .card-tags-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-eyebrow-tag {
+    font: 700 10px ui-monospace, monospace;
+    letter-spacing: 1.2px;
+    color: #64748b;
+  }
+
+  .ai-badge {
+    font: 700 9px ui-monospace, monospace;
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .card-meta-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-xp {
+    font: 700 11px ui-monospace, monospace;
+    color: #ffd43b;
+  }
+
+  .card-diff-chip {
+    font: 700 10px ui-monospace, monospace;
+    padding: 3px 8px;
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+  }
+
+  .diff-easy {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .diff-medium {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .diff-hard {
+    color: #f43f5e;
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.25);
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.35;
+  }
+
+  .card-title a {
+    color: #f8fafc;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .card-title a:hover {
+    color: #38bdf8;
+  }
+
+  .card-desc {
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #94a3b8;
+    margin: 0 0 16px;
+  }
+
+  .card-hashtags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+
+  .hashtag-chip {
+    font-size: 11.5px;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.08);
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid rgba(56, 189, 248, 0.18);
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    margin-top: auto;
+  }
+
+  .footer-metric {
+    font-size: 12.5px;
+    color: #64748b;
+  }
+
+  .status-indicator {
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-indicator.pending {
+    color: #64748b;
+  }
+
+  .status-indicator.completed {
+    color: #10b981;
+  }
+
+  /* Estado vacío */
+  .empty-results-box {
+    text-align: center;
+    padding: 64px 24px;
+    background: #0f172a;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    margin-top: 24px;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .empty-results-box h3 {
+    font-size: 18px;
+    color: #f8fafc;
+    margin: 0 0 8px;
+  }
+
+  .empty-results-box p {
+    font-size: 14px;
+    color: #94a3b8;
+    max-width: 480px;
+    margin: 0 auto 18px;
+  }
+
+  .reset-link-btn {
+    background: #1e293b;
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* =========================================================================
+     MODAL DE CREACIÓN CON IA (PYBOT)
+     ========================================================================= */
+  .ai-modal {
+    background: transparent;
+    border: none;
+    padding: 0;
+    max-width: 540px;
+    width: 90vw;
+    outline: none;
+  }
+
+  .ai-modal::backdrop {
+    background: rgba(3, 7, 18, 0.75);
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-card {
+    background: #0e1626;
+    border: 1px solid rgba(55, 118, 171, 0.4);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    color: #e2e8f0;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 22px;
+  }
+
+  .modal-title-wrap {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .modal-spark {
+    font-size: 20px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    padding: 8px;
+    border-radius: 8px;
+    line-height: 1;
+  }
+
+  .modal-header h2 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 4px;
+  }
+
+  .modal-subtext {
+    font-size: 13px;
+    color: #94a3b8;
+    margin: 0;
+  }
+
+  .modal-close {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-close:hover {
+    color: #f8fafc;
+  }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-group label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+  }
+
+  .form-input, .form-select {
+    width: 100%;
+    background: #090e17;
+    color: #f8fafc;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s ease;
+  }
+
+  .form-input:focus, .form-select:focus {
+    border-color: #10b981;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+
+  .theme-suggestions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .sugg-label {
+    font-size: 11px;
+    color: #64748b;
+  }
+
+  .sugg-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 11.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .sugg-btn:hover {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+
+  .modal-loading-box {
+    text-align: center;
+    padding: 20px;
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    border-radius: 8px;
+    margin-bottom: 18px;
+  }
+
+  .pulse-loader {
+    display: inline-flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: bounce 1.2s infinite ease-in-out both;
+  }
+
+  .dot:nth-child(1) { animation-delay: -0.32s; }
+  .dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  .loading-text {
+    font-size: 13px;
+    color: #a7f3d0;
+    margin: 0;
+  }
+
+  .modal-error-box {
+    background: rgba(244, 63, 94, 0.1);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #f43f5e;
+    padding: 10px 14px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    margin-bottom: 16px;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .modal-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .modal-btn.secondary {
+    background: #1e293b;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+  }
+
+  .modal-btn.secondary:hover {
+    background: #273549;
+    color: #ffffff;
+  }
+
+  .modal-btn.primary {
+    background: #10b981;
+    border: none;
+    color: #022c22;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  }
+
+  .modal-btn.primary:hover:not(:disabled) {
+    background: #34d399;
+    transform: translateY(-1px);
+  }
+
+  .modal-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 768px) {
+    .cards-grid {
+      grid-template-columns: 1fr;
+    }
+    .catalog-toolbar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .toolbar-left {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .difficulty-pills {
+      justify-content: center;
+    }
+    .search-input {
+      width: 100%;
+    }
+    .ai-create-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 </style>

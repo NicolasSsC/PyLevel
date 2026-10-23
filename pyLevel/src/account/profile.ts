@@ -9,7 +9,7 @@ export const todayInBogota = (now = new Date()) => new Intl.DateTimeFormat('en-C
 
 export function validateProfile(body: any, today = todayInBogota()) {
   if (!body || typeof body.displayName !== 'string' || !body.displayName.trim() || body.displayName.trim().length > 100) throw new ProfileError('Escribe un nombre de hasta 100 caracteres.');
-  if (typeof body.email !== 'string' || body.email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())) throw new ProfileError('Escribe un correo válido.');
+  if (typeof body.email !== 'string' || body.email.length > 254 || !/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/.test(body.email.trim())) throw new ProfileError('Escribe un correo válido.');
   if (typeof body.occupation !== 'string' || body.occupation.trim().length > 100) throw new ProfileError('La ocupación admite hasta 100 caracteres.');
   if (typeof body.birthday !== 'string') throw new ProfileError('La fecha de cumpleaños no es válida.');
   if (body.birthday) {
