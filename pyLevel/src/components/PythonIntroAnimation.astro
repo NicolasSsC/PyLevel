@@ -217,11 +217,15 @@
   .snake-path {
     stroke-dasharray: 450;
     stroke-dashoffset: 450;
-    transition: stroke-dashoffset 1.4s ease-out;
+    transition: stroke-dashoffset 1.8s ease-out;
   }
 
   .intro-svg-logo.materialized .snake-path {
     stroke-dashoffset: 0;
+  }
+
+  .intro-svg-logo.materialized .snake-yellow {
+    transition-delay: 0.35s;
   }
 
   .intro-brand-group {
@@ -552,11 +556,11 @@
   // Cronometria precisa (~5.0 segundos en total)
   const START_TIME        = performance.now();
   const T_ORBIT_PHASE     = 1800; // 0.0s - 1.8s: fisica orbital fluida
-  const T_CONVERGE_END    = 3000; // 1.8s - 3.0s: atraccion hacia la silueta oficial
-  const T_MATERIALIZE_SVG = 2800; // 2.8s: inicio de crossfade con SVG oficial y stroke
-  const T_STAGE_REVEAL    = 3800; // 3.8s: marca "PyLevel" y subtitulo se revelan
-  const T_PULSE_START     = 4200; // 4.2s - 5.0s: pulso luminoso centrado
-  const T_AUTO_FINISH     = 5000; // 5.0s: inicio del fade-out automatico
+  const T_CONVERGE_END    = 3900; // 1.8s - 3.0s: atraccion hacia la silueta oficial
+  const T_MATERIALIZE_SVG = 4000; // 2.8s: inicio de crossfade con SVG oficial y stroke
+  const T_STAGE_REVEAL    = 5200; // 3.8s: marca "PyLevel" y subtitulo se revelan
+  const T_PULSE_START     = 5600; // 4.2s - 5.0s: pulso luminoso centrado
+  const T_AUTO_FINISH     = 6800; // 5.0s: inicio del fade-out automatico
 
   function easeInOutCubic(t: number): number {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -570,12 +574,6 @@
 
     const matrix = getSvgMatrix();
 
-    // Fraccion de convergencia de particulas
-    const convergeRaw = elapsed < T_ORBIT_PHASE
-      ? 0
-      : Math.min((elapsed - T_ORBIT_PHASE) / (T_CONVERGE_END - T_ORBIT_PHASE), 1);
-    const convergeEased = easeInOutCubic(convergeRaw);
-
     // Desvanecimiento paulatino de particulas a medida que el SVG se materializa
     const particleOpacity = elapsed < T_MATERIALIZE_SVG
       ? 1
@@ -587,18 +585,27 @@
         const p = swarm[i];
         p.orbitAngle += p.orbitSpeed;
 
-        // Trayectoria orbital con amortiguacion
-        const currentOrbitR = p.initialDistance * (1 - convergeEased * 0.88);
+        // Cada particula converge en un momento distinto para formar el logo por partes
+        const particleDelay = (i / swarm.length) * 900;
+        const particleStart = T_ORBIT_PHASE + particleDelay;
+        const particleRaw = Math.max(
+          0,
+          Math.min((elapsed - particleStart) / (T_CONVERGE_END - particleStart), 1)
+        );
+        const particleProgress = easeInOutCubic(particleRaw);
+
+        // Trayectoria orbital individual con convergencia progresiva
+        const currentOrbitR = p.initialDistance * (1 - particleProgress * 0.88);
         const orbX = p.x + Math.cos(p.orbitAngle) * currentOrbitR * 0.4;
         const orbY = p.y + Math.sin(p.orbitAngle) * currentOrbitR * 0.4;
 
-        // Posicion objetivo en el logo oficial
+        // Destino de cada destello sobre la silueta oficial
         const targetX = matrix.ox + p.targetSvgX * matrix.scale;
         const targetY = matrix.oy + p.targetSvgY * matrix.scale;
 
-        // Interpolacion suave
-        const drawX = orbX + (targetX - orbX) * convergeEased;
-        const drawY = orbY + (targetY - orbY) * convergeEased;
+        // Los destellos llegan uno tras otro, dibujando el simbolo
+        const drawX = orbX + (targetX - orbX) * particleProgress;
+        const drawY = orbY + (targetY - orbY) * particleProgress;
 
         const effectiveAlpha = p.alpha * particleOpacity;
         if (effectiveAlpha <= 0.01) continue;
