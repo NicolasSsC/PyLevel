@@ -3,56 +3,625 @@ export const prerender = false;
 import AccountShell from '../account/AccountShell.astro';
 import { currentUser } from '../lib/session';
 import { loadProgress } from '../account/data';
+import { loadAdminAnalytics, type AdminAnalyticsData } from '../account/admin-analytics';
 
 let user = null;
 let progress: Awaited<ReturnType<typeof loadProgress>> | null = null;
+let adminAnalytics: AdminAnalyticsData | null = null;
 let unavailable = false;
-try { user = await currentUser(Astro.cookies); if (user) progress = await loadProgress(user.id); } catch { unavailable = true; }
+
+try {
+  user = await currentUser(Astro.cookies);
+  if (user) {
+    if (user.role === 'admin') {
+      [progress, adminAnalytics] = await Promise.all([
+        loadProgress(user.id),
+        loadAdminAnalytics(),
+      ]);
+    } else {
+      progress = await loadProgress(user.id);
+    }
+  }
+} catch {
+  unavailable = true;
+}
+
 if (!user && !unavailable) return Astro.redirect('/login?next=/progreso/');
 if (unavailable) Astro.response.status = 503;
-const date = (value: string) => new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota' }).format(new Date(value));
-const resultLabels = { pending: 'En curso', passed: 'Correcto', failed: 'Por revisar', technical_error: 'Error técnico', cancelled: 'Cancelado' };
+
+const isAdmin = user?.role === 'admin';
+const date = (value: string) =>
+  new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota' }).format(new Date(value));
+const resultLabels: Record<string, string> = {
+  pending: 'En curso',
+  passed: 'Correcto',
+  failed: 'Por revisar',
+  technical_error: 'Error técnico',
+  cancelled: 'Cancelado',
+};
+
 const maxDay = Math.max(1, ...(progress?.days.map(d => d.attempts) ?? []));
+const maxAdminDay = Math.max(1, ...(adminAnalytics?.days.map(d => d.attempts) ?? []));
 ---
-<AccountShell title="Progreso y métricas" description="Tus ejercicios, tus avances y un siguiente paso basado en tu actividad." active="progreso">
-  {unavailable || !progress ? <section class="account-card account-empty"><h2>No pudimos cargar tu progreso</h2><p>No se ha perdido tu actividad. Inténtalo nuevamente cuando el servicio esté disponible.</p><a class="account-button secondary" href="/progreso/">Volver a intentar</a></section> : <>
-    <section class="metric-cards" aria-label="Resumen de mi actividad">
-      <article class="account-card metric-card"><span>Ejercicios superados</span><strong>{progress.completed.length}<small> / {progress.total}</small></strong><small>Con pruebas públicas superadas</small></article>
-      <article class="account-card metric-card"><span>En progreso</span><strong>{progress.inProgress}</strong><small>Ejercicios con intentos pendientes</small></article>
-      <article class="account-card metric-card"><span>Ejecuciones y pruebas</span><strong>{progress.attempts}</strong><small>{progress.tests} {progress.tests === 1 ? 'prueba' : 'pruebas'} · {progress.attempts - progress.tests} ejecuciones</small></article>
-      <article class="account-card metric-card"><span>Días activos</span><strong>{progress.activeDays}<small> / 7</small></strong><small>Con ejecuciones en la última semana</small></article>
+
+<AccountShell
+  title={isAdmin ? "Analítica y Métricas de Estudiantes" : "Progreso y métricas"}
+  description={isAdmin ? "Monitorea la actividad global de los alumnos, la tasa de éxito por reto y las alertas tempranas del curso." : "Tus ejercicios, tus avances y un siguiente paso basado en tu actividad."}
+  active="progreso"
+  isAdmin={isAdmin}
+>
+  {unavailable || (!progress && !adminAnalytics) ? (
+    <section class="account-card account-empty">
+      <h2>No pudimos cargar las métricas</h2>
+      <p>No se ha perdido la información. Inténtalo nuevamente en unos instantes.</p>
+      <a class="account-button secondary" href="/progreso/">Volver a intentar</a>
     </section>
-    <div class="metric-columns">
-      <section class="account-card" aria-labelledby="learning-title"><span class="account-label">TU RECORRIDO</span><h2 id="learning-title" style="margin-top:12px">Avance en el catálogo</h2><p class="account-muted">Cada ejercicio cuenta una vez, aunque repitas sus pruebas.</p>
-        <div class="progress-total"><strong>{progress.percentage}%</strong><span>{progress.completed.length} de {progress.total} ejercicios</span></div><div class="account-progress" role="progressbar" aria-label="Ejercicios del catálogo superados" aria-valuenow={progress.completed.length} aria-valuemin="0" aria-valuemax={progress.total}><span style={`width:${progress.percentage}%`}></span></div>
-        <div class="topic-list">{progress.topics.slice(0, 6).map(topic => <div class="topic-row"><div><span>{topic.name}</span><small>{topic.completed} de {topic.total}</small></div><div class="account-progress" aria-hidden="true"><span style={`width:${topic.completed / topic.total * 100}%`}></span></div></div>)}</div>
-        <p class="account-footnote">Estos valores indican ejercicios superados por tema; no representan una calificación de competencias.</p>
-      </section>
-      <section class="account-card" aria-labelledby="activity-title"><span class="account-label">ÚLTIMOS 7 DÍAS</span><h2 id="activity-title" style="margin-top:12px">Tu ritmo de práctica</h2><p class="account-muted">Ejecuciones y pruebas registradas por día, en hora de Colombia.</p>
-        <div class="activity-chart" role="img" aria-label={progress.days.map(d => `${d.label} ${d.key}: ${d.attempts} intentos`).join('; ')}>{progress.days.map(day => <div class="activity-day" aria-hidden="true"><div class="activity-bar"><small>{day.attempts}</small><span style={`height:${day.attempts / maxDay * 100}%`}></span></div><span>{day.label}</span></div>)}</div>
-        <div class="profile-session"><h3>{progress.activeDays ? `${progress.activeDays} ${progress.activeDays === 1 ? 'día de práctica' : 'días de práctica'} esta semana` : 'Todavía no hay actividad esta semana'}</h3><p class="account-muted">{progress.activeDays >= 3 ? 'Has practicado en varios días. Continúa con uno de tus ejercicios pendientes.' : 'Un reto breve puede ayudarte a mantener la práctica. Elige un ejercicio y revisa sus resultados.'}</p><a class="account-button secondary" href="/ejercicios/">Continuar practicando →</a></div>
-      </section>
-    </div>
-    <section class="account-section" aria-labelledby="feedback-title"><div class="section-top"><div><h2 id="feedback-title" style="font-size:19px;margin:0 0 8px">Feedback para tu siguiente paso</h2><p class="account-muted">Recomendaciones de PyLevel basadas en tus intentos, pruebas y ayudas consultadas.</p></div></div>
-      <div class="feedback-grid">{progress.feedback.map((item, i) => <article class:list={['account-card', 'feedback-card', item.tone]}><span class="account-label">PYLEVEL · {String(i + 1).padStart(2, '0')}</span><h3>{item.title}</h3><p>{item.text}</p><a href={item.href}>{item.action} →</a></article>)}</div>
-    </section>
-    <section class="account-card account-section" aria-labelledby="exercises-title"><div class="section-top"><div><h2 id="exercises-title">Mis ejercicios realizados</h2><p class="account-muted">Ejercicios en los que ejecutaste código o pruebas con esta cuenta.</p></div><span class="section-count">{progress.worked.length} ejercicios</span></div>
-      {progress.worked.length ? <>
-        <div class="account-filters" role="group" aria-label="Filtrar mis ejercicios"><button type="button" data-progress-filter="all" aria-pressed="true">Todos ({progress.worked.length})</button><button type="button" data-progress-filter="completed" aria-pressed="false">Superados ({progress.completed.length})</button><button type="button" data-progress-filter="in_progress" aria-pressed="false">En progreso ({progress.inProgress})</button></div>
-        <div class="account-table-wrap"><table class="account-table"><thead><tr><th>EJERCICIO</th><th>ESTADO</th><th>INTENTOS</th><th>ÚLTIMA ACTIVIDAD</th><th></th></tr></thead><tbody>{progress.worked.map(item => <tr data-progress-state={item.completedAt ? 'completed' : 'in_progress'}><td><strong>{item.title}</strong><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'} · {item.difficulty} · {item.topics.join(', ')}</small></td><td><span class:list={['account-status', item.completedAt ? 'green' : 'gold']}>{item.completedAt ? 'Superado' : 'En progreso'}</span></td><td>{item.attempts}<small>{item.tests} pruebas · {item.hints} pistas</small></td><td>{date(item.lastActivityAt)}</td><td><a href={item.href}>{item.completedAt ? 'Repasar →' : 'Continuar →'}</a></td></tr>)}</tbody></table></div>
-        <p class="account-muted" id="progress-filter-empty" role="status" hidden>No hay ejercicios con este estado.</p>
-      </> : <div class="account-empty"><span aria-hidden="true">&lt;/&gt;</span><h3>Tu primer ejercicio te espera</h3><p>Ejecuta una solución o pulsa «Probar» para empezar a registrar tu recorrido. Los borradores antiguos del navegador no se asignan automáticamente a tu cuenta.</p><a class="account-button primary" href="/ejercicios/">Elegir un ejercicio →</a></div>}
-    </section>
-    {progress.recent.length > 0 && <section class="account-card account-section" aria-labelledby="recent-title"><div class="section-top"><div><h2 id="recent-title">Actividad reciente</h2><p class="account-muted">Últimos 20 intentos. Un error técnico o una cancelación no elimina avances anteriores.</p></div></div><div class="account-table-wrap"><table class="account-table"><thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead><tbody>{progress.recent.map(row => <tr><td><a href={row.href}>{row.title}</a></td><td>{row.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td><td><span class:list={['account-status', row.result === 'passed' ? 'green' : row.result === 'failed' ? 'gold' : 'muted']}>{row.result === 'passed' && row.kind === 'test' ? 'Pruebas superadas' : resultLabels[row.result]}</span>{row.kind === 'test' && row.testsRun > 0 && <small>{row.testsRun} pruebas ejecutadas</small>}</td><td>{date(row.createdAt)}</td></tr>)}</tbody></table></div></section>}
-    <p class="account-footnote">La actividad se registra desde esta versión, al trabajar con la sesión iniciada. Las pruebas públicas sirven para orientar tu práctica; los exámenes y su revisión se consultan en <a href="/perfil">Mi perfil</a>.</p>
-  </>}
+  ) : (
+    <>
+      {/* Si es administrador, selector para alternar entre métricas de estudiantes y práctica personal */}
+      {isAdmin && (
+        <section class="admin-view-switcher" aria-label="Cambiar vista de métricas">
+          <div class="view-pills-row">
+            <button type="button" id="btn-show-analytics" class="view-pill active">
+              Métricas del Curso (Estudiantes)
+            </button>
+            <button type="button" id="btn-show-personal" class="view-pill">
+              Mi Práctica Personal
+            </button>
+          </div>
+          <div class="view-action-right">
+            <a href="/admin/" class="account-button primary" style="background: #0284C7; font-size: 13px;">
+              Administrar Ejercicios en Catálogo →
+            </a>
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================= */}
+      {/* VISTA 1: DASHBOARD DE ANALÍTICA DEL CURSO (PARA ADMIN)     */}
+      {/* ========================================================= */}
+      {isAdmin && adminAnalytics && (
+        <div id="analytics-view" class="analytics-container">
+          <!-- KPIs Globales -->
+          <section class="metric-cards" aria-label="Métricas globales del curso">
+            <article class="account-card metric-card">
+              <span>Estudiantes Registrados</span>
+              <strong>{adminAnalytics.totalStudents}</strong>
+              <small>Alumnos con cuenta en PyLevel</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Intentos de Práctica</span>
+              <strong>{adminAnalytics.totalAttempts}</strong>
+              <small>{adminAnalytics.totalTests} pruebas · {adminAnalytics.totalAttempts - adminAnalytics.totalTests} ejecuciones</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Tasa de Aprobación Global</span>
+              <strong>{adminAnalytics.globalPassRate}%</strong>
+              <small>{adminAnalytics.totalPassed} pruebas superadas</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Ejercicios Activos</span>
+              <strong>{adminAnalytics.activeExercises}</strong>
+              <small>Retos visibles para los alumnos</small>
+            </article>
+          </section>
+
+          <!-- Alertas Tempranas Académicas -->
+          <section class="account-card account-section" style="margin-bottom: 24px;">
+            <div class="section-top">
+              <div>
+                <span class="account-label">ALERTAS ACADÉMICAS TEMPRANAS</span>
+                <h2 style="font-size: 18px; margin: 6px 0 4px;">Diagnóstico del Catálogo de Ejercicios</h2>
+                <p class="account-muted">Detección automática de retos con baja tasa de éxito o retos sin interacción.</p>
+              </div>
+            </div>
+
+            <div class="alerts-grid">
+              {adminAnalytics.unattempted.length > 0 ? (
+                <div class="alert-box alert-amber">
+                  <div class="alert-title">Retos sin interacción aún ({adminAnalytics.unattempted.length})</div>
+                  <p class="alert-text">
+                    Hay {adminAnalytics.unattempted.length} ejercicios en el catálogo que los estudiantes aún no han ejecutado.
+                  </p>
+                  <div class="alert-chips">
+                    {adminAnalytics.unattempted.slice(0, 4).map(e => (
+                      <a href={`/admin/`} class="alert-chip-link">{e.title}</a>
+                    ))}
+                    {adminAnalytics.unattempted.length > 4 && <span class="alert-chip-more">+{adminAnalytics.unattempted.length - 4} más</span>}
+                  </div>
+                </div>
+              ) : (
+                <div class="alert-box alert-green">
+                  <div class="alert-title">Catálogo con cobertura completa</div>
+                  <p class="alert-text">Todos los retos del catálogo tienen al menos un intento registrado por estudiantes.</p>
+                </div>
+              )}
+
+              <div class="alert-box alert-blue">
+                <div class="alert-title">Gestión de Catálogo en Tiempo Real</div>
+                <p class="alert-text">
+                  Puedes desactivar temporalmente cualquier reto durante evaluaciones o agregar nuevos casos de prueba en el panel administrativo.
+                </p>
+                <a href="/admin/" class="account-button secondary" style="font-size: 12px; margin-top: 8px;">Ir al Panel de Ejercicios →</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- Columnas de Rendimiento y Ritmo Global -->
+          <div class="metric-columns">
+            <!-- Columna 1: Retos con Mayor Dificultad -->
+            <section class="account-card" aria-labelledby="hard-exercises-title">
+              <span class="account-label">ANÁLISIS DE DIFICULTAD</span>
+              <h2 id="hard-exercises-title" style="margin-top:12px">Retos con Menor Tasa de Éxito</h2>
+              <p class="account-muted">Ejercicios donde los estudiantes cometen más errores en las pruebas unitarias.</p>
+
+              {adminAnalytics.mostDifficult.length > 0 ? (
+                <div class="topic-list" style="margin-top: 16px;">
+                  {adminAnalytics.mostDifficult.map(ex => (
+                    <div class="topic-row">
+                      <div>
+                        <span>{ex.title}</span>
+                        <small>{ex.passed} de {ex.attempts} intentos superados ({ex.passRate ?? 0}%)</small>
+                      </div>
+                      <div class="account-progress" aria-hidden="true">
+                        <span style={`width:${ex.passRate ?? 0}%; background: ${(ex.passRate ?? 0) < 50 ? '#F43F5E' : '#38BDF8'}`}></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="account-muted" style="padding: 24px 0; text-align: center;">
+                  Aún no hay suficientes intentos para calcular los retos más complejos. A medida que los alumnos practiquen, verás el ranking aquí.
+                </p>
+              )}
+            </section>
+
+            <!-- Columna 2: Ritmo de Actividad Global -->
+            <section class="account-card" aria-labelledby="global-activity-title">
+              <span class="account-label">ACTIVIDAD GLOBAL · 7 DÍAS</span>
+              <h2 id="global-activity-title" style="margin-top:12px">Ritmo de Práctica del Grupo</h2>
+              <p class="account-muted">Total de ejecuciones y pruebas realizadas por todos los estudiantes.</p>
+
+              <div class="activity-chart" role="img" aria-label="Actividad de 7 días">
+                {adminAnalytics.days.map(day => (
+                  <div class="activity-day" aria-hidden="true">
+                    <div class="activity-bar">
+                      <small>{day.attempts}</small>
+                      <span style={`height:${day.attempts / maxAdminDay * 100}%; background: #38BDF8;`}></span>
+                    </div>
+                    <span>{day.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div class="profile-session">
+                <h3>Resumen semanal de participación</h3>
+                <p class="account-muted">
+                  Los picos de actividad suelen correlacionarse con fechas de talleres o entregas de proyectos.
+                </p>
+                <a class="account-button secondary" href="/manuales/#capitulo-admin">Consultar guía docente →</a>
+              </div>
+            </section>
+          </div>
+
+          <!-- Tabla Completa de Ejercicios y Rendimiento Estudiantil -->
+          <section class="account-card account-section" style="margin-top: 24px;">
+            <div class="section-top">
+              <div>
+                <span class="account-label">CATÁLOGO COMPLETO</span>
+                <h2>Rendimiento por Ejercicio</h2>
+                <p class="account-muted">Métricas detalladas de intentos, alumnos únicos y porcentaje de éxito por reto.</p>
+              </div>
+              <span class="section-count">{adminAnalytics.exercises.length} ejercicios</span>
+            </div>
+
+            <div class="account-table-wrap">
+              <table class="account-table">
+                <thead>
+                  <tr>
+                    <th>EJERCICIO</th>
+                    <th>MODALIDAD</th>
+                    <th>DIFICULTAD</th>
+                    <th>ALUMNOS</th>
+                    <th>INTENTOS</th>
+                    <th>TASA DE ÉXITO</th>
+                    <th>ACCIÓN</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {adminAnalytics.exercises.map(ex => (
+                    <tr>
+                      <td>
+                        <strong>{ex.title}</strong>
+                        <small>ID: {ex.id}</small>
+                      </td>
+                      <td>
+                        <span class="account-status muted">{ex.mode === 'classic' ? 'Clásico' : 'Proyecto'}</span>
+                      </td>
+                      <td>
+                        <span class="account-status muted">{ex.difficulty}</span>
+                      </td>
+                      <td>{ex.uniqueStudents} alumnos</td>
+                      <td>{ex.attempts} ({ex.passed} OK / {ex.failed} fallos)</td>
+                      <td>
+                        {ex.passRate !== null ? (
+                          <span class:list={['account-status', ex.passRate >= 70 ? 'green' : ex.passRate >= 40 ? 'gold' : 'muted']}>
+                            {ex.passRate}%
+                          </span>
+                        ) : (
+                          <span class="account-status muted">Sin intentos</span>
+                        )}
+                      </td>
+                      <td>
+                        <a href={`/admin/`} class="account-button secondary" style="font-size: 11px; padding: 4px 8px;">Gestionar →</a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Actividad Reciente de Estudiantes -->
+          {adminAnalytics.recentActivity.length > 0 && (
+            <section class="account-card account-section" style="margin-top: 24px;">
+              <div class="section-top">
+                <div>
+                  <span class="account-label">FEED EN VIVO</span>
+                  <h2>Últimos Intentos de Estudiantes</h2>
+                  <p class="account-muted">Registro de las últimas 15 ejecuciones y pruebas de código en la plataforma.</p>
+                </div>
+              </div>
+
+              <div class="account-table-wrap">
+                <table class="account-table">
+                  <thead>
+                    <tr>
+                      <th>ESTUDIANTE</th>
+                      <th>EJERCICIO</th>
+                      <th>ACCIÓN</th>
+                      <th>RESULTADO</th>
+                      <th>FECHA</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {adminAnalytics.recentActivity.map(act => (
+                      <tr>
+                        <td>
+                          <strong>{act.studentName}</strong>
+                          <small>{act.studentEmail}</small>
+                        </td>
+                        <td>
+                          <strong>{act.title}</strong>
+                          <small>{act.mode === 'classic' ? 'Clásico' : 'Proyecto'}</small>
+                        </td>
+                        <td>{act.kind === 'test' ? 'Prueba unitaria' : 'Ejecución libre'}</td>
+                        <td>
+                          <span class:list={['account-status', act.result === 'passed' ? 'green' : act.result === 'failed' ? 'gold' : 'muted']}>
+                            {act.result === 'passed' ? 'Superado' : resultLabels[act.result || ''] || act.result}
+                          </span>
+                        </td>
+                        <td>{date(act.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* VISTA 2: PRÁCTICA PERSONAL (ESTUDIANTE O DOCENTE)         */}
+      {/* ========================================================= */}
+      <div id="personal-view" style={isAdmin ? "display: none;" : ""}>
+        {progress && (
+          <>
+            <section class="metric-cards" aria-label="Resumen de mi actividad personal">
+              <article class="account-card metric-card">
+                <span>Ejercicios superados</span>
+                <strong>{progress.completed.length}<small> / {progress.total}</small></strong>
+                <small>Con pruebas públicas superadas</small>
+              </article>
+              <article class="account-card metric-card">
+                <span>En progreso</span>
+                <strong>{progress.inProgress}</strong>
+                <small>Ejercicios con intentos pendientes</small>
+              </article>
+              <article class="account-card metric-card">
+                <span>Ejecuciones y pruebas</span>
+                <strong>{progress.attempts}</strong>
+                <small>{progress.tests} {progress.tests === 1 ? 'prueba' : 'pruebas'} · {progress.attempts - progress.tests} ejecuciones</small>
+              </article>
+              <article class="account-card metric-card">
+                <span>Días activos</span>
+                <strong>{progress.activeDays}<small> / 7</small></strong>
+                <small>Con ejecuciones en la última semana</small>
+              </article>
+            </section>
+
+            <div class="metric-columns">
+              <section class="account-card" aria-labelledby="learning-title">
+                <span class="account-label">TU RECORRIDO</span>
+                <h2 id="learning-title" style="margin-top:12px">Avance en el catálogo</h2>
+                <p class="account-muted">Cada ejercicio cuenta una vez, aunque repitas sus pruebas.</p>
+                <div class="progress-total">
+                  <strong>{progress.percentage}%</strong>
+                  <span>{progress.completed.length} de {progress.total} ejercicios</span>
+                </div>
+                <div class="account-progress" role="progressbar" aria-label="Ejercicios superados" aria-valuenow={progress.completed.length} aria-valuemin="0" aria-valuemax={progress.total}>
+                  <span style={`width:${progress.percentage}%`}></span>
+                </div>
+                <div class="topic-list">
+                  {progress.topics.slice(0, 6).map(topic => (
+                    <div class="topic-row">
+                      <div>
+                        <span>{topic.name}</span>
+                        <small>{topic.completed} de {topic.total}</small>
+                      </div>
+                      <div class="account-progress" aria-hidden="true">
+                        <span style={`width:${topic.completed / topic.total * 100}%`}></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section class="account-card" aria-labelledby="activity-title">
+                <span class="account-label">ÚLTIMOS 7 DÍAS</span>
+                <h2 id="activity-title" style="margin-top:12px">Tu ritmo de práctica personal</h2>
+                <p class="account-muted">Ejecuciones y pruebas registradas por día, en hora de Colombia.</p>
+                <div class="activity-chart" role="img" aria-label="Actividad personal">
+                  {progress.days.map(day => (
+                    <div class="activity-day" aria-hidden="true">
+                      <div class="activity-bar">
+                        <small>{day.attempts}</small>
+                        <span style={`height:${day.attempts / maxDay * 100}%`}></span>
+                      </div>
+                      <span>{day.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <div class="profile-session">
+                  <h3>{progress.activeDays ? `${progress.activeDays} ${progress.activeDays === 1 ? 'día de práctica' : 'días de práctica'} esta semana` : 'Todavía no hay actividad esta semana'}</h3>
+                  <p class="account-muted">Continúa practicando para mejorar tu dominio de Python.</p>
+                  <a class="account-button secondary" href="/ejercicios/">Continuar practicando →</a>
+                </div>
+              </section>
+            </div>
+
+            <section class="account-section" aria-labelledby="feedback-title">
+              <div class="section-top">
+                <div>
+                  <h2 id="feedback-title" style="font-size:19px;margin:0 0 8px">Feedback para tu siguiente paso</h2>
+                  <p class="account-muted">Recomendaciones de PyLevel basadas en tus intentos, pruebas y ayudas consultadas.</p>
+                </div>
+              </div>
+              <div class="feedback-grid">
+                {progress.feedback.map((item, i) => (
+                  <article class:list={['account-card', 'feedback-card', item.tone]}>
+                    <span class="account-label">PYLEVEL · {String(i + 1).padStart(2, '0')}</span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                    <a href={item.href}>{item.action} →</a>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section class="account-card account-section" aria-labelledby="exercises-title">
+              <div class="section-top">
+                <div>
+                  <h2 id="exercises-title">Mis ejercicios realizados</h2>
+                  <p class="account-muted">Ejercicios en los que ejecutaste código o pruebas con esta cuenta.</p>
+                </div>
+                <span class="section-count">{progress.worked.length} ejercicios</span>
+              </div>
+              {progress.worked.length ? (
+                <>
+                  <div class="account-filters" role="group" aria-label="Filtrar mis ejercicios">
+                    <button type="button" data-progress-filter="all" aria-pressed="true">Todos ({progress.worked.length})</button>
+                    <button type="button" data-progress-filter="completed" aria-pressed="false">Superados ({progress.completed.length})</button>
+                    <button type="button" data-progress-filter="in_progress" aria-pressed="false">En progreso ({progress.inProgress})</button>
+                  </div>
+                  <div class="account-table-wrap">
+                    <table class="account-table">
+                      <thead>
+                        <tr>
+                          <th>EJERCICIO</th>
+                          <th>ESTADO</th>
+                          <th>INTENTOS</th>
+                          <th>ÚLTIMA ACTIVIDAD</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {progress.worked.map(item => (
+                          <tr data-progress-state={item.completedAt ? 'completed' : 'in_progress'}>
+                            <td>
+                              <strong>{item.title}</strong>
+                              <small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'} · {item.difficulty} · {item.topics.join(', ')}</small>
+                            </td>
+                            <td>
+                              <span class:list={['account-status', item.completedAt ? 'green' : 'gold']}>
+                                {item.completedAt ? 'Superado' : 'En progreso'}
+                              </span>
+                            </td>
+                            <td>{item.attempts}<small>{item.tests} pruebas · {item.hints} pistas</small></td>
+                            <td>{date(item.lastActivityAt)}</td>
+                            <td><a href={item.href}>{item.completedAt ? 'Repasar →' : 'Continuar →'}</a></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="account-muted" id="progress-filter-empty" role="status" hidden>No hay ejercicios con este estado.</p>
+                </>
+              ) : (
+                <div class="account-empty">
+                  <span aria-hidden="true">&lt;/&gt;</span>
+                  <h3>Tu primer ejercicio te espera</h3>
+                  <p>Ejecuta una solución o pulsa «Probar» para empezar a registrar tu recorrido personal.</p>
+                  <a class="account-button primary" href="/ejercicios/">Elegir un ejercicio →</a>
+                </div>
+              )}
+            </section>
+          </>
+        )}
+      </div>
+    </>
+  )}
 </AccountShell>
+
+<style>
+  .admin-view-switcher {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111827;
+    border: 1px solid #1E293B;
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .view-pills-row {
+    display: flex;
+    gap: 6px;
+    background: #0B1120;
+    padding: 4px;
+    border-radius: 9px;
+    border: 1px solid #1E293B;
+  }
+
+  .view-pill {
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .view-pill:hover {
+    color: #F8FAFC;
+  }
+
+  .view-pill.active {
+    background: #1E293B;
+    color: #38BDF8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+
+  .alerts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 14px;
+  }
+
+  .alert-box {
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .alert-amber {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .alert-green {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .alert-blue {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .alert-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #F8FAFC;
+  }
+
+  .alert-text {
+    font-size: 12px;
+    color: #94A3B8;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .alert-chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .alert-chip-link {
+    font-size: 11px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid #334155;
+    color: #38BDF8;
+    padding: 3px 8px;
+    border-radius: 5px;
+    text-decoration: none;
+  }
+
+  .alert-chip-link:hover {
+    border-color: #38BDF8;
+    text-decoration: underline;
+  }
+
+  .alert-chip-more {
+    font-size: 11px;
+    color: #64748B;
+    align-self: center;
+  }
+</style>
+
 <script>
+  // Script para alternar vistas (Analítica del Curso vs Práctica Personal)
+  const btnAnalytics = document.getElementById('btn-show-analytics');
+  const btnPersonal = document.getElementById('btn-show-personal');
+  const analyticsView = document.getElementById('analytics-view');
+  const personalView = document.getElementById('personal-view');
+
+  btnAnalytics?.addEventListener('click', () => {
+    btnAnalytics.classList.add('active');
+    btnPersonal?.classList.remove('active');
+    if (analyticsView) analyticsView.style.display = 'block';
+    if (personalView) personalView.style.display = 'none';
+  });
+
+  btnPersonal?.addEventListener('click', () => {
+    btnPersonal.classList.add('active');
+    btnAnalytics?.classList.remove('active');
+    if (analyticsView) analyticsView.style.display = 'none';
+    if (personalView) personalView.style.display = 'block';
+  });
+
+  // Filtros de la tabla de práctica personal
   const filters = document.querySelectorAll<HTMLButtonElement>('[data-progress-filter]');
   filters.forEach(button => button.addEventListener('click', () => {
     filters.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     let visible = 0;
-    document.querySelectorAll<HTMLElement>('[data-progress-state]').forEach(row => { row.hidden = button.dataset.progressFilter !== 'all' && row.dataset.progressState !== button.dataset.progressFilter; if (!row.hidden) visible++; });
-    const empty = document.getElementById('progress-filter-empty'); if (empty) empty.hidden = visible !== 0;
+    document.querySelectorAll<HTMLElement>('[data-progress-state]').forEach(row => {
+      row.hidden = button.dataset.progressFilter !== 'all' && row.dataset.progressState !== button.dataset.progressFilter;
+      if (!row.hidden) visible++;
+    });
+    const empty = document.getElementById('progress-filter-empty');
+    if (empty) empty.hidden = visible !== 0;
   }));
 </script>

@@ -1,0 +1,913 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="Manuales y Documentación Oficial · PyLevel" description="Guías de usuario, manual del estudiante, manual del docente y referencia completa de Python 3 para PyLevel.">
+  <main class="manuals-page">
+    <!-- Header Hero -->
+    <header class="manuals-header">
+      <div class="header-content">
+        <span class="manuals-eyebrow">CENTRO DE DOCUMENTACIÓN Y GUÍAS</span>
+        <h1 class="manuals-title">Manuales de PyLevel</h1>
+        <p class="manuals-desc">
+          Encuentra toda la documentación necesaria: guías paso a paso para estudiantes, manual de administración y docencia para gestionar ejercicios, y una referencia rápida de Python 3.
+        </p>
+      </div>
+
+      <!-- Buscador de manuales -->
+      <div class="manuals-search-box">
+        <svg class="search-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="manual-search-input" placeholder="Buscar en los manuales (ej. cómo crear ejercicios, pruebas unitarias, exámenes, poo)..." aria-label="Buscar en la documentación" />
+      </div>
+    </header>
+
+    <!-- Layout Grid: Sidebar + Contenido -->
+    <div class="manuals-layout">
+      <!-- Sidebar de Navegación -->
+      <aside class="manuals-sidebar" aria-label="Índice de manuales">
+        <nav class="sidebar-nav">
+          <div class="nav-section-group">
+            <h3 class="nav-section-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+              <span>1. Manual del Estudiante</span>
+            </h3>
+            <ul class="nav-links-list">
+              <li><a href="#estudiante-introduccion" class="sidebar-link active">Primeros Pasos en PyLevel</a></li>
+              <li><a href="#estudiante-modalidades" class="sidebar-link">Modalidades: Clásicos vs Proyectos</a></li>
+              <li><a href="#estudiante-editor" class="sidebar-link">El Editor y Pruebas Unitarias</a></li>
+              <li><a href="#estudiante-pybot" class="sidebar-link">Uso del Asistente PyBot IA</a></li>
+              <li><a href="#estudiante-examenes" class="sidebar-link">Exámenes y Supervisión con Cámara</a></li>
+              <li><a href="#estudiante-progreso" class="sidebar-link">Progreso, Actividad y Métricas</a></li>
+            </ul>
+          </div>
+
+          <div class="nav-section-group">
+            <h3 class="nav-section-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              <span>2. Manual del Administrador</span>
+            </h3>
+            <ul class="nav-links-list">
+              <li><a href="#admin-acceso" class="sidebar-link">Acceso al Panel Administrativo</a></li>
+              <li><a href="#admin-crear" class="sidebar-link">Crear Nuevos Ejercicios</a></li>
+              <li><a href="#admin-editar" class="sidebar-link">Editar y Corregir Ejercicios</a></li>
+              <li><a href="#admin-desactivar" class="sidebar-link">Desactivar y Activar Retos</a></li>
+              <li><a href="#admin-borrar" class="sidebar-link">Eliminar Ejercicios Obsoletos</a></li>
+              <li><a href="#admin-pruebas" class="sidebar-link">Diseño de Pruebas Unitarias (Tests)</a></li>
+            </ul>
+          </div>
+
+          <div class="nav-section-group">
+            <h3 class="nav-section-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+              <span>3. Referencia Python 3</span>
+            </h3>
+            <ul class="nav-links-list">
+              <li><a href="#python-sintaxis" class="sidebar-link">Sintaxis Básica y Variables</a></li>
+              <li><a href="#python-control" class="sidebar-link">Condicionales y Bucles</a></li>
+              <li><a href="#python-estructuras" class="sidebar-link">Estructuras de Datos</a></li>
+              <li><a href="#python-funciones" class="sidebar-link">Funciones y Modularización</a></li>
+              <li><a href="#python-poo" class="sidebar-link">Clases y POO</a></li>
+              <li><a href="#python-unittest" class="sidebar-link">Módulo unittest de Python</a></li>
+            </ul>
+          </div>
+
+          <div class="nav-section-group">
+            <h3 class="nav-section-title">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+              <span>4. Arquitectura del Sistema</span>
+            </h3>
+            <ul class="nav-links-list">
+              <li><a href="#arq-componentes" class="sidebar-link">Componentes y Tecnologías</a></li>
+              <li><a href="#arq-ejecutor" class="sidebar-link">Ejecutor Seguro en Contenedor</a></li>
+            </ul>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Contenido Principal de los Manuales -->
+      <article class="manuals-content" id="manuals-doc-content">
+        <!-- ============================================== -->
+        <!-- SECCIÓN 1: MANUAL DEL ESTUDIANTE -->
+        <!-- ============================================== -->
+        <section class="doc-chapter" id="capitulo-estudiante">
+          <div class="chapter-badge">SECCIÓN 1</div>
+          <h2 class="chapter-title">Manual del Estudiante</h2>
+          <p class="chapter-intro">
+            Esta guía te explica cómo sacar el máximo provecho de PyLevel, desde resolver tus primeros desafíos hasta presentar tus exámenes de programación de forma honesta y rigurosa.
+          </p>
+
+          <div class="doc-topic" id="estudiante-introduccion">
+            <h3>1.1 Primeros Pasos en PyLevel</h3>
+            <p>
+              PyLevel es una plataforma de aprendizaje y evaluación orientada a estudiantes de Ingeniería de Software. A diferencia de plataformas teóricas convencionales, aquí todo el aprendizaje se basa en <strong>evidencia real de ejecución de código Python</strong> en entornos seguros.
+            </p>
+            <div class="doc-callout callout-info">
+              <div class="callout-icon">💡</div>
+              <div class="callout-body">
+                <strong>Recomendación inicial:</strong>
+                Crea tu cuenta desde <a href="/registro">Registro</a> o inicia sesión en <a href="/login">Iniciar Sesión</a> para que todos tus ejercicios completados, tiempos y estadísticas queden registrados en tu perfil.
+              </div>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="estudiante-modalidades">
+            <h3>1.2 Modalidades de Práctica: Clásicos vs Proyectos</h3>
+            <p>PyLevel ofrece dos modalidades principales de ejercitación:</p>
+            <ul>
+              <li>
+                <strong>Desafíos Prácticos (Clásicos):</strong> Diseñados para afianzar algoritmos específicos, bucles, recursión, operadores lógicos y estructuras de datos en un solo archivo (<code>main.py</code>). Cada desafío evalúa funciones concretas con casos de prueba públicos inmediatos.
+              </li>
+              <li>
+                <strong>Proyectos Multi-archivo (Contextualizados):</strong> Simulan aplicaciones de software de la vida real (gestor de tareas, pasarela de pagos bancarios, enrutador de red). En ellos navegas entre múltiples módulos (<code>modelos.py</code>, <code>servicios.py</code>, etc.) y debes resolver defectos arquitectónicos o de lógica de negocio.
+              </li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="estudiante-editor">
+            <h3>1.3 El Editor de Código y Pruebas Unitarias</h3>
+            <p>
+              En la mesa de trabajo de cada ejercicio encontrarás dos botones clave de acción:
+            </p>
+            <ol>
+              <li>
+                <strong>▶ Ejecutar (Run):</strong> Ejecuta tu archivo <code>main.py</code> en el contenedor Python y muestra la salida estándar en la consola de la terminal. Úsalo para probar libremente impresiones (<code>print</code>) y depurar tu lógica.
+              </li>
+              <li>
+                <strong>Probar (Test):</strong> Ejecuta la suite de pruebas unitarias oficiales (<code>tests/test_publico.py</code>). <em>Un ejercicio solo se da por superado si superas todas las pruebas con código 0 y status OK.</em>
+              </li>
+            </ol>
+            <div class="doc-callout callout-tip">
+              <div class="callout-icon">🎯</div>
+              <div class="callout-body">
+                <strong>Persistencia automática:</strong> El editor guarda automáticamente tu borrador local en el navegador mientras escribes. Si cierras la pestaña por error, al volver tu código estará intacto.
+              </div>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="estudiante-pybot">
+            <h3>1.4 Uso del Asistente PyBot IA</h3>
+            <p>
+              PyLevel integra a <strong>PyBot</strong>, un tutor de inteligencia artificial basado en Google Gemini. Puedes abrirlo en cualquier momento desde el botón flotante en la esquina inferior derecha:
+            </p>
+            <ul>
+              <li><strong>Pistas Pedagógicas:</strong> PyBot no te dará el código resuelto para que lo copies; en cambio, te guiará con preguntas socráticas, explicándote el error conceptual o sugiriéndote la función adecuada de Python.</li>
+              <li><strong>Explicación de Errores:</strong> Si obtienes un <code>IndexError</code>, <code>TypeError</code> o <code>SyntaxError</code>, puedes consultarle a PyBot por qué ocurre y cómo estructurarlo correctamente.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="estudiante-examenes">
+            <h3>1.5 Exámenes y Supervisión con Cámara</h3>
+            <p>
+              En la sección <a href="/examen/">Examen</a> presentarás evaluaciones formales con límite de tiempo y supervisión en tiempo real:
+            </p>
+            <ul>
+              <li><strong>Detección de Presencia:</strong> La plataforma utiliza MediaPipe en tu navegador para verificar que permaneces frente a la pantalla durante el examen. La cámara no graba video en servidores: la verificación visual ocurre localmente en tu navegador protegiendo tu privacidad.</li>
+              <li><strong>Control de Foco:</strong> Si cambias de pestaña o minimizas la ventana del examen, el sistema registrará una alerta de abandono temporal de ventana.</li>
+              <li><strong>Entrega Final:</strong> Asegúrate de verificar todas tus respuestas antes de pulsar «Finalizar y entregar examen».</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="estudiante-progreso">
+            <h3>1.6 Progreso, Actividad y Métricas</h3>
+            <p>
+              En la pestaña <a href="/progreso/">Progreso y Métricas</a> podrás visualizar:
+            </p>
+            <ul>
+              <li>Número de retos clásicos y proyectos multi-archivo superados.</li>
+              <li>Gráfica de actividad diaria (últimos 7 días).</li>
+              <li>Dominio de temas (POO, Algoritmos, Estructuras de Datos, Validaciones).</li>
+              <li>Historial de ejecuciones y recomendaciones personalizadas del sistema.</li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECCIÓN 2: MANUAL DEL ADMINISTRADOR -->
+        <!-- ============================================== -->
+        <section class="doc-chapter" id="capitulo-admin">
+          <div class="chapter-badge">SECCIÓN 2</div>
+          <h2 class="chapter-title">Manual del Administrador y Docente</h2>
+          <p class="chapter-intro">
+            Guía completa para profesores y administradores de PyLevel sobre el nuevo <a href="/admin/">Panel Administrativo</a>: creación de retos, modificación en vivo, desactivación temporal y diseño de suites de prueba.
+          </p>
+
+          <div class="doc-topic" id="admin-acceso">
+            <h3>2.1 Acceso al Panel Administrativo</h3>
+            <p>
+              El panel de administración se encuentra en la ruta <code>/admin/</code>. Solo los usuarios con el rol <code>admin</code> en la base de datos PostgreSQL pueden ingresar y modificar el catálogo.
+            </p>
+            <p>
+              Una vez autenticado como administrador, verás un enlace directo con icono de escudo en el menú desplegable de tu perfil en la barra superior.
+            </p>
+          </div>
+
+          <div class="doc-topic" id="admin-crear">
+            <h3>2.2 Crear Nuevos Ejercicios</h3>
+            <p>
+              Para agregar un nuevo reto al catálogo de estudiantes:
+            </p>
+            <ol>
+              <li>Haz clic en el botón <strong>«Crear Nuevo Ejercicio»</strong> en el panel de administración.</li>
+              <li><strong>Modalidad:</strong> Selecciona si es un <em>Desafío Clásico</em> o un <em>Proyecto Multi-archivo</em>.</li>
+              <li><strong>Identificador (ID):</strong> Define un ID único en minúsculas y guiones bajos (ej. <code>clasico_fibonacci</code> o <code>10_sistema_clinica</code>).</li>
+              <li><strong>Datos descriptivos:</strong> Título, nivel académico (Inicial, Intermedio, Avanzado), dificultad (Fácil, Medio, Difícil), temas separados por coma y descripción breve.</li>
+              <li><strong>Enunciado:</strong> Redacta en Markdown las instrucciones, requerimientos y casos de ejemplo que verá el estudiante.</li>
+              <li><strong>Archivos de Código:</strong>
+                <ul>
+                  <li><code>main.py</code>: La plantilla inicial con la firma de las funciones que el estudiante completará.</li>
+                  <li><code>tests/test_publico.py</code>: La suite de pruebas unitarias que evaluará la solución.</li>
+                </ul>
+              </li>
+              <li>Marca la casilla <strong>«Ejercicio Activo»</strong> y pulsa «Guardar Ejercicio». El ejercicio estará inmediatamente disponible para los estudiantes.</li>
+            </ol>
+          </div>
+
+          <div class="doc-topic" id="admin-editar">
+            <h3>2.3 Editar y Corregir Ejercicios Existentes</h3>
+            <p>
+              Si necesitas mejorar la redacción de un enunciado, ajustar los casos de prueba o agregar nuevas pistas:
+            </p>
+            <ol>
+              <li>Ubica el ejercicio en la tabla del panel administrativo (puedes usar el buscador o el filtro de modalidad).</li>
+              <li>Haz clic en el botón <strong>«Editar»</strong>.</li>
+              <li>Modifica cualquier campo: enunciado, código inicial, pruebas unitarias o pistas pedagógicas.</li>
+              <li>Pulsa <strong>«Guardar Ejercicio»</strong>. Los cambios se actualizan de inmediato en la base de datos PostgreSQL.</li>
+            </ol>
+          </div>
+
+          <div class="doc-topic" id="admin-desactivar">
+            <h3>2.4 Desactivar y Activar Retos en 1 Clic</h3>
+            <p>
+              Durante periodos de exámenes, talleres prácticos o cuando estés preparando nuevos ejercicios que aún no deban ver los estudiantes, puedes <strong>desactivar</strong> cualquier ejercicio:
+            </p>
+            <ul>
+              <li>En la columna <strong>Estado</strong> de la tabla, haz clic sobre el botón <strong>«Activo»</strong>.</li>
+              <li>El ejercicio cambiará automáticamente a <strong>«Desactivado»</strong>.</li>
+              <li><em>Efecto en los alumnos:</em> El ejercicio desaparece del catálogo público de estudiantes y no puede ser abierto ni ejecutado.</li>
+              <li>Para volver a mostrarlo, simplemente haz clic de nuevo en <strong>«Desactivado»</strong> y volverá a estar activo al instante.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="admin-borrar">
+            <h3>2.5 Eliminar Ejercicios</h3>
+            <p>
+              Si un ejercicio fue creado por error o ya no forma parte del plan de estudios:
+            </p>
+            <ul>
+              <li>Haz clic en el botón <strong>«Borrar»</strong> en la fila del ejercicio.</li>
+              <li>Aparecerá un modal de confirmación advirtiéndote que la acción es irreversible.</li>
+              <li>Al confirmar, el ejercicio se eliminará permanentemente de la base de datos.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="admin-pruebas">
+            <h3>2.6 Diseño de Pruebas Unitarias Efectivas</h3>
+            <p>
+              Para que la auto-calificación de PyLevel funcione con máxima precisión, la suite de pruebas en <code>tests/test_publico.py</code> debe estructurarse usando el módulo nativo <code>unittest</code> de Python:
+            </p>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>tests/test_publico.py</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code>import unittest
+from main import sumar_pares
+
+class TestSumarPares(unittest.TestCase):
+    def test_lista_mixta(self):
+        """Valida suma correcta de enteros pares y omisión de impares."""
+        self.assertEqual(sumar_pares([1, 2, 3, 4, 5, 6]), 12)
+
+    def test_lista_sin_pares(self):
+        """Valida que retorne 0 cuando no hay números pares."""
+        self.assertEqual(sumar_pares([1, 3, 5, 7]), 0)
+
+    def test_lista_vacia(self):
+        """Valida caso de borde con lista vacía."""
+        self.assertEqual(sumar_pares([]), 0)
+
+if __name__ == '__main__':
+    unittest.main()</code></pre>
+            </div>
+            <div class="doc-callout callout-warning">
+              <div class="callout-icon">⚠️</div>
+              <div class="callout-body">
+                <strong>Regla de Acreditación de PyLevel:</strong> Para que el ejecutor declare un ejercicio como <em>superado</em> en las métricas del estudiante, el proceso debe terminar con código de salida <code>0</code> y el reporte de <code>unittest</code> debe contener al menos una prueba exitosa con resultado <code>OK</code>.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECCIÓN 3: REFERENCIA PYTHON 3 -->
+        <!-- ============================================== -->
+        <section class="doc-chapter" id="capitulo-python">
+          <div class="chapter-badge">SECCIÓN 3</div>
+          <h2 class="chapter-title">Referencia Rápida de Python 3</h2>
+          <p class="chapter-intro">
+            Guía de consulta rápida con la sintaxis fundamental, patrones recomendados y ejemplos prácticos de Python 3 para resolver los desafíos de PyLevel.
+          </p>
+
+          <div class="doc-topic" id="python-sintaxis">
+            <h3>3.1 Sintaxis Básica y Variables</h3>
+            <p>Python es un lenguaje interpretado con tipado dinámico y fuerte. La indentación (4 espacios) define los bloques de código.</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>python</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code># Variables y tipos primitivos
+edad = 21                  # int
+altura = 1.78              # float
+nombre = "Santiago"        # str
+es_estudiante = True       # bool
+
+# F-strings (interpolación de cadenas)
+mensaje = f"Hola &#123;nombre&#125;, tienes &#123;edad&#125; años y mides &#123;altura&#125;m."
+print(mensaje)</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="python-control">
+            <h3>3.2 Condicionales y Bucles</h3>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>python</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code># Condicionales
+if edad >= 18:
+    print("Mayor de edad")
+elif edad > 12:
+    print("Adolescente")
+else:
+    print("Menor")
+
+# Bucle for sobre rangos y listas
+for i in range(5):
+    print(f"Paso &#123;i&#125;")
+
+# Bucle while con condición de parada
+contador = 3
+while contador > 0:
+    print(contador)
+    contador -= 1</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="python-estructuras">
+            <h3>3.3 Estructuras de Datos Esenciales</h3>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>python</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code># Listas (mutables, ordenadas)
+frutas = ["manzana", "pera", "plátano"]
+frutas.append("naranja")
+primera = frutas[0]          # "manzana"
+sublista = frutas[1:3]       # ["pera", "plátano"]
+
+# Diccionarios (pares clave-valor)
+estudiante = &#123;
+    "nombre": "Ana",
+    "semestre": 4,
+    "notas": [4.5, 3.8, 5.0]
+&#125;
+promedio = sum(estudiante["notas"]) / len(estudiante["notas"])
+
+# List Comprehensions (comprensión de listas)
+pares = [x for x in range(10) if x % 2 == 0]  # [0, 2, 4, 6, 8]</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="python-funciones">
+            <h3>3.4 Funciones y Modularización</h3>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>python</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code>def calcular_precio(base: float, impuesto: float = 0.19) -> float:
+    """Calcula el precio final aplicando el porcentaje de impuesto."""
+    if base < 0:
+        raise ValueError("El precio base no puede ser negativo.")
+    return base * (1 + impuesto)
+
+total = calcular_precio(100.0)  # 119.0</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="python-poo">
+            <h3>3.5 Programación Orientada a Objetos (POO)</h3>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>python</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code>class Vehiculo:
+    def __init__(self, placa: str, capacidad_kg: float):
+        self.placa = placa
+        self.capacidad_kg = capacidad_kg
+        self.carga_actual = 0.0
+
+    def cargar(self, peso: float) -> bool:
+        if self.carga_actual + peso <= self.capacidad_kg:
+            self.carga_actual += peso
+            return True
+        return False
+
+# Herencia
+class Camion(Vehiculo):
+    def __init__(self, placa: str, capacidad_kg: float, ejes: int):
+        super().__init__(placa, capacidad_kg)
+        self.ejes = ejes</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="python-unittest">
+            <h3>3.6 Pruebas Automatizadas con unittest</h3>
+            <p>Principales métodos de aserción disponibles en <code>unittest.TestCase</code>:</p>
+            <table class="doc-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Comprueba que</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>self.assertEqual(a, b)</code></td>
+                  <td><code>a == b</code></td>
+                </tr>
+                <tr>
+                  <td><code>self.assertNotEqual(a, b)</code></td>
+                  <td><code>a != b</code></td>
+                </tr>
+                <tr>
+                  <td><code>self.assertTrue(x)</code></td>
+                  <td><code>bool(x) is True</code></td>
+                </tr>
+                <tr>
+                  <td><code>self.assertFalse(x)</code></td>
+                  <td><code>bool(x) is False</code></td>
+                </tr>
+                <tr>
+                  <td><code>self.assertIn(elem, lista)</code></td>
+                  <td><code>elem in lista</code></td>
+                </tr>
+                <tr>
+                  <td><code>self.assertRaises(ValueError, fn, arg)</code></td>
+                  <td><code>fn(arg)</code> lanza <code>ValueError</code></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SECCIÓN 4: ARQUITECTURA DEL SISTEMA -->
+        <!-- ============================================== -->
+        <section class="doc-chapter" id="capitulo-arquitectura">
+          <div class="chapter-badge">SECCIÓN 4</div>
+          <h2 class="chapter-title">Arquitectura y Despliegue Técnico</h2>
+          <p class="chapter-intro">
+            Información técnica sobre los componentes, servicios y flujo de datos de PyLevel.
+          </p>
+
+          <div class="doc-topic" id="arq-componentes">
+            <h3>4.1 Componentes y Tecnologías</h3>
+            <ul>
+              <li><strong>Frontend y SSR:</strong> Construido con <em>Astro 7</em> en modo Server-Side Rendering (Node adapter), Vite y Tailwind CSS.</li>
+              <li><strong>Base de Datos:</strong> PostgreSQL con soporte para PGlite local en desarrollo (persistente en <code>.pgdata</code>) y PostgreSQL en la nube para producción.</li>
+              <li><strong>Autenticación:</strong> Sesiones seguras mediante tokens con hash SHA-256 en cookies <code>httpOnly</code> y contraseñas encriptadas con bcrypt.</li>
+              <li><strong>Inteligencia Artificial:</strong> Integración directa con Google Gemini Flash mediante microservicio bridge Python para PyBot.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="arq-ejecutor">
+            <h3>4.2 Ejecutor Seguro de Código</h3>
+            <p>
+              El código enviado por los estudiantes se aísla mediante contenedores desechables con runtime seguro (gVisor <code>runsc</code>) sin acceso a red, previniendo manipulaciones del sistema host y garantizando calificaciones limpias e independientes.
+            </p>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+</Layout>
+
+<style>
+  .manuals-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 6rem;
+    color: var(--color-text-primary, #F8FAFC);
+  }
+
+  /* Header */
+  .manuals-header {
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  }
+
+  .manuals-eyebrow {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #38BDF8;
+    display: inline-block;
+    margin-bottom: 0.6rem;
+  }
+
+  .manuals-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin: 0 0 0.8rem;
+    letter-spacing: -0.02em;
+  }
+
+  .manuals-desc {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary, #94A3B8);
+    max-width: 780px;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+  }
+
+  .manuals-search-box {
+    position: relative;
+    max-width: 650px;
+  }
+
+  .search-svg {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748B;
+    pointer-events: none;
+  }
+
+  #manual-search-input {
+    width: 100%;
+    background: #0B1120;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 0.9rem 1.25rem 0.9rem 3.2rem;
+    font-size: 0.95rem;
+    color: #F8FAFC;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  #manual-search-input:focus {
+    outline: none;
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+  }
+
+  /* Grid Layout */
+  .manuals-layout {
+    display: grid;
+    grid-template-columns: 290px 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  /* Sidebar */
+  .manuals-sidebar {
+    position: sticky;
+    top: 90px;
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 16px;
+    padding: 1.5rem 1.25rem;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+  }
+
+  .nav-section-group {
+    margin-bottom: 1.8rem;
+  }
+
+  .nav-section-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .nav-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #38BDF8;
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  }
+
+  .nav-links-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .sidebar-link {
+    display: block;
+    padding: 0.45rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: #94A3B8;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .sidebar-link:hover {
+    color: #F8FAFC;
+    background: rgba(51, 65, 85, 0.4);
+  }
+
+  .sidebar-link.active {
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.12);
+    font-weight: 600;
+  }
+
+  /* Content */
+  .manuals-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  .doc-chapter {
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 18px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  }
+
+  .chapter-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #C084FC;
+    background: rgba(192, 132, 252, 0.15);
+    border: 1px solid rgba(192, 132, 252, 0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+  }
+
+  .chapter-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0 0 0.8rem;
+    letter-spacing: -0.02em;
+  }
+
+  .chapter-intro {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary, #94A3B8);
+    line-height: 1.6;
+    margin: 0 0 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+  }
+
+  .doc-topic {
+    margin-bottom: 2.2rem;
+  }
+
+  .doc-topic:last-child {
+    margin-bottom: 0;
+  }
+
+  .doc-topic h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: #F8FAFC;
+    scroll-margin-top: 100px;
+  }
+
+  .doc-topic p, .doc-topic li {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #CBD5E1;
+  }
+
+  .doc-topic ul, .doc-topic ol {
+    padding-left: 1.4rem;
+    margin: 0.75rem 0;
+  }
+
+  .doc-topic li {
+    margin-bottom: 0.5rem;
+  }
+
+  .doc-topic a {
+    color: #38BDF8;
+    text-decoration: underline;
+  }
+
+  /* Callouts */
+  .doc-callout {
+    display: flex;
+    gap: 1rem;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin: 1.25rem 0;
+  }
+
+  .callout-info {
+    background: rgba(56, 189, 248, 0.08);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .callout-tip {
+    background: rgba(74, 222, 128, 0.08);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+
+  .callout-warning {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .callout-icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  .callout-body {
+    font-size: 0.9rem;
+    line-height: 1.55;
+    color: #E2E8F0;
+  }
+
+  /* Code Blocks */
+  .code-block-wrap {
+    background: #0B1120;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 1.25rem 0;
+  }
+
+  .code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid #1E293B;
+    font-family: monospace;
+    font-size: 0.78rem;
+    color: #94A3B8;
+  }
+
+  .copy-btn {
+    background: rgba(51, 65, 85, 0.5);
+    border: 1px solid #334155;
+    color: #E2E8F0;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .copy-btn:hover {
+    background: #38BDF8;
+    color: #0B1120;
+    border-color: #38BDF8;
+  }
+
+  .code-pre {
+    margin: 0;
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-family: 'Fira Code', Consolas, Monaco, monospace;
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #E2E8F0;
+  }
+
+  /* Tables */
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.25rem 0;
+    font-size: 0.9rem;
+  }
+
+  .doc-table th, .doc-table td {
+    padding: 0.75rem 1rem;
+    border: 1px solid #334155;
+    text-align: left;
+  }
+
+  .doc-table th {
+    background: rgba(15, 23, 42, 0.7);
+    color: #94A3B8;
+  }
+
+  .doc-table code {
+    background: rgba(15, 23, 42, 0.8);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: #38BDF8;
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 900px) {
+    .manuals-layout {
+      grid-template-columns: 1fr;
+    }
+    .manuals-sidebar {
+      position: static;
+      max-height: none;
+    }
+  }
+</style>
+
+<script>
+  // Copiar código de los bloques
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pre = btn.closest('.code-block-wrap')?.querySelector('.code-pre code');
+      if (pre) {
+        await navigator.clipboard.writeText(pre.textContent || '');
+        const originalText = btn.textContent;
+        btn.textContent = '¡Copiado!';
+        setTimeout(() => {
+          btn.textContent = originalText;
+        }, 2000);
+      }
+    });
+  });
+
+  // Buscador interactivo en vivo de los manuales
+  const searchInput = document.getElementById('manual-search-input') as HTMLInputElement;
+  const docContent = document.getElementById('manuals-doc-content');
+
+  searchInput?.addEventListener('input', () => {
+    const query = searchInput.value.toLowerCase().trim();
+    const topics = document.querySelectorAll('.doc-topic');
+
+    topics.forEach(t => {
+      const topic = t as HTMLElement;
+      const text = topic.textContent?.toLowerCase() || '';
+      if (!query || text.includes(query)) {
+        topic.style.display = '';
+      } else {
+        topic.style.display = 'none';
+      }
+    });
+
+    // Ocultar capítulos si todos sus tópicos están ocultos
+    document.querySelectorAll('.doc-chapter').forEach(c => {
+      const chapter = c as HTMLElement;
+      const visibleTopics = chapter.querySelectorAll('.doc-topic:not([style*="display: none"])');
+      if (!query || visibleTopics.length > 0) {
+        chapter.style.display = '';
+      } else {
+        chapter.style.display = 'none';
+      }
+    });
+  });
+
+  // Resaltado de enlaces en scroll
+  const links = document.querySelectorAll('.sidebar-link');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    document.querySelectorAll('.doc-topic').forEach(section => {
+      const sec = section as HTMLElement;
+      const sectionTop = sec.offsetTop - 120;
+      if (window.scrollY >= sectionTop) {
+        current = sec.getAttribute('id') || '';
+      }
+    });
+
+    links.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === `#${current}`) {
+        link.classList.add('active');
+      }
+    });
+  });
+</script>

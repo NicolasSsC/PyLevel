@@ -1,13 +1,51 @@
 ---
 import AppLayout from '../layouts/AppLayout.astro';
 import './account.css';
-interface Props { title: string; description: string; active: 'perfil' | 'progreso' }
-const { title, description, active } = Astro.props;
+
+interface Props {
+  title: string;
+  description: string;
+  active: 'perfil' | 'progreso';
+  isAdmin?: boolean;
+}
+
+const { title, description, active, isAdmin = false } = Astro.props;
 ---
 <AppLayout title={`${title} · PyLevel`}>
   <main class="account-page">
-    <header class="account-heading"><div><p class="account-eyebrow">MI ESPACIO · PYLEVEL</p><h1>{title}</h1><p>{description}</p></div><a href="/ejercicios/" class="account-button secondary">Explorar ejercicios →</a></header>
-    <nav class="account-tabs" aria-label="Mi cuenta"><a href="/perfil" aria-current={active === 'perfil' ? 'page' : undefined}>Mi perfil</a><a href="/progreso/" aria-current={active === 'progreso' ? 'page' : undefined}>Progreso y métricas</a></nav>
+    <header class="account-heading">
+      <div>
+        <p class="account-eyebrow">{isAdmin ? 'GESTIÓN DOCENTE · PYLEVEL' : 'MI ESPACIO · PYLEVEL'}</p>
+        <h1>{title}</h1>
+        <p>{description}</p>
+      </div>
+      <div class="account-heading-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+        {isAdmin && (
+          <a href="/admin/" class="account-button primary" style="background: #0284C7;">
+            Administrar ejercicios
+          </a>
+        )}
+        <a href="/ejercicios/" class="account-button secondary">Explorar ejercicios →</a>
+      </div>
+    </header>
+    <nav class="account-tabs" aria-label="Mi cuenta">
+      <a href="/perfil" aria-current={active === 'perfil' ? 'page' : undefined}>
+        {isAdmin ? 'Perfil Docente' : 'Mi perfil'}
+      </a>
+      <a href="/progreso/" aria-current={active === 'progreso' ? 'page' : undefined}>
+        {isAdmin ? 'Métricas de Estudiantes' : 'Progreso y métricas'}
+      </a>
+      {isAdmin && (
+        <a href="/admin/">
+          Administrar ejercicios
+        </a>
+      )}
+      {isAdmin && (
+        <a href="/manuales/#capitulo-admin">
+          Manual Docente
+        </a>
+      )}
+    </nav>
     <slot />
   </main>
 </AppLayout>

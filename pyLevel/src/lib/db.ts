@@ -50,6 +50,7 @@ export interface UserProfile {
   occupation: string | null;
   birthday: string | null;
   isActive: boolean;
+  role: 'admin' | 'user';
   createdAt: string;
 }
 
@@ -62,10 +63,12 @@ export async function registerUser(params: {
   password: string;
   displayName: string;
   bio?: string;
+  role?: 'admin' | 'user';
 }): Promise<UserProfile> {
   const email = params.email.trim().toLowerCase();
   const displayName = params.displayName.trim();
   const bio = params.bio?.trim() || 'Estudiante de Ingeniería de Software en PyLevel';
+  const role = params.role || 'user';
 
   if (!email || !email.includes('@')) {
     throw new Error('El correo electrónico no es válido.');
@@ -97,10 +100,10 @@ export async function registerUser(params: {
     await client.query('BEGIN');
 
     const userRes = await client.query(
-      `INSERT INTO users (id, email, password_hash, is_active, created_at, updated_at)
-       VALUES ($1, $2, $3, true, $4, $4)
-       RETURNING id, email, is_active, created_at`,
-      [userId, email, passwordHash, now]
+      `INSERT INTO users (id, email, password_hash, is_active, role, created_at, updated_at)
+       VALUES ($1, $2, $3, true, $4, $5, $5)
+       RETURNING id, email, is_active, role, created_at`,
+      [userId, email, passwordHash, role, now]
     );
 
     await client.query(
@@ -121,6 +124,7 @@ export async function registerUser(params: {
       occupation: null,
       birthday: null,
       isActive: createdUser.is_active,
+      role: (createdUser.role || 'user') as 'admin' | 'user',
       createdAt: createdUser.created_at.toISOString(),
     };
   } catch (err) {
@@ -147,7 +151,7 @@ export async function loginUser(params: {
   const db = getDbPool();
 
   const res = await db.query(
-    `SELECT u.id, u.email, u.password_hash, u.is_active, u.created_at,
+    `SELECT u.id, u.email, u.password_hash, u.is_active, COALESCE(u.role, 'user') AS role, u.created_at,
             p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
@@ -179,6 +183,7 @@ export async function loginUser(params: {
     occupation: row.occupation,
     birthday: row.birthday,
     isActive: row.is_active,
+    role: (row.role || 'user') as 'admin' | 'user',
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };
 }
@@ -189,7 +194,7 @@ export async function loginUser(params: {
 export async function getUserById(userId: string): Promise<UserProfile | null> {
   const db = getDbPool();
   const res = await db.query(
-    `SELECT u.id, u.email, u.is_active, u.created_at,
+    `SELECT u.id, u.email, u.is_active, COALESCE(u.role, 'user') AS role, u.created_at,
             p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
@@ -208,6 +213,7 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
     occupation: row.occupation,
     birthday: row.birthday,
     isActive: row.is_active,
+    role: (row.role || 'user') as 'admin' | 'user',
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };
 }

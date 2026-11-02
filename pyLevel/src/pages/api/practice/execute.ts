@@ -6,6 +6,7 @@ import { getDbPool } from '../../../lib/db';
 import { json } from '../../../lib/http';
 import { runnerFetch } from '../../../lib/runner';
 import { executePractice, preparePracticeFiles } from '../../../account/practice';
+import { getDbExerciseById } from '../../../lib/exercises-db';
 
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
@@ -16,7 +17,8 @@ export const POST: APIRoute = async ({ request, cookies }) => {
     try { body = JSON.parse(raw); } catch { return json({ error: 'Proyecto inválido.' }, 400); }
     if (!body || !['classic', 'contextual'].includes(body.mode) || !['run', 'test'].includes(body.action)) return json({ error: 'Ejercicio o acción inválidos.' }, 400);
     const mode = body.mode as 'classic' | 'contextual';
-    const exercise = catalogs[mode].find(e => e.id === body.exerciseId);
+    const dbExercise = await getDbExerciseById(body.exerciseId);
+    const exercise = (dbExercise as any) || catalogs[mode].find(e => e.id === body.exerciseId);
     if (!exercise) return json({ error: 'No se encontró el ejercicio.' }, 404);
     let files;
     try { files = preparePracticeFiles(exercise, body.action, body.files); }

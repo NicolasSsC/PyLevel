@@ -1,0 +1,1694 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import { currentUser } from '../../lib/session';
+import { getDbExercises } from '../../lib/exercises-db';
+
+const user = await currentUser(Astro.cookies);
+const isAuthorized = user && user.role === 'admin';
+
+const allExercises = isAuthorized ? await getDbExercises({ onlyActive: false }) : [];
+const classicCount = allExercises.filter(e => e.mode === 'classic').length;
+const contextualCount = allExercises.filter(e => e.mode === 'contextual').length;
+const activeCount = allExercises.filter(e => e.is_active).length;
+const inactiveCount = allExercises.filter(e => !e.is_active).length;
+---
+
+<Layout title="Panel Administrativo de Ejercicios · PyLevel">
+  {!isAuthorized ? (
+    <main class="admin-unauthorized">
+      <div class="unauth-card">
+        <div class="unauth-icon">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <h1>Acceso Restringido</h1>
+        <p>Este panel es exclusivo para administradores y docentes de PyLevel.</p>
+        {user ? (
+          <div class="user-info-box">
+            <p>Has iniciado sesión como <strong>{user.email}</strong>, pero tu cuenta no cuenta con rol de administrador.</p>
+            <p class="hint-text">Si eres docente o el desarrollador principal, inicia sesión con la cuenta administradora autorizada o solicita asignación de rol.</p>
+          </div>
+        ) : (
+          <div class="user-info-box">
+            <p>Debes iniciar sesión con una cuenta de administrador para acceder a esta sección.</p>
+          </div>
+        )}
+        <div class="unauth-actions">
+          <a href="/login?role=admin&redirect=/admin/" class="btn-primary">Iniciar sesión como admin</a>
+          <a href="/" class="btn-secondary">Volver al Inicio</a>
+        </div>
+      </div>
+    </main>
+  ) : (
+    <main class="admin-page">
+      <!-- Encabezado del Panel -->
+      <header class="admin-header">
+        <div class="header-breadcrumb">
+          <a href="/" class="back-link">← Volver al inicio</a>
+          <span class="sep">/</span>
+          <span class="current">Administración</span>
+        </div>
+        <div class="header-main-row">
+          <div>
+            <div class="admin-badge">PANEL DE CONTROL DOCENTE</div>
+            <h1 class="admin-title">Gestión de Ejercicios y Retos</h1>
+            <p class="admin-subtitle">Crea, edita, desactiva o elimina desafíos clásicos y proyectos multi-archivo en tiempo real.</p>
+          </div>
+          <div class="header-actions">
+            <a href="/manuales/" class="btn-outline-manual">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+              <span>Ver Manuales</span>
+            </a>
+            <button type="button" id="btn-batch-classic" class="btn-batch-action">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>10 Clásicos con PyBot</span>
+            </button>
+            <button type="button" id="btn-batch-contextual" class="btn-batch-action btn-batch-contextual">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+              <span>10 Proyectos con PyBot</span>
+            </button>
+            <button type="button" id="btn-create-exercise" class="btn-create">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Crear Nuevo Ejercicio</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Métricas / Estadísticas rápidas -->
+      <section class="stats-grid" aria-label="Métricas del catálogo">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-total">{allExercises.length}</div>
+          <div class="stat-label">Total Ejercicios</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-blue" id="stat-classic">{classicCount}</div>
+          <div class="stat-label">Desafíos Clásicos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-purple" id="stat-contextual">{contextualCount}</div>
+          <div class="stat-label">Proyectos Multi-archivo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-green" id="stat-active">{activeCount}</div>
+          <div class="stat-label">Activos (Visibles)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-amber" id="stat-inactive">{inactiveCount}</div>
+          <div class="stat-label">Desactivados (Ocultos)</div>
+        </div>
+      </section>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <section class="toolbar-section">
+        <div class="filter-group">
+          <label for="filter-mode" class="filter-label">Modalidad:</label>
+          <select id="filter-mode" class="admin-select">
+            <option value="all">Todas las modalidades</option>
+            <option value="classic">Desafíos Clásicos</option>
+            <option value="contextual">Proyectos Multi-archivo</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-status" class="filter-label">Estado:</label>
+          <select id="filter-status" class="admin-select">
+            <option value="all">Todos los estados</option>
+            <option value="active">Solo Activos</option>
+            <option value="inactive">Solo Desactivados</option>
+          </select>
+        </div>
+
+        <div class="filter-group search-group">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" class="admin-input-search" placeholder="Buscar por título, ID o tema..." />
+        </div>
+      </section>
+
+      <!-- Tabla / Lista de Ejercicios -->
+      <section class="table-container">
+        <table class="admin-table" id="exercises-table">
+          <thead>
+            <tr>
+              <th>Ejercicio</th>
+              <th>Modalidad</th>
+              <th>Dificultad</th>
+              <th>Temas</th>
+              <th>Estado</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="exercises-tbody">
+            {allExercises.map(ex => {
+              const isClassic = ex.mode === 'classic';
+              const diffClass = ex.difficulty === 'Fácil' ? 'diff-easy' : (ex.difficulty === 'Medio' ? 'diff-medium' : 'diff-hard');
+              const linkUrl = isClassic ? `/ejercicios/clasicos/${ex.id}` : `/ejercicios/contextualizados/${ex.id}`;
+
+              return (
+                <tr class="exercise-row" data-id={ex.id} data-mode={ex.mode} data-status={ex.is_active ? 'active' : 'inactive'} data-title={ex.title.toLowerCase()} data-topics={ex.topics.join(' ').toLowerCase()}>
+                  <td class="col-title">
+                    <div class="ex-title-wrap">
+                      <strong class="ex-title-text">{ex.title}</strong>
+                      <span class="ex-id-code">ID: {ex.id}</span>
+                      <p class="ex-desc-excerpt">{ex.description}</p>
+                    </div>
+                  </td>
+                  <td class="col-mode">
+                    <span class={`badge-mode ${isClassic ? 'badge-classic' : 'badge-contextual'}`}>
+                      {isClassic ? 'Clásico' : 'Proyecto'}
+                    </span>
+                  </td>
+                  <td class="col-diff">
+                    <span class={`pill-diff ${diffClass}`}>{ex.difficulty}</span>
+                  </td>
+                  <td class="col-topics">
+                    <div class="topics-wrap">
+                      {ex.topics.map(t => (
+                        <span class="topic-chip">#{t}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="col-status">
+                    <button
+                      type="button"
+                      class={`btn-toggle-status ${ex.is_active ? 'status-active' : 'status-inactive'}`}
+                      data-id={ex.id}
+                      title={ex.is_active ? 'Clic para desactivar' : 'Clic para activar'}
+                    >
+                      <span class="status-indicator"></span>
+                      <span class="status-text">{ex.is_active ? 'Activo' : 'Desactivado'}</span>
+                    </button>
+                  </td>
+                  <td class="col-actions text-right">
+                    <div class="actions-group">
+                      <a href={linkUrl} target="_blank" rel="noopener noreferrer" class="btn-action btn-view" title="Probar ejercicio en vivo">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>Ver</span>
+                      </a>
+                      <button type="button" class="btn-action btn-edit" data-id={ex.id} title="Editar contenido y pruebas">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span>Editar</span>
+                      </button>
+                      <button type="button" class="btn-action btn-delete" data-id={ex.id} data-title={ex.title} title="Eliminar ejercicio">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <span>Borrar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+        <div id="no-results-msg" class="no-results-box" style="display: none;">
+          <p>No se encontraron ejercicios con los filtros seleccionados.</p>
+        </div>
+      </section>
+
+      <!-- Modal de Creación / Edición de Ejercicio -->
+      <dialog id="exercise-modal" class="admin-modal">
+        <form method="dialog" id="exercise-form" class="modal-form">
+          <div class="modal-header">
+            <div>
+              <h2 id="modal-title">Crear Nuevo Ejercicio</h2>
+              <p class="modal-subtitle">Define el contenido, código inicial y pruebas unitarias que validarán el ejercicio.</p>
+            </div>
+            <button type="button" id="modal-close-btn" class="modal-close-x" aria-label="Cerrar modal">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <input type="hidden" id="form-is-edit" value="false" />
+            <input type="hidden" id="form-original-id" value="" />
+
+            <!-- Asistente de IA PyBot para Generar Borrador -->
+            <div class="ai-assistant-card">
+              <div class="ai-assistant-header">
+                <div class="ai-badge">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#38BDF8" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                  <span>CREAR CON ASISTENTE PYBOT IA</span>
+                </div>
+                <span class="ai-assistant-tip">Autocompleta el formulario con código inicial, pruebas unitarias y enunciado</span>
+              </div>
+              <div class="ai-assistant-inputs">
+                <input type="text" id="ai-draft-topic" class="admin-input flex-1" placeholder="Indica el tema o concepto (ej. Recursión, Grafos, POO, Diccionarios)" />
+                <button type="button" id="btn-ai-generate-draft" class="btn-ai-generate">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+                  <span id="ai-generate-btn-label">Generar con PyBot</span>
+                </button>
+              </div>
+              <p id="ai-status-msg" class="ai-status-note" style="display:none;"></p>
+            </div>
+
+            <!-- Selector de Modalidad -->
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="form-mode">Modalidad del Ejercicio <span class="req">*</span></label>
+                <select id="form-mode" class="admin-input" required>
+                  <option value="classic">Desafío Clásico (Un archivo main.py + tests)</option>
+                  <option value="contextual">Proyecto Multi-archivo (Arquitectura modular)</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-id">Identificador único (ID) <span class="req">*</span></label>
+                <input type="text" id="form-id" class="admin-input" placeholder="ej. clasico_fibonacci o 10_tienda_poo" required />
+                <small class="field-hint">Solo letras minúsculas, números y guiones bajos.</small>
+              </div>
+            </div>
+
+            <!-- Datos Generales -->
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="form-title">Título del Ejercicio <span class="req">*</span></label>
+                <input type="text" id="form-title" class="admin-input" placeholder="ej. Invertir una Cadena de Texto" required />
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-difficulty">Dificultad <span class="req">*</span></label>
+                <select id="form-difficulty" class="admin-input" required>
+                  <option value="Fácil">Fácil</option>
+                  <option value="Medio">Medio</option>
+                  <option value="Difícil">Difícil</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-level">Nivel Académico</label>
+                <select id="form-level" class="admin-input">
+                  <option value="Inicial">Inicial</option>
+                  <option value="Intermedio">Intermedio</option>
+                  <option value="Avanzado">Avanzado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="form-topics">Temas o Etiquetas (separados por coma)</label>
+              <input type="text" id="form-topics" class="admin-input" placeholder="ej. bucles, cadenas, algoritmos, poo" />
+            </div>
+
+            <div class="form-group">
+              <label for="form-desc">Descripción Breve (se muestra en las tarjetas del catálogo) <span class="req">*</span></label>
+              <textarea id="form-desc" class="admin-input" rows="2" placeholder="Resumen conciso del objetivo del ejercicio..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-statement">Enunciado Detallado (Markdown soportado) <span class="req">*</span></label>
+              <textarea id="form-statement" class="admin-input code-font" rows="5" placeholder="Instrucciones paso a paso, especificaciones y ejemplos..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-expected">Salida Esperada (Texto o ejemplos de salida)</label>
+              <textarea id="form-expected" class="admin-input code-font" rows="2" placeholder="Ejemplo de salida esperada en consola..."></textarea>
+            </div>
+
+            <!-- Código Base y Pruebas Unitarias -->
+            <div class="form-subheading">
+              <h3>Archivos Python del Ejercicio</h3>
+              <p>Escribe el código inicial que verá el estudiante y las pruebas unitarias que evaluará el ejecutor.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="form-main-py">Código Inicial: <code>main.py</code> <span class="req">*</span></label>
+              <textarea id="form-main-py" class="admin-input code-font" rows="6" spellcheck="false" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-test-py">Pruebas Unitarias: <code>tests/test_publico.py</code> <span class="req">*</span></label>
+              <textarea id="form-test-py" class="admin-input code-font" rows="6" spellcheck="false" required></textarea>
+              <small class="field-hint">Debe importar unittest y los métodos de main. Al pulsar «Probar», el alumno debe superar estas pruebas.</small>
+            </div>
+
+            <!-- Opciones extra para Clásicos -->
+            <div id="classic-extras" class="extra-panel">
+              <h4>Ayudas Pedagógicas (Para Retos Clásicos)</h4>
+              <div class="form-group">
+                <label for="form-hint">Pista Pedagógica</label>
+                <input type="text" id="form-hint" class="admin-input" placeholder="Guía orientadora para destrabar al estudiante sin dar la solución..." />
+              </div>
+              <div class="form-group">
+                <label for="form-solution">Solución Oficial de Referencia</label>
+                <textarea id="form-solution" class="admin-input code-font" rows="4" placeholder="# Solución óptima comentada..." spellcheck="false"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="form-is-active" checked />
+                <span>Ejercicio Activo (visible inmediatamente en el catálogo de estudiantes)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <span id="form-error-msg" class="form-error"></span>
+            <div class="footer-btn-row">
+              <button type="button" id="modal-cancel-btn" class="btn-secondary">Cancelar</button>
+              <button type="submit" id="modal-save-btn" class="btn-primary">Guardar Ejercicio</button>
+            </div>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Modal de Confirmación de Eliminación -->
+      <dialog id="delete-modal" class="admin-modal confirm-modal">
+        <div class="modal-content">
+          <div class="confirm-icon">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <h3>¿Eliminar este ejercicio?</h3>
+          <p id="delete-target-text">Esta acción no se puede deshacer y borrará el ejercicio de la base de datos.</p>
+          <div class="confirm-actions">
+            <button type="button" id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
+            <button type="button" id="btn-confirm-delete" class="btn-danger">Sí, eliminar ejercicio</button>
+          </div>
+        </div>
+      </dialog>
+
+      <!-- Modal de Generación en Lote con PyBot IA -->
+      <dialog id="batch-modal" class="admin-modal confirm-modal">
+        <div class="modal-content" style="max-width: 480px; text-align: left;">
+          <div style="display:flex; align-items:center; gap: 14px; margin-bottom: 1.25rem;">
+            <div id="batch-modal-icon" class="batch-spin-icon">
+              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#38BDF8" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10" stroke-opacity="0.2"></circle>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 id="batch-modal-title" style="margin:0 0 4px; font-size: 1.15rem; color:#F8FAFC;">Generación con PyBot IA</h3>
+              <p id="batch-modal-subtitle" style="margin:0; font-size: 0.82rem; color:#94A3B8;">Creando ejercicios y guardando en PostgreSQL...</p>
+            </div>
+          </div>
+          <div class="batch-meter-bg">
+            <div id="batch-meter-fill" class="batch-meter-fill"></div>
+          </div>
+          <p id="batch-status-text" style="font-size: 0.88rem; color: #CBD5E1; margin: 0.9rem 0 0; line-height: 1.5;">Iniciando motor pedagógico PyBot...</p>
+          <div id="batch-actions-row" style="display:none; justify-content: flex-end; margin-top: 1.5rem;">
+            <button type="button" id="btn-batch-done" class="btn-primary">Aceptar y Ver Catálogo</button>
+          </div>
+        </div>
+      </dialog>
+    </main>
+  )}
+</Layout>
+
+<style>
+  .admin-page {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 5rem;
+    color: var(--color-text-primary, #F8FAFC);
+  }
+
+  .admin-unauthorized {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .unauth-card {
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    max-width: 540px;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+  }
+
+  .unauth-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .user-info-box {
+    background: rgba(15, 23, 42, 0.6);
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary, #94A3B8);
+  }
+
+  .hint-text {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    color: #64748B;
+  }
+
+  .unauth-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  .admin-header {
+    margin-bottom: 2rem;
+  }
+
+  .header-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #94A3B8);
+    margin-bottom: 0.75rem;
+  }
+
+  .back-link {
+    color: #38BDF8;
+    text-decoration: none;
+  }
+
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .header-main-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .admin-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    padding: 0.25rem 0.65rem;
+    border-radius: 9999px;
+    margin-bottom: 0.5rem;
+  }
+
+  .admin-title {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .admin-subtitle {
+    font-size: 1rem;
+    color: var(--color-text-secondary, #94A3B8);
+    margin: 0;
+    max-width: 680px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .btn-create {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #2563EB, #1D4ED8);
+    color: #FFFFFF;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    transition: all 0.2s ease;
+  }
+
+  .btn-create:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+  }
+
+  .btn-outline-manual {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(30, 41, 59, 0.6);
+    color: var(--color-text-primary, #E2E8F0);
+    border: 1px solid var(--color-border, #334155);
+    padding: 0.75rem 1.1rem;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+
+  .btn-outline-manual:hover {
+    border-color: #38BDF8;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.08);
+  }
+
+  /* Stats grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 12px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+
+  .highlight-blue { color: #38BDF8; }
+  .highlight-purple { color: #C084FC; }
+  .highlight-green { color: #4ADE80; }
+  .highlight-amber { color: #FBBF24; }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #94A3B8);
+    font-weight: 500;
+  }
+
+  /* Toolbar */
+  .toolbar-section {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .filter-label {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #94A3B8);
+    font-weight: 500;
+  }
+
+  .admin-select {
+    background: #0F172A;
+    border: 1px solid #334155;
+    color: #E2E8F0;
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+
+  .search-group {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #64748B;
+    pointer-events: none;
+  }
+
+  .admin-input-search {
+    width: 100%;
+    background: #0F172A;
+    border: 1px solid #334155;
+    color: #E2E8F0;
+    padding: 0.5rem 0.85rem 0.5rem 2.25rem;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    box-sizing: border-box;
+  }
+
+  .admin-input-search:focus, .admin-select:focus, .admin-input:focus {
+    outline: none;
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  }
+
+  /* Table styling */
+  .table-container {
+    background: var(--color-surface, #1E293B);
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 14px;
+    overflow-x: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
+
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    text-align: left;
+  }
+
+  .admin-table th {
+    background: rgba(15, 23, 42, 0.7);
+    color: var(--color-text-secondary, #94A3B8);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--color-border, #334155);
+  }
+
+  .admin-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.4);
+    vertical-align: middle;
+  }
+
+  .admin-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .admin-table tbody tr:hover {
+    background: rgba(51, 65, 85, 0.15);
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .col-title {
+    max-width: 380px;
+  }
+
+  .ex-title-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .ex-title-text {
+    font-size: 0.95rem;
+    color: #F8FAFC;
+  }
+
+  .ex-id-code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #64748B;
+  }
+
+  .ex-desc-excerpt {
+    font-size: 0.8rem;
+    color: #94A3B8;
+    margin: 0.2rem 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
+  }
+
+  .badge-mode {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  .badge-classic {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+  }
+
+  .badge-contextual {
+    background: rgba(192, 132, 252, 0.15);
+    color: #C084FC;
+    border: 1px solid rgba(192, 132, 252, 0.3);
+  }
+
+  .pill-diff {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 9999px;
+  }
+
+  .diff-easy { background: rgba(74, 222, 128, 0.15); color: #4ADE80; }
+  .diff-medium { background: rgba(251, 191, 36, 0.15); color: #FBBF24; }
+  .diff-hard { background: rgba(248, 113, 113, 0.15); color: #F87171; }
+
+  .topics-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-width: 220px;
+  }
+
+  .topic-chip {
+    font-size: 0.72rem;
+    background: rgba(15, 23, 42, 0.6);
+    color: #94A3B8;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    border: 1px solid #334155;
+  }
+
+  .btn-toggle-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .status-active {
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ADE80;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+  }
+
+  .status-inactive {
+    background: rgba(148, 163, 184, 0.15);
+    color: #94A3B8;
+    border: 1px solid rgba(148, 163, 184, 0.3);
+  }
+
+  .status-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .status-active .status-indicator { background: #4ADE80; box-shadow: 0 0 6px #4ADE80; }
+  .status-inactive .status-indicator { background: #94A3B8; }
+
+  .actions-group {
+    display: inline-flex;
+    gap: 0.4rem;
+    justify-content: flex-end;
+  }
+
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    background: #0F172A;
+    color: #E2E8F0;
+    transition: all 0.15s ease;
+  }
+
+  .btn-view:hover {
+    color: #38BDF8;
+    border-color: #38BDF8;
+  }
+
+  .btn-edit:hover {
+    color: #FBBF24;
+    border-color: #FBBF24;
+  }
+
+  .btn-delete:hover {
+    color: #F87171;
+    border-color: #F87171;
+  }
+
+  .no-results-box {
+    padding: 3rem;
+    text-align: center;
+    color: #94A3B8;
+  }
+
+  /* Modal Form */
+  .admin-modal {
+    padding: 0;
+    background: transparent;
+    border: none;
+    max-width: 860px;
+    width: 95vw;
+    margin: auto;
+  }
+
+  .admin-modal::backdrop {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .modal-form {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    color: #F8FAFC;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #334155;
+  }
+
+  .modal-header h2 {
+    margin: 0 0 0.3rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  .modal-subtitle {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #94A3B8;
+  }
+
+  .modal-close-x {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    color: #94A3B8;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .modal-close-x:hover {
+    color: #FFFFFF;
+  }
+
+  .modal-body {
+    padding: 1.5rem 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .flex-1 { flex: 1; }
+  .flex-2 { flex: 2; }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #E2E8F0;
+  }
+
+  .req {
+    color: #F87171;
+  }
+
+  .admin-input {
+    background: #0F172A;
+    border: 1px solid #334155;
+    color: #F8FAFC;
+    padding: 0.65rem 0.9rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    font-family: inherit;
+  }
+
+  .code-font {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.45;
+  }
+
+  .field-hint {
+    font-size: 0.75rem;
+    color: #94A3B8;
+  }
+
+  .form-subheading {
+    margin-top: 0.8rem;
+    padding-top: 1rem;
+    border-top: 1px solid #334155;
+  }
+
+  .form-subheading h3 {
+    margin: 0 0 0.2rem;
+    font-size: 1.1rem;
+    color: #38BDF8;
+  }
+
+  .form-subheading p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #94A3B8;
+  }
+
+  .extra-panel {
+    background: rgba(15, 23, 42, 0.5);
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .extra-panel h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #FBBF24;
+  }
+
+  .checkbox-group {
+    margin-top: 0.5rem;
+  }
+
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 2rem;
+    border-top: 1px solid #334155;
+    background: rgba(15, 23, 42, 0.4);
+  }
+
+  .footer-btn-row {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .form-error {
+    color: #F87171;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    background: #2563EB;
+    color: #FFFFFF;
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .btn-primary:hover {
+    background: #1D4ED8;
+  }
+
+  .btn-secondary {
+    background: #334155;
+    color: #E2E8F0;
+    font-weight: 500;
+    padding: 0.65rem 1.1rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background: #475569;
+  }
+
+  .btn-danger {
+    background: #DC2626;
+    color: #FFFFFF;
+    font-weight: 600;
+    padding: 0.65rem 1.25rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+
+  .btn-danger:hover {
+    background: #B91C1C;
+  }
+
+  /* Confirm dialog */
+  .confirm-modal .modal-content {
+    background: #1E293B;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    color: #F8FAFC;
+    max-width: 440px;
+    margin: auto;
+  }
+
+  .confirm-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+
+  /* Botones de generación con PyBot IA */
+  .btn-batch-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.22) 0%, rgba(37, 99, 235, 0.25) 100%);
+    color: #C084FC;
+    border: 1px solid rgba(192, 132, 252, 0.45);
+    font-weight: 600;
+    padding: 0.75rem 1.15rem;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-batch-action:hover {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(37, 99, 235, 0.45) 100%);
+    border-color: #C084FC;
+    color: #FFFFFF;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(192, 132, 252, 0.35);
+  }
+
+  .btn-batch-contextual {
+    color: #38BDF8;
+    border-color: rgba(56, 189, 248, 0.45);
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(30, 64, 175, 0.25) 100%);
+  }
+
+  .btn-batch-contextual:hover {
+    border-color: #38BDF8;
+    color: #FFFFFF;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(30, 64, 175, 0.4) 100%);
+    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
+  }
+
+  /* Asistente de IA en el Modal */
+  .ai-assistant-card {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 10px;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .ai-assistant-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ai-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 700 10.5px ui-monospace, monospace;
+    letter-spacing: 1px;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 2.5px 8px;
+    border-radius: 4px;
+  }
+
+  .ai-assistant-tip {
+    font-size: 0.78rem;
+    color: #94A3B8;
+  }
+
+  .ai-assistant-inputs {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+
+  .btn-ai-generate {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #0284C7;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.65rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+  }
+
+  .btn-ai-generate:hover:not(:disabled) {
+    background: #0EA5E9;
+  }
+
+  .btn-ai-generate:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .ai-status-note {
+    font-size: 0.82rem;
+    margin: 0;
+    padding: 6px 12px;
+    border-radius: 6px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #34D399;
+  }
+
+  /* Modal de progreso por lotes */
+  .batch-meter-bg {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 1rem;
+  }
+
+  .batch-meter-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #38BDF8, #818CF8);
+    border-radius: 4px;
+    transition: width 0.35s ease;
+  }
+
+  .batch-spin-icon {
+    animation: batchSpin 1.4s linear infinite;
+  }
+
+  @keyframes batchSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .header-main-row {
+      flex-direction: column;
+    }
+    .form-row {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<script>
+  // Script interactivo del panel administrativo
+  const modal = document.getElementById('exercise-modal') as HTMLDialogElement;
+  const deleteModal = document.getElementById('delete-modal') as HTMLDialogElement;
+  const exerciseForm = document.getElementById('exercise-form') as HTMLFormElement;
+  const modalTitle = document.getElementById('modal-title') as HTMLElement;
+  const formIsEdit = document.getElementById('form-is-edit') as HTMLInputElement;
+  const formOriginalId = document.getElementById('form-original-id') as HTMLInputElement;
+  const formId = document.getElementById('form-id') as HTMLInputElement;
+  const formMode = document.getElementById('form-mode') as HTMLSelectElement;
+  const formTitle = document.getElementById('form-title') as HTMLInputElement;
+  const formDifficulty = document.getElementById('form-difficulty') as HTMLSelectElement;
+  const formLevel = document.getElementById('form-level') as HTMLSelectElement;
+  const formTopics = document.getElementById('form-topics') as HTMLInputElement;
+  const formDesc = document.getElementById('form-desc') as HTMLTextAreaElement;
+  const formStatement = document.getElementById('form-statement') as HTMLTextAreaElement;
+  const formExpected = document.getElementById('form-expected') as HTMLTextAreaElement;
+  const formMainPy = document.getElementById('form-main-py') as HTMLTextAreaElement;
+  const formTestPy = document.getElementById('form-test-py') as HTMLTextAreaElement;
+  const formHint = document.getElementById('form-hint') as HTMLInputElement;
+  const formSolution = document.getElementById('form-solution') as HTMLTextAreaElement;
+  const formIsActive = document.getElementById('form-is-active') as HTMLInputElement;
+  const formErrorMsg = document.getElementById('form-error-msg') as HTMLElement;
+  const classicExtras = document.getElementById('classic-extras') as HTMLElement;
+
+  let pendingDeleteId: string | null = null;
+
+  // Actualizar visibilidad de extras según modalidad
+  formMode?.addEventListener('change', () => {
+    if (classicExtras) {
+      classicExtras.style.display = formMode.value === 'classic' ? 'flex' : 'none';
+    }
+  });
+
+  // Botón Abrir modal para Crear
+  document.getElementById('btn-create-exercise')?.addEventListener('click', () => {
+    formIsEdit.value = 'false';
+    formOriginalId.value = '';
+    modalTitle.textContent = 'Crear Nuevo Ejercicio';
+    formId.disabled = false;
+    formId.value = '';
+    formMode.value = 'classic';
+    formTitle.value = '';
+    formDifficulty.value = 'Fácil';
+    formLevel.value = 'Inicial';
+    formTopics.value = '';
+    formDesc.value = '';
+    formStatement.value = '# Título del Ejercicio\n\nDescribe las instrucciones detalladas aquí...';
+    formExpected.value = '';
+    formMainPy.value = 'def resolver_problema():\n    # Implementa tu solución aquí\n    pass\n';
+    formTestPy.value = `import unittest\nfrom main import resolver_problema\n\nclass TestCasos(unittest.TestCase):\n    def test_caso_base(self):\n        self.assertEqual(resolver_problema(), None)\n`;
+    formHint.value = '';
+    formSolution.value = '';
+    formIsActive.checked = true;
+    formErrorMsg.textContent = '';
+    classicExtras.style.display = 'flex';
+
+    modal.showModal();
+  });
+
+  // Cerrar modal
+  document.getElementById('modal-close-btn')?.addEventListener('click', () => modal.close());
+  document.getElementById('modal-cancel-btn')?.addEventListener('click', () => modal.close());
+
+  // Manejar Editar Ejercicio
+  document.querySelectorAll('.btn-edit').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = (e.currentTarget as HTMLElement);
+      const id = target.dataset.id;
+      if (!id) return;
+
+      try {
+        const res = await fetch(`/api/admin/exercises/${id}`);
+        const data = await res.json();
+        if (!res.ok || !data.exercise) {
+          alert(data.error || 'No se pudo cargar el ejercicio para editar.');
+          return;
+        }
+
+        const ex = data.exercise;
+        formIsEdit.value = 'true';
+        formOriginalId.value = ex.id;
+        modalTitle.textContent = `Editar Ejercicio: ${ex.title}`;
+        formId.value = ex.id;
+        formId.disabled = true; // No cambiar ID en edición
+        formMode.value = ex.mode;
+        formTitle.value = ex.title;
+        formDifficulty.value = ex.difficulty;
+        formLevel.value = ex.level || 'Inicial';
+        formTopics.value = Array.isArray(ex.topics) ? ex.topics.join(', ') : '';
+        formDesc.value = ex.description;
+        formStatement.value = ex.statement;
+        formExpected.value = ex.expected || '';
+        formMainPy.value = (ex.files && ex.files['main.py']) || '';
+        formTestPy.value = (ex.files && (ex.files['tests/test_publico.py'] || Object.entries(ex.files).find(([k]) => k.includes('test'))?.[1])) || '';
+        formHint.value = (ex.hints && ex.hints[0]) || '';
+        formSolution.value = ex.solution || '';
+        formIsActive.checked = Boolean(ex.is_active);
+        formErrorMsg.textContent = '';
+
+        classicExtras.style.display = ex.mode === 'classic' ? 'flex' : 'none';
+        modal.showModal();
+      } catch (err) {
+        alert('Error al conectar con el servidor.');
+      }
+    });
+  });
+
+  // Guardar formulario (Crear o Editar)
+  exerciseForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    formErrorMsg.textContent = 'Guardando...';
+
+    const isEdit = formIsEdit.value === 'true';
+    const id = isEdit ? formOriginalId.value : formId.value.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+    const mode = formMode.value;
+    const title = formTitle.value.trim();
+    const difficulty = formDifficulty.value;
+    const level = formLevel.value;
+    const topics = formTopics.value.split(',').map(s => s.trim()).filter(Boolean);
+    const description = formDesc.value.trim();
+    const statement = formStatement.value.trim();
+    const expected = formExpected.value;
+    const is_active = formIsActive.checked;
+
+    const files: Record<string, string> = {
+      'main.py': formMainPy.value,
+      'tests/test_publico.py': formTestPy.value,
+    };
+
+    const payload: any = {
+      id,
+      mode,
+      title,
+      difficulty,
+      level,
+      topics,
+      description,
+      statement,
+      expected,
+      files,
+      hints: formHint.value ? [formHint.value] : [],
+      solution: formSolution.value,
+      is_active,
+    };
+
+    try {
+      const url = isEdit ? `/api/admin/exercises/${id}` : '/api/admin/exercises';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        formErrorMsg.textContent = data.error || 'Error al guardar el ejercicio.';
+        return;
+      }
+
+      modal.close();
+      window.location.reload();
+    } catch (err) {
+      formErrorMsg.textContent = 'Error de conexión con el servidor.';
+    }
+  });
+
+  // Toggle Estado Activo / Inactivo en 1-click
+  document.querySelectorAll('.btn-toggle-status').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const target = (e.currentTarget as HTMLElement);
+      const id = target.dataset.id;
+      if (!id) return;
+
+      target.style.opacity = '0.5';
+      try {
+        const res = await fetch(`/api/admin/exercises/${id}/toggle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'No se pudo cambiar el estado.');
+          target.style.opacity = '1';
+          return;
+        }
+
+        const row = target.closest('tr');
+        if (row) {
+          row.dataset.status = data.is_active ? 'active' : 'inactive';
+        }
+
+        if (data.is_active) {
+          target.className = 'btn-toggle-status status-active';
+          target.querySelector('.status-text')!.textContent = 'Activo';
+          target.title = 'Clic para desactivar';
+        } else {
+          target.className = 'btn-toggle-status status-inactive';
+          target.querySelector('.status-text')!.textContent = 'Desactivado';
+          target.title = 'Clic para activar';
+        }
+
+        target.style.opacity = '1';
+        updateStats();
+      } catch (err) {
+        alert('Error de conexión al cambiar estado.');
+        target.style.opacity = '1';
+      }
+    });
+  });
+
+  // Manejar Eliminación con Modal
+  document.querySelectorAll('.btn-delete').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const target = (e.currentTarget as HTMLElement);
+      pendingDeleteId = target.dataset.id || null;
+      const title = target.dataset.title || pendingDeleteId;
+      document.getElementById('delete-target-text')!.textContent = `¿Estás seguro de que deseas eliminar permanentemente "${title}" (${pendingDeleteId})? Esta acción no se puede deshacer.`;
+      deleteModal.showModal();
+    });
+  });
+
+  document.getElementById('btn-cancel-delete')?.addEventListener('click', () => {
+    pendingDeleteId = null;
+    deleteModal.close();
+  });
+
+  document.getElementById('btn-confirm-delete')?.addEventListener('click', async () => {
+    if (!pendingDeleteId) return;
+
+    try {
+      const res = await fetch(`/api/admin/exercises/${pendingDeleteId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'No se pudo eliminar el ejercicio.');
+        return;
+      }
+
+      const row = document.querySelector(`tr[data-id="${pendingDeleteId}"]`);
+      if (row) row.remove();
+
+      deleteModal.close();
+      pendingDeleteId = null;
+      updateStats();
+    } catch (err) {
+      alert('Error de conexión al eliminar.');
+    }
+  });
+
+  // Filtros y Búsqueda en vivo
+  const filterMode = document.getElementById('filter-mode') as HTMLSelectElement;
+  const filterStatus = document.getElementById('filter-status') as HTMLSelectElement;
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const tbody = document.getElementById('exercises-tbody');
+  const noResultsMsg = document.getElementById('no-results-msg');
+
+  function applyFilters() {
+    const mode = filterMode.value;
+    const status = filterStatus.value;
+    const query = searchInput.value.toLowerCase().trim();
+
+    let visibleCount = 0;
+    const rows = document.querySelectorAll('.exercise-row');
+
+    rows.forEach(r => {
+      const row = r as HTMLElement;
+      const rowMode = row.dataset.mode;
+      const rowStatus = row.dataset.status;
+      const rowTitle = row.dataset.title || '';
+      const rowTopics = row.dataset.topics || '';
+      const rowId = row.dataset.id || '';
+
+      const matchMode = mode === 'all' || rowMode === mode;
+      const matchStatus = status === 'all' || rowStatus === status;
+      const matchQuery = !query || rowTitle.includes(query) || rowTopics.includes(query) || rowId.includes(query);
+
+      if (matchMode && matchStatus && matchQuery) {
+        row.style.display = '';
+        visibleCount++;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    if (noResultsMsg) {
+      noResultsMsg.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  }
+
+  function updateStats() {
+    const rows = Array.from(document.querySelectorAll('.exercise-row')) as HTMLElement[];
+    const total = rows.length;
+    const classic = rows.filter(r => r.dataset.mode === 'classic').length;
+    const contextual = rows.filter(r => r.dataset.mode === 'contextual').length;
+    const active = rows.filter(r => r.dataset.status === 'active').length;
+    const inactive = rows.filter(r => r.dataset.status === 'inactive').length;
+
+    const elTotal = document.getElementById('stat-total');
+    const elClassic = document.getElementById('stat-classic');
+    const elContextual = document.getElementById('stat-contextual');
+    const elActive = document.getElementById('stat-active');
+    const elInactive = document.getElementById('stat-inactive');
+
+    if (elTotal) elTotal.textContent = String(total);
+    if (elClassic) elClassic.textContent = String(classic);
+    if (elContextual) elContextual.textContent = String(contextual);
+    if (elActive) elActive.textContent = String(active);
+    if (elInactive) elInactive.textContent = String(inactive);
+  }
+
+  filterMode?.addEventListener('change', applyFilters);
+  filterStatus?.addEventListener('change', applyFilters);
+  searchInput?.addEventListener('input', applyFilters);
+
+  // PyBot IA: Generar Borrador Individual para Formulario
+  const btnAiGenerateDraft = document.getElementById('btn-ai-generate-draft') as HTMLButtonElement;
+  const aiTopicInput = document.getElementById('ai-draft-topic') as HTMLInputElement;
+  const aiBtnLabel = document.getElementById('ai-generate-btn-label') as HTMLElement;
+  const aiStatusMsg = document.getElementById('ai-status-msg') as HTMLElement;
+
+  btnAiGenerateDraft?.addEventListener('click', async () => {
+    const tema = aiTopicInput.value.trim() || (formMode.value === 'classic' ? 'Algoritmos y Lógica' : 'POO y Modularización');
+    btnAiGenerateDraft.disabled = true;
+    aiBtnLabel.textContent = 'Consultando a PyBot IA...';
+    aiStatusMsg.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/admin/generate-draft', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: formMode.value,
+          tema,
+          difficulty: formDifficulty.value,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.draft) {
+        alert(data.error || 'No se pudo generar el borrador con PyBot.');
+        return;
+      }
+
+      const d = data.draft;
+      if (!formIsEdit.value || formIsEdit.value === 'false') {
+        formId.value = d.id;
+      }
+      formTitle.value = d.title;
+      formDifficulty.value = d.difficulty;
+      formLevel.value = d.level;
+      formTopics.value = Array.isArray(d.topics) ? d.topics.join(', ') : d.topics;
+      formDesc.value = d.description;
+      formStatement.value = d.statement;
+      formExpected.value = d.expected || '';
+      formMainPy.value = d.mainPy;
+      formTestPy.value = d.testPy;
+      if (d.hints && d.hints[0]) formHint.value = d.hints[0];
+      if (d.solution) formSolution.value = d.solution;
+
+      aiStatusMsg.textContent = 'Borrador generado con éxito por PyBot IA. Revisa los archivos y pulsa Guardar Ejercicio.';
+      aiStatusMsg.style.display = 'block';
+    } catch (err) {
+      alert('Error de conexión al consultar PyBot IA.');
+    } finally {
+      btnAiGenerateDraft.disabled = false;
+      aiBtnLabel.textContent = 'Generar con PyBot';
+    }
+  });
+
+  // PyBot IA: Generar Lote de 10 Ejercicios
+  const batchModal = document.getElementById('batch-modal') as HTMLDialogElement;
+  const batchModalTitle = document.getElementById('batch-modal-title') as HTMLElement;
+  const batchModalSubtitle = document.getElementById('batch-modal-subtitle') as HTMLElement;
+  const batchMeterFill = document.getElementById('batch-meter-fill') as HTMLElement;
+  const batchStatusText = document.getElementById('batch-status-text') as HTMLElement;
+  const batchActionsRow = document.getElementById('batch-actions-row') as HTMLElement;
+  const btnBatchDone = document.getElementById('btn-batch-done') as HTMLButtonElement;
+
+  async function runBatchGeneration(mode: 'classic' | 'contextual') {
+    const modeName = mode === 'classic' ? 'Desafíos Clásicos' : 'Proyectos Multi-archivo';
+    batchModalTitle.textContent = `Generando 10 ${modeName} con PyBot IA`;
+    batchModalSubtitle.textContent = 'Construyendo enunciados, soluciones y suites de pruebas unitarias...';
+    batchMeterFill.style.width = '20%';
+    batchMeterFill.style.background = 'linear-gradient(90deg, #38BDF8, #818CF8)';
+    batchStatusText.textContent = 'Iniciando generación asistida por IA...';
+    batchActionsRow.style.display = 'none';
+    batchModal.showModal();
+
+    try {
+      setTimeout(() => {
+        batchMeterFill.style.width = '60%';
+        batchStatusText.textContent = 'Validando pruebas unitarias y guardando en PostgreSQL...';
+      }, 700);
+
+      const res = await fetch('/api/admin/generate-batch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode, count: 10 }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        batchMeterFill.style.width = '100%';
+        batchMeterFill.style.background = '#EF4444';
+        batchStatusText.textContent = `Error: ${data.error || 'No se pudo completar el lote.'}`;
+        batchActionsRow.style.display = 'flex';
+        return;
+      }
+
+      batchMeterFill.style.width = '100%';
+      batchMeterFill.style.background = '#10B981';
+      batchStatusText.textContent = `Lote completado con éxito. Se guardaron ${data.count} ejercicios nuevos en PostgreSQL.`;
+      batchActionsRow.style.display = 'flex';
+    } catch (err) {
+      batchMeterFill.style.width = '100%';
+      batchMeterFill.style.background = '#EF4444';
+      batchStatusText.textContent = 'Error de conexión con el servidor al procesar el lote.';
+      batchActionsRow.style.display = 'flex';
+    }
+  }
+
+  document.getElementById('btn-batch-classic')?.addEventListener('click', () => runBatchGeneration('classic'));
+  document.getElementById('btn-batch-contextual')?.addEventListener('click', () => runBatchGeneration('contextual'));
+  btnBatchDone?.addEventListener('click', () => {
+    batchModal.close();
+    window.location.reload();
+  });
+</script>
+

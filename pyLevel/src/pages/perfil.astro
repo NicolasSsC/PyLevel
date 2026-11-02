@@ -4,6 +4,7 @@ import AccountShell from '../account/AccountShell.astro';
 import { currentUser } from '../lib/session';
 import { loadExamHistory, loadProgress } from '../account/data';
 import { todayInBogota } from '../account/profile';
+import { getDbExercises } from '../lib/exercises-db';
 
 let user = null;
 let exams: Awaited<ReturnType<typeof loadExamHistory>> = [];
@@ -29,6 +30,21 @@ const initials = user?.displayName
 
 const date = (value: string) =>
   new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'America/Bogota' }).format(new Date(value));
+const isAdmin = user?.role === 'admin';
+
+let adminExercises: Awaited<ReturnType<typeof getDbExercises>> = [];
+if (isAdmin) {
+  try {
+    adminExercises = await getDbExercises({ onlyActive: false });
+  } catch (err) {
+    console.warn('Error cargando ejercicios en perfil admin:', err);
+  }
+}
+const adminTotal = adminExercises.length;
+const adminClassic = adminExercises.filter(e => e.mode === 'classic').length;
+const adminContextual = adminExercises.filter(e => e.mode === 'contextual').length;
+const adminActive = adminExercises.filter(e => e.is_active).length;
+const adminInactive = adminExercises.filter(e => !e.is_active).length;
 
 const birthdayLabel = user?.birthday
   ? new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${user.birthday}T12:00:00Z`))
@@ -51,7 +67,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
 
 ---
 
-<AccountShell title="Mi perfil" description="Tus datos, tu cuenta y tu actividad en PyLevel." active="perfil">
+<AccountShell title={isAdmin ? "Perfil Docente y Administrador" : "Mi perfil"} description={isAdmin ? "Gestión de credenciales docentes, rol de administrador y estado del sistema." : "Tus datos, tu cuenta y tu actividad en PyLevel."} active="perfil" isAdmin={isAdmin}>
   {unavailable || !user ? (
     <section class="account-card account-empty">
       <h2>No pudimos cargar tu perfil</h2>
@@ -67,16 +83,21 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
             <div class="profile-avatar" id="account-avatar" aria-hidden="true">{initials}</div>
             <div>
               <h2 id="account-name">{user.displayName}</h2>
-              <p id="account-occupation">{user.occupation || 'Completa tu ocupación'}</p>
+              <p id="account-occupation">{isAdmin ? 'Docente / Administrador de PyLevel' : (user.occupation || 'Completa tu ocupación')}</p>
+              {isAdmin && (
+                <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
+                  <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#38BDF8;"></span>
+                  <span>Rol Docente Administrador</span>
+                </div>
+              )}
             </div>
           </div>
-          <form class="profile-form" id="profile-form" data-original-email={user.email}>
-            <h2 id="personal-title">Datos personales</h2>
-            <p class="account-muted">Mantén tu información al día. El cumpleaños y la ocupación son opcionales.</p>
-            <div class="profile-fields" style="margin-top:24px">
+
+          <form id="profile-form" class="profile-form">
+            <div class="profile-form-grid">
               <div class="profile-field">
-                <label for="profile-full-name">Nombre completo</label>
-                <input id="profile-full-name" name="displayName" autocomplete="name" maxlength="100" value={user.displayName} required />
+                <label for="profile-name">Nombre completo</label>
+                <input id="profile-name" name="displayName" autocomplete="name" maxlength="100" value={user.displayName} required />
               </div>
               <div class="profile-field">
                 <label for="profile-occupation">Ocupación</label>
@@ -123,11 +144,8 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
               <dd>{date(user.createdAt)}</dd>
             </div>
             <div>
-              <dt>EXÁMENES REALIZADOS</dt>
-              <dd>
-                {exams.filter(e => e.status !== 'in_progress').length} finalizados
-                {exams.some(e => e.status === 'in_progress') ? ` · ${exams.filter(e => e.status === 'in_progress').length} en curso` : ''}
-              </dd>
+              <dt>ROL EN PLATAFORMA</dt>
+              <dd>{isAdmin ? 'Administrador / Docente' : 'Estudiante'}</dd>
             </div>
           </dl>
           <div class="profile-session">
@@ -139,118 +157,255 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
         </aside>
       </div>
 
-      {nextStep && <section class="priority-banner" aria-labelledby="priority-heading">
-        <div class="pb-content">
-          <div class="pb-badge"><span class="pb-dot" aria-hidden="true"></span>TU SIGUIENTE PASO</div>
-          <h2 id="priority-heading">{nextStep.title}</h2>
-          <p>{nextStep.text}</p>
-          <div class="pb-actions">
-            <a href={nextStep.href} class="account-button primary">{nextStep.action} →</a>
-            <a href="/progreso/" class="account-button secondary">Ver progreso y métricas</a>
-          </div>
-        </div>
-        <div class="pb-meta">
-          <div class="pb-stat"><span class="pbs-label">EJERCICIOS SUPERADOS</span><span class="pbs-value">{progress?.completed.length} de {progress?.total}</span></div>
-          <div class="pb-stat"><span class="pbs-label">EJECUCIONES Y PRUEBAS</span><span class="pbs-value">{progress?.attempts}</span></div>
-          <div class="pb-stat"><span class="pbs-label">EJERCICIOS EN PROGRESO</span><span class="pbs-value">{progress?.inProgress}</span></div>
-        </div>
-      </section>}
-
-      <!-- Avance real de práctica por tema -->
-      <section class="account-card account-section" aria-labelledby="comp-heading">
-        <div class="section-top">
-          <div>
-            <h2 id="comp-heading">Avance por temas</h2>
-            <p class="account-muted">Ejercicios superados por tema. Estos porcentajes no representan una calificación de competencias.</p>
-          </div>
-
-        </div>
-
-        <div class="comp-matrix">
-          {competencias.map(c => (
-            <div class="comp-block">
-              <div class="cb-header">
-                <div>
-                  <h3>{c.label}</h3>
-                  <p class="account-muted">{c.subLabel}</p>
-                </div>
-                <span class="cb-pct" style={`color:${c.color}`}>{c.pct}%</span>
+      <!-- SECCIÓN CONDICIONAL: ADMIN VS ESTUDIANTE -->
+      {isAdmin ? (
+        <>
+          <!-- Banner de Control Administrativo -->
+          <section class="admin-profile-banner" aria-labelledby="admin-profile-heading">
+            <div class="apb-content">
+              <div class="apb-badge">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                <span>PANEL DE CONTROL DOCENTE Y ADMINISTRATIVO</span>
               </div>
-              <div class="bar-main-bg" role="progressbar" aria-label={`Ejercicios superados en ${c.label}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.pct}>
-                <div class="bar-main-fill" style={`width:${c.pct}%;background:${c.color}`}></div>
+              <h2 id="admin-profile-heading">Gestión Integral de PyLevel</h2>
+              <p>Tu cuenta cuenta con privilegios administrativos para gestionar el catálogo pedagógico de ejercicios, generar nuevos desafíos asistidos por PyBot IA y supervisar el avance de las cohortes de estudiantes.</p>
+              <div class="apb-actions">
+                <a href="/admin/" class="account-button primary">
+                  <span>Administrar Catálogo</span>
+                  <span>→</span>
+                </a>
+                <a href="/progreso/" class="account-button secondary">
+                  <span>Analítica de Estudiantes</span>
+                  <span>→</span>
+                </a>
+                <a href="/manuales/#capitulo-admin" class="account-button secondary">
+                  <span>Manual Docente</span>
+                </a>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+            <div class="apb-meta">
+              <div class="apb-stat">
+                <span class="apbs-label">EJERCICIOS EN CATÁLOGO</span>
+                <span class="apbs-value">{adminTotal}</span>
+              </div>
+              <div class="apb-stat">
+                <span class="apbs-label">DESAFÍOS CLÁSICOS</span>
+                <span class="apbs-value">{adminClassic}</span>
+              </div>
+              <div class="apb-stat">
+                <span class="apbs-label">PROYECTOS MULTI-ARCHIVO</span>
+                <span class="apbs-value">{adminContextual}</span>
+              </div>
+              <div class="apb-stat">
+                <span class="apbs-label">ESTADO DEL CATÁLOGO</span>
+                <span class="apbs-value">{adminActive} activos · {adminInactive} inactivos</span>
+              </div>
+            </div>
+          </section>
 
-      <section class="account-card account-section" aria-labelledby="hist-heading">
-        <div class="section-top"><div><h2 id="hist-heading">Historial de práctica</h2><p class="account-muted">Últimas ejecuciones y pruebas registradas en tu cuenta. Las pruebas públicas orientan tu práctica.</p></div></div>
-        {historial.length ? <div class="account-table-wrap"><table class="account-table">
-          <thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead>
-          <tbody>{historial.map(item => <tr>
-            <td><a href={item.href}><strong>{item.title}</strong></a><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'}</small></td>
-            <td>{item.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td>
-            <td><span class:list={['account-status', item.result === 'passed' ? 'green' : item.result === 'failed' ? 'gold' : 'muted']}>{item.result === 'passed' && item.kind === 'test' ? 'Pruebas superadas' : resultLabels[item.result]}</span>{item.kind === 'test' && item.testsRun > 0 && <small>{item.testsRun} pruebas ejecutadas</small>}</td>
-            <td>{activityDate(item.createdAt)}</td>
-          </tr>)}</tbody>
-        </table></div> : <div class="account-empty"><h3>Aún no hay práctica registrada</h3><p>Ejecuta una solución o prueba un ejercicio para empezar tu historial.</p><a class="account-button secondary" href="/ejercicios/">Elegir un ejercicio →</a></div>}
-      </section>
+          <!-- Módulos de Gestión Docente -->
+          <section class="account-card account-section" aria-labelledby="admin-modules-heading">
+            <div class="section-top">
+              <div>
+                <h2 id="admin-modules-heading">Módulos Administrativos</h2>
+                <p class="account-muted">Herramientas pedagógicas y de control para la configuración del curso.</p>
+              </div>
+            </div>
 
-      <!-- Mis Exámenes -->
-      <section class="account-card account-section" aria-labelledby="exams-title">
-        <div class="section-top">
-          <div>
-            <h2 id="exams-title">Mis exámenes</h2>
-            <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
+            <div class="admin-modules-grid">
+              <div class="admin-mod-card">
+                <div class="amc-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38BDF8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                </div>
+                <div class="amc-info">
+                  <h3>Catálogo de Ejercicios y Retos</h3>
+                  <p>Creación manual o asistida por PyBot, edición de código inicial, configuración de pruebas públicas y activación/desactivación inmediata.</p>
+                  <div class="amc-stats-row">
+                    <span class="amc-pill active">{adminActive} Activos</span>
+                    <span class="amc-pill inactive">{adminInactive} Desactivados</span>
+                  </div>
+                </div>
+                <a href="/admin/" class="amc-btn">Administrar Ejercicios →</a>
+              </div>
+
+              <div class="admin-mod-card">
+                <div class="amc-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#34D399" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                </div>
+                <div class="amc-info">
+                  <h3>Analítica Global de Estudiantes</h3>
+                  <p>Tasa de aprobación por cohorte, ranking de dificultad por ejercicio, tiempo de resolución y alertas tempranas de estudiantes rezagados.</p>
+                  <div class="amc-stats-row">
+                    <span class="amc-pill normal">Métricas en tiempo real</span>
+                  </div>
+                </div>
+                <a href="/progreso/" class="amc-btn">Ver Analítica →</a>
+              </div>
+
+              <div class="admin-mod-card">
+                <div class="amc-icon">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FBBF24" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                </div>
+                <div class="amc-info">
+                  <h3>Manual Docente y Arquitectura</h3>
+                  <p>Guía de diseño de pruebas unitarias para docentes, especificación de la base de datos PostgreSQL y motores de evaluación.</p>
+                  <div class="amc-stats-row">
+                    <span class="amc-pill normal">Documentación completa</span>
+                  </div>
+                </div>
+                <a href="/manuales/#capitulo-admin" class="amc-btn">Consultar Manual →</a>
+              </div>
+            </div>
+          </section>
+        </>
+      ) : (
+        <>
+          {nextStep && (
+            <section class="priority-banner" aria-labelledby="priority-heading">
+              <div class="pb-content">
+                <div class="pb-badge"><span class="pb-dot" aria-hidden="true"></span>TU SIGUIENTE PASO</div>
+                <h2 id="priority-heading">{nextStep.title}</h2>
+                <p>{nextStep.text}</p>
+                <div class="pb-actions">
+                  <a href={nextStep.href} class="account-button primary">{nextStep.action} →</a>
+                  <a href="/progreso/" class="account-button secondary">Ver progreso y métricas</a>
+                </div>
+              </div>
+              <div class="pb-meta">
+                <div class="pb-stat"><span class="pbs-label">EJERCICIOS SUPERADOS</span><span class="pbs-value">{progress?.completed.length} de {progress?.total}</span></div>
+                <div class="pb-stat"><span class="pbs-label">EJECUCIONES Y PRUEBAS</span><span class="pbs-value">{progress?.attempts}</span></div>
+                <div class="pb-stat"><span class="pbs-label">EJERCICIOS EN PROGRESO</span><span class="pbs-value">{progress?.inProgress}</span></div>
+              </div>
+            </section>
+          )}
+
+          <!-- Avance real de práctica por tema (Estudiantes) -->
+          <section class="account-card account-section" aria-labelledby="comp-heading">
+            <div class="section-top">
+              <div>
+                <h2 id="comp-heading">Avance por temas</h2>
+                <p class="account-muted">Ejercicios superados por tema. Estos porcentajes no representan una calificación de competencias.</p>
+              </div>
+            </div>
+
+            <div class="comp-matrix">
+              {competencias.map(c => (
+                <div class="comp-block">
+                  <div class="cb-header">
+                    <div>
+                      <h3>{c.label}</h3>
+                      <p class="account-muted">{c.subLabel}</p>
+                    </div>
+                    <span class="cb-pct" style={`color:${c.color}`}>{c.pct}%</span>
+                  </div>
+                  <div class="bar-main-bg" role="progressbar" aria-label={`Ejercicios superados en ${c.label}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.pct}>
+                    <div class="bar-main-fill" style={`width:${c.pct}%;background:${c.color}`}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* Historial de práctica si aplica */}
+      {(!isAdmin || historial.length > 0) && (
+        <section class="account-card account-section" aria-labelledby="hist-heading">
+          <div class="section-top">
+            <div>
+              <h2 id="hist-heading">Historial de práctica</h2>
+              <p class="account-muted">Últimas ejecuciones y pruebas registradas en tu cuenta.</p>
+            </div>
           </div>
-          <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
-        </div>
-        {exams.length ? (
-          <div class="account-table-wrap">
-            <table class="account-table">
-              <thead>
-                <tr>
-                  <th>EXAMEN</th>
-                  <th>FECHA DE INICIO</th>
-                  <th>ESTADO</th>
-                  <th>EVALUACIÓN</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {exams.map(attempt => (
+          {historial.length ? (
+            <div class="account-table-wrap">
+              <table class="account-table">
+                <thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead>
+                <tbody>
+                  {historial.map(item => (
+                    <tr>
+                      <td><a href={item.href}><strong>{item.title}</strong></a><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'}</small></td>
+                      <td>{item.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td>
+                      <td>
+                        <span class:list={['account-status', item.result === 'passed' ? 'green' : item.result === 'failed' ? 'gold' : 'muted']}>
+                          {item.result === 'passed' && item.kind === 'test' ? 'Pruebas superadas' : resultLabels[item.result]}
+                        </span>
+                        {item.kind === 'test' && item.testsRun > 0 && <small>{item.testsRun} pruebas ejecutadas</small>}
+                      </td>
+                      <td>{activityDate(item.createdAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div class="account-empty">
+              <h3>Aún no hay práctica registrada</h3>
+              <p>Ejecuta una solución o prueba un ejercicio para empezar tu historial.</p>
+              <a class="account-button secondary" href="/ejercicios/">Elegir un ejercicio →</a>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* Evaluaciones y exámenes si aplica */}
+      {(!isAdmin || exams.length > 0) && (
+        <section class="account-card account-section" aria-labelledby="exams-title">
+          <div class="section-top">
+            <div>
+              <h2 id="exams-title">Mis exámenes</h2>
+              <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
+            </div>
+            <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
+          </div>
+          {exams.length ? (
+            <div class="account-table-wrap">
+              <table class="account-table">
+                <thead>
                   <tr>
-                    <td>
-                      <strong>{attempt.title}</strong>
-                      <small>Intento {attempt.id.slice(0, 8)}</small>
-                    </td>
-                    <td>{date(attempt.startedAt)}</td>
-                    <td>
-                      <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
-                        {examStatus[attempt.status]}
-                      </span>
-                    </td>
-                    <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
-                    <td>
-                      {attempt.current && (
-                        <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
-                      )}
-                    </td>
+                    <th>EXAMEN</th>
+                    <th>FECHA DE INICIO</th>
+                    <th>ESTADO</th>
+                    <th>EVALUACIÓN</th>
+                    <th></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <div class="account-empty">
-            <span aria-hidden="true">▤</span>
-            <h3>Aún no has realizado exámenes</h3>
-            <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
-            <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
-          </div>
-        )}
-      </section>
+                </thead>
+                <tbody>
+                  {exams.map(attempt => (
+                    <tr>
+                      <td>
+                        <strong>{attempt.title}</strong>
+                        <small>Intento {attempt.id.slice(0, 8)}</small>
+                      </td>
+                      <td>{date(attempt.startedAt)}</td>
+                      <td>
+                        <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
+                          {examStatus[attempt.status]}
+                        </span>
+                      </td>
+                      <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
+                      <td>
+                        {attempt.current && (
+                          <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div class="account-empty">
+              <span aria-hidden="true">▤</span>
+              <h3>Aún no has realizado exámenes</h3>
+              <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
+              <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
+            </div>
+          )}
+        </section>
+      )}
     </>
   )}
 </AccountShell>
@@ -261,6 +416,164 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
 </script>
 
 <style>
+  /* Banner Administrativo */
+  .admin-profile-banner {
+    background: linear-gradient(135deg, rgba(15, 31, 56, 0.95) 0%, rgba(12, 74, 110, 0.25) 50%, rgba(15, 23, 42, 0.95) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 14px;
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: start;
+    margin-top: 24px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  }
+  .apb-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font: 700 11px ui-monospace, monospace;
+    letter-spacing: 1px;
+    color: #38BDF8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+  .admin-profile-banner h2 {
+    font-size: 24px;
+    letter-spacing: -0.8px;
+    color: #f1f5f9;
+    margin: 0 0 10px;
+  }
+  .admin-profile-banner p {
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: #94a3b8;
+    margin: 0 0 20px;
+    max-width: 620px;
+  }
+  .apb-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .apb-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 260px;
+    background: rgba(2, 6, 23, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .apb-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .apbs-label {
+    font: 600 10px ui-monospace, monospace;
+    letter-spacing: 1px;
+    color: #64748b;
+  }
+  .apbs-value {
+    font: 700 15px ui-monospace, monospace;
+    color: #38BDF8;
+  }
+
+  /* Grid de Módulos Docentes */
+  .admin-modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    margin-top: 20px;
+  }
+  .admin-mod-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 16px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .admin-mod-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(56, 189, 248, 0.4);
+  }
+  .amc-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .amc-info h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f1f5f9;
+    margin: 0 0 8px;
+  }
+  .amc-info p {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #94a3b8;
+    margin: 0 0 14px;
+  }
+  .amc-stats-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .amc-pill {
+    font: 700 11px ui-monospace, monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .amc-pill.active {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .amc-pill.inactive {
+    background: rgba(245, 158, 11, 0.12);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .amc-pill.normal {
+    background: rgba(56, 189, 248, 0.1);
+    color: #38BDF8;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+  }
+  .amc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 14px;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38BDF8;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+  .amc-btn:hover {
+    background: #38BDF8;
+    color: #0F172A;
+  }
+
+  /* Vista de Estudiante Original */
   .priority-banner {
     background: linear-gradient(135deg, rgba(15, 31, 56, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
     border: 1px solid rgba(55, 118, 171, 0.4);
@@ -298,9 +611,6 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
     color: #e2e8f0;
     margin: 0 0 10px;
   }
-  .ph-accent {
-    color: #ffd43b;
-  }
   .priority-banner p {
     font-size: 13px;
     line-height: 1.7;
@@ -333,23 +643,6 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
   .pbs-value {
     font-size: 12px;
     color: #cbd5e1;
-  }
-  .pbs-mono {
-    font-family: ui-monospace, monospace;
-    font-size: 11px;
-  }
-  .state-pending {
-    font: 700 11px ui-monospace, monospace;
-    color: #ffd43b;
-  }
-
-  .demo-badge-sm {
-    font: 700 10px ui-monospace, monospace;
-    color: #f59e0b;
-    background: rgba(245, 158, 11, 0.1);
-    border: 1px solid rgba(245, 158, 11, 0.25);
-    padding: 3px 8px;
-    border-radius: 4px;
   }
 
   .comp-matrix {
@@ -391,64 +684,12 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
     height: 100%;
     border-radius: 3px;
   }
-  .evidencias {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .ev-item {
-    display: grid;
-    grid-template-columns: 200px 1fr 34px;
-    align-items: center;
-    gap: 10px;
-  }
-  .ev-label {
-    font-size: 11px;
-    color: #64748b;
-  }
-  .ev-bar-bg {
-    height: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .ev-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-  }
-  .ev-pct {
-    font: 10px ui-monospace, monospace;
-    color: #64748b;
-    text-align: right;
-  }
-
-  .s-chip {
-    display: inline-block;
-    font: 700 10px ui-monospace, monospace;
-    padding: 2px 7px;
-    border-radius: 4px;
-  }
-  .state-ok {
-    background: rgba(16, 185, 129, 0.15);
-    color: #10b981;
-    border: 1px solid rgba(16, 185, 129, 0.3);
-  }
-  .state-warn {
-    background: rgba(245, 158, 11, 0.15);
-    color: #f59e0b;
-    border: 1px solid rgba(245, 158, 11, 0.3);
-  }
-  .state-err {
-    background: rgba(244, 63, 94, 0.15);
-    color: #f43f5e;
-    border: 1px solid rgba(244, 63, 94, 0.3);
-  }
 
   @media (max-width: 900px) {
-    .priority-banner {
+    .priority-banner, .admin-profile-banner {
       grid-template-columns: 1fr;
     }
-    .pb-meta {
+    .pb-meta, .apb-meta {
       display: none;
     }
   }

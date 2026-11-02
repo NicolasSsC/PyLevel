@@ -186,6 +186,7 @@ const briefing = exercise?.briefing;
     </dialog>
   )}
   <p id="practice-progress" role="status">Inicia sesión para guardar tu actividad en Progreso y métricas. Al pulsar «Probar» se usan las pruebas públicas originales, aunque hayas editado tests/.</p>
+  <script id="workbench-exercise-data" type="application/json" set:html={JSON.stringify(exercise)} />
 </main>
 
 <script>
@@ -198,7 +199,10 @@ const briefing = exercise?.briefing;
   const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
   const exerciseId = document.querySelector('main')?.dataset.exerciseId;
   const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
-  let exercise = exercises[0];
+  let exercise = (() => {
+    const raw = document.getElementById('workbench-exercise-data')?.textContent;
+    return (raw ? JSON.parse(raw) : null) || exercises[0];
+  })();
   void trackActivity(exercise.id, mode, 'opened').then(saved => {
     if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. «Probar» utiliza las pruebas públicas originales, aunque hayas editado tests/.';
   });

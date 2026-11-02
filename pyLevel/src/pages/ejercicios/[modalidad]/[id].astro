@@ -6,11 +6,13 @@ import Workbench from '../../../core/Workbench.astro';
 import ClassicWorkbench from '../../../core/ClassicWorkbench.astro';
 import { classic, type ClassicExercise } from '../../../core/classic-exercises';
 import Layout from '../../../layouts/Layout.astro';
+import { getDbExerciseById } from '../../../lib/exercises-db';
 
 const { modalidad, id } = Astro.params;
 const mode = modalidad === 'clasicos' ? 'classic' : 'contextual';
 
-let exercise = catalogs[mode].find(e => e.id === id);
+const dbExercise = id ? await getDbExerciseById(id) : null;
+let exercise = (dbExercise as any) || catalogs[mode].find(e => e.id === id);
 
 if (!exercise) {
   exercise = {
@@ -30,7 +32,11 @@ if (!exercise) {
 }
 
 const classicItem: ClassicExercise = mode === 'classic'
-  ? (classic.find(item => item.id === exercise!.id) || {
+  ? ((dbExercise ? {
+      ...exercise,
+      hints: exercise.hints && exercise.hints.length > 0 ? exercise.hints : ['Analiza la entrada y salida requerida por los casos de prueba.'],
+      solution: exercise.solution || '# Consulta a PyBot para obtener la solución guiada\n',
+    } : classic.find(item => item.id === exercise!.id)) || {
       ...exercise!,
       hints: ['Analiza la entrada y salida requerida por los casos de prueba.'],
       solution: '# Consulta a PyBot para obtener la solución guiada\n',

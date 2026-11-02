@@ -1,5 +1,5 @@
-import { classic } from './classic-exercises';
-import contextual from './exercises.json';
+import { classic } from './classic-exercises.ts';
+import contextual from './exercises.json' with { type: 'json' };
 
 export type ContextualFileRole = {
   path: string;

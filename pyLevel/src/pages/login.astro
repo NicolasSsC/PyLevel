@@ -4,21 +4,36 @@ import AppLayout from '../layouts/AppLayout.astro';
 
 <AppLayout
   title="Iniciar Sesión · PyLevel"
-  description="Acceso de estudiantes a PyLevel mediante autenticación con PostgreSQL Render y hash seguro."
+  description="Acceso a la plataforma PyLevel para estudiantes y administradores docentes."
 >
   <div class="auth-page">
     <div class="auth-card">
 
+      <!-- Pestañas de Selección de Modo (Estudiante / Admin) -->
+      <div class="auth-role-tabs" role="tablist" aria-label="Modalidad de acceso">
+        <button type="button" class="role-tab active" id="tab-student" role="tab" aria-selected="true">
+          Acceso Estudiante
+        </button>
+        <button type="button" class="role-tab" id="tab-admin" role="tab" aria-selected="false">
+          Iniciar sesión como admin
+        </button>
+      </div>
+
       <!-- Encabezado del Card -->
       <div class="auth-header">
-        <div class="auth-logo-badge">
-          <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <div class="auth-logo-badge" id="auth-badge">
+          <!-- Icono Python para estudiante -->
+          <svg id="badge-icon-student" width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M24 4C13 4 10 9 10 16v4h14v2H8C4 22 4 28 4 32c0 7 3 12 12 12h4v-6h-2c-4 0-6-2-6-6v-4h28v4c0 4-2 6-6 6h-2v6h4c9 0 12-5 12-12V20c0-8-3-16-16-16zM18 14a2 2 0 110-4 2 2 0 010 4z" fill="#3776AB"/>
             <path d="M24 44c11 0 14-5 14-12v-4H24v-2h16c4 0 4-6 4-10 0-7-3-12-12-12h-4v6h2c4 0 6 2 6 6v4H8v-4c0-4 2-6 6-6h2V4H12C3 4 0 9 0 16v12c0 8 3 16 16 16zM30 34a2 2 0 110 4 2 2 0 010-4z" fill="#FFD43B"/>
           </svg>
+          <!-- Icono Escudo para admin -->
+          <svg id="badge-icon-admin" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
         </div>
-        <h1>Acceso de Estudiante</h1>
-        <p class="auth-sub">Conéctate a tu entorno de evaluación en PyLevel.</p>
+        <h1 id="auth-title">Acceso de Estudiante</h1>
+        <p class="auth-sub" id="auth-subtitle">Conéctate a tu entorno de evaluación en PyLevel.</p>
       </div>
 
       <!-- Alerta de Error / Éxito -->
@@ -29,7 +44,7 @@ import AppLayout from '../layouts/AppLayout.astro';
       <!-- Formulario de Login -->
       <form id="login-form" class="auth-form" novalidate>
         <div class="form-group">
-          <label for="email">Correo Institucional / Estudiante</label>
+          <label for="email" id="email-label">Correo Institucional / Estudiante</label>
           <div class="input-wrapper">
             <input
               type="email"
@@ -62,9 +77,17 @@ import AppLayout from '../layouts/AppLayout.astro';
         </button>
       </form>
 
+      <!-- Botón alternativo directo -->
+      <div class="alt-access-row">
+        <button type="button" id="btn-alt-switch" class="btn-alt-text">
+          Iniciar sesión como admin
+        </button>
+      </div>
+
       <!-- Pie del Card -->
       <div class="auth-footer">
-        <p>¿No tienes cuenta aún? <a href="/registro">Regístrate como nuevo estudiante →</a></p>
+        <p id="footer-register-row">¿No tienes cuenta aún? <a href="/registro">Regístrate como nuevo estudiante →</a></p>
+        <p id="footer-admin-note" style="display: none;">Los roles de administrador se configuran desde la base de datos central de PyLevel.</p>
       </div>
 
       <!-- Nota de Integración Técnica -->
@@ -85,6 +108,67 @@ import AppLayout from '../layouts/AppLayout.astro';
   const btnText = document.getElementById('btn-text');
   const btnSpinner = document.getElementById('btn-spinner');
 
+  const tabStudent = document.getElementById('tab-student');
+  const tabAdmin = document.getElementById('tab-admin');
+  const btnAltSwitch = document.getElementById('btn-alt-switch');
+
+  const badgeIconStudent = document.getElementById('badge-icon-student');
+  const badgeIconAdmin = document.getElementById('badge-icon-admin');
+  const authTitle = document.getElementById('auth-title');
+  const authSubtitle = document.getElementById('auth-subtitle');
+  const emailLabel = document.getElementById('email-label');
+  const emailInput = document.getElementById('email') as HTMLInputElement;
+  const footerRegisterRow = document.getElementById('footer-register-row');
+  const footerAdminNote = document.getElementById('footer-admin-note');
+
+  let isAdminMode = false;
+
+  function setMode(admin: boolean) {
+    isAdminMode = admin;
+
+    if (admin) {
+      tabAdmin?.classList.add('active');
+      tabStudent?.classList.remove('active');
+      if (badgeIconStudent) badgeIconStudent.style.display = 'none';
+      if (badgeIconAdmin) badgeIconAdmin.style.display = 'block';
+      if (authTitle) authTitle.textContent = 'Acceso de Administrador';
+      if (authSubtitle) authSubtitle.textContent = 'Gestión docente del catálogo de retos y proyectos de PyLevel.';
+      if (emailLabel) emailLabel.textContent = 'Correo de Administrador';
+      if (emailInput) emailInput.placeholder = 'admin@pylevel.dev';
+      if (btnText) btnText.textContent = 'Iniciar sesión como admin';
+      if (submitBtn) submitBtn.className = 'btn-submit btn-submit--admin';
+      if (btnAltSwitch) btnAltSwitch.textContent = 'Volver al acceso de estudiante';
+      if (footerRegisterRow) footerRegisterRow.style.display = 'none';
+      if (footerAdminNote) footerAdminNote.style.display = 'block';
+    } else {
+      tabStudent?.classList.add('active');
+      tabAdmin?.classList.remove('active');
+      if (badgeIconStudent) badgeIconStudent.style.display = 'block';
+      if (badgeIconAdmin) badgeIconAdmin.style.display = 'none';
+      if (authTitle) authTitle.textContent = 'Acceso de Estudiante';
+      if (authSubtitle) authSubtitle.textContent = 'Conéctate a tu entorno de evaluación en PyLevel.';
+      if (emailLabel) emailLabel.textContent = 'Correo Institucional / Estudiante';
+      if (emailInput) emailInput.placeholder = 'estudiante@pylevel.dev';
+      if (btnText) btnText.textContent = 'Iniciar Sesión';
+      if (submitBtn) submitBtn.className = 'btn-submit';
+      if (btnAltSwitch) btnAltSwitch.textContent = 'Iniciar sesión como admin';
+      if (footerRegisterRow) footerRegisterRow.style.display = 'block';
+      if (footerAdminNote) footerAdminNote.style.display = 'none';
+    }
+
+    if (alertEl) alertEl.style.display = 'none';
+  }
+
+  // Activar modo admin si la URL lo solicita por parámetro
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('role') === 'admin' || urlParams.get('redirect')?.startsWith('/admin')) {
+    setMode(true);
+  }
+
+  tabStudent?.addEventListener('click', () => setMode(false));
+  tabAdmin?.addEventListener('click', () => setMode(true));
+  btnAltSwitch?.addEventListener('click', () => setMode(!isAdminMode));
+
   function showAlert(msg: string, isError = true) {
     if (!alertEl || !alertMsg) return;
     alertMsg.textContent = msg;
@@ -102,7 +186,7 @@ import AppLayout from '../layouts/AppLayout.astro';
   if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = (document.getElementById('email') as HTMLInputElement).value.trim();
+      const email = emailInput?.value.trim() || '';
       const password = (document.getElementById('password') as HTMLInputElement).value;
 
       if (!email || !password) {
@@ -128,13 +212,24 @@ import AppLayout from '../layouts/AppLayout.astro';
           return;
         }
 
-        showAlert('¡Sesión iniciada con éxito! Redirigiendo...', false);
+        // Si se intentaba iniciar sesión como admin, validar que la cuenta tenga el rol correspondiente
+        if (isAdminMode && data.role !== 'admin') {
+          showAlert('Esta cuenta no cuenta con permisos de administrador. Por favor usa tus credenciales de admin o accede como estudiante.');
+          setLoading(false);
+          return;
+        }
+
+        showAlert(isAdminMode ? 'Sesión de administrador iniciada con éxito. Redirigiendo al panel...' : 'Sesión iniciada con éxito. Redirigiendo...', false);
         localStorage.removeItem('pylevel:current_user');
 
         setTimeout(() => {
-          const next = new URLSearchParams(window.location.search).get('next');
-          window.location.href = next === '/examen/' || next === '/progreso/' ? next : '/perfil';
-        }, 800);
+          const redirectParam = urlParams.get('redirect') || urlParams.get('next');
+          if (isAdminMode) {
+            window.location.href = redirectParam || '/admin/';
+          } else {
+            window.location.href = redirectParam || (redirectParam === '/examen/' || redirectParam === '/progreso/' ? redirectParam : '/perfil');
+          }
+        }, 700);
       } catch (err: any) {
         showAlert('Error de conexión con el servidor de autenticación.');
         setLoading(false);
@@ -145,7 +240,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 
 <style>
   .auth-page {
-    min-height: calc(100vh - 56px);
+    min-height: calc(100vh - 68px);
     display: grid;
     place-items: center;
     padding: 40px 20px;
@@ -157,9 +252,44 @@ import AppLayout from '../layouts/AppLayout.astro';
     max-width: 440px;
     background: #111827;
     border: 1px solid #1E293B;
-    border-radius: 14px;
-    padding: 36px 32px;
+    border-radius: 16px;
+    padding: 32px 30px;
     box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+  }
+
+  /* Pestañas de Modo */
+  .auth-role-tabs {
+    display: flex;
+    background: #0B1120;
+    border: 1px solid #1E293B;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+    gap: 4px;
+  }
+
+  .role-tab {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #94A3B8;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .role-tab:hover {
+    color: #F8FAFC;
+  }
+
+  .role-tab.active {
+    background: #1E293B;
+    color: #38BDF8;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
   }
 
   .auth-header {
@@ -190,6 +320,7 @@ import AppLayout from '../layouts/AppLayout.astro';
     font-size: 13px;
     color: #64748B;
     margin: 0;
+    line-height: 1.45;
   }
 
   /* Alerta */
@@ -263,12 +394,20 @@ import AppLayout from '../layouts/AppLayout.astro';
     font-size: 13px;
     font-weight: 650;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: all 0.15s;
     margin-top: 6px;
   }
 
   .btn-submit:hover:not(:disabled) {
     background: #2d6496;
+  }
+
+  .btn-submit--admin {
+    background: linear-gradient(135deg, #0284C7, #0369A1);
+  }
+
+  .btn-submit--admin:hover:not(:disabled) {
+    background: linear-gradient(135deg, #0369A1, #075985);
   }
 
   .btn-submit:disabled {
@@ -289,10 +428,31 @@ import AppLayout from '../layouts/AppLayout.astro';
     to { transform: rotate(360deg); }
   }
 
+  .alt-access-row {
+    text-align: center;
+    margin-top: 14px;
+  }
+
+  .btn-alt-text {
+    background: transparent;
+    border: none;
+    color: #38BDF8;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.15s;
+    text-decoration: underline;
+  }
+
+  .btn-alt-text:hover {
+    color: #7DD3FC;
+  }
+
   .auth-footer {
     text-align: center;
-    margin-top: 24px;
-    padding-top: 20px;
+    margin-top: 20px;
+    padding-top: 18px;
     border-top: 1px solid #1E293B;
   }
 

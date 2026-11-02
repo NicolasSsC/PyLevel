@@ -1,5 +1,6 @@
 ---
 import { catalogs, modePaths, type Exercise } from '../core/catalog';
+import { getDbExercises } from '../lib/exercises-db';
 
 interface Props {
   mode: 'classic' | 'contextual';
@@ -7,7 +8,8 @@ interface Props {
 
 const { mode } = Astro.props;
 const classic = mode === 'classic';
-const initialExercises = catalogs[mode];
+const dbExercises = await getDbExercises({ mode, onlyActive: true });
+const initialExercises: Exercise[] = dbExercises.length > 0 ? (dbExercises as any) : catalogs[mode];
 
 // Dificultades ordenadas
 const difficulties = ['Fácil', 'Medio', 'Difícil'];
