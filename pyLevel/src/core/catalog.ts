@@ -168,10 +168,37 @@ const projectMetadata: Record<string, Partial<Exercise>> = {
 
 export const catalogs: Record<'classic' | 'contextual', Exercise[]> = {
   classic,
-  contextual: contextual.map(exercise => ({
-    ...exercise, ...projectMetadata[exercise.id],
-    files: Object.fromEntries(Object.entries(exercise.files).filter((entry): entry is [string, string] => typeof entry[1] === 'string')),
-  })),
+  contextual: contextual.map(exercise => {
+    const metadata = projectMetadata[exercise.id];
+
+    if (
+      !metadata ||
+      !metadata.difficulty ||
+      !metadata.topics ||
+      !metadata.description
+    ) {
+      throw new Error(
+        `Faltan metadatos obligatorios para el ejercicio ${exercise.id}.`
+      );
+    }
+
+    return {
+      ...exercise,
+      ...metadata,
+      difficulty: metadata.difficulty,
+      topics: metadata.topics,
+      description: metadata.description,
+      files: Object.fromEntries(
+        Object.entries(exercise.files).filter(
+          (entry): entry is [string, string] =>
+            typeof entry[1] === 'string'
+        )
+      ),
+    };
+  }),
 };
 
-export const modePaths = { classic: 'clasicos', contextual: 'contextualizados' } as const;
+export const modePaths = {
+  classic: 'clasicos',
+  contextual: 'contextualizados',
+} as const;
