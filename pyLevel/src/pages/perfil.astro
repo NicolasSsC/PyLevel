@@ -4,7 +4,7 @@ import AccountShell from '../account/AccountShell.astro';
 import { currentUser } from '../lib/session';
 import { loadExamHistory, loadProgress } from '../account/data';
 import { todayInBogota } from '../account/profile';
-import { getDbExercises } from '../lib/exercises-db';
+import { getDbPool } from '../lib/db';
 
 let user = null;
 let exams: Awaited<ReturnType<typeof loadExamHistory>> = [];
@@ -12,13 +12,39 @@ let progress: Awaited<ReturnType<typeof loadProgress>> | null = null;
 let unavailable = false;
 try {
   user = await currentUser(Astro.cookies);
-  if (user) [exams, progress] = await Promise.all([loadExamHistory(user.id), loadProgress(user.id)]);
+  if (user && user.role !== 'admin') {
+    [exams, progress] = await Promise.all([loadExamHistory(user.id), loadProgress(user.id)]);
+  }
 } catch {
   unavailable = true;
 }
 
 if (!user && !unavailable) return Astro.redirect('/login?next=/perfil');
 if (unavailable) Astro.response.status = 503;
+
+const isAdmin = user?.role === 'admin';
+
+let registeredAdmins: Array<{ id: string; email: string; displayName: string; createdAt: string }> = [];
+if (isAdmin) {
+  try {
+    const db = getDbPool();
+    const res = await db.query(
+      `SELECT u.id, u.email, u.created_at, COALESCE(p.display_name, u.email) AS display_name
+       FROM users u
+       LEFT JOIN profiles p ON u.id = p.user_id
+       WHERE u.role = 'admin'
+       ORDER BY u.created_at ASC`
+    );
+    registeredAdmins = res.rows.map(r => ({
+      id: r.id,
+      email: r.email,
+      displayName: r.display_name,
+      createdAt: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
+    }));
+  } catch (err) {
+    console.warn('Error cargando administradores:', err);
+  }
+}
 
 const initials = user?.displayName
   .split(/\s+/)
@@ -30,21 +56,6 @@ const initials = user?.displayName
 
 const date = (value: string) =>
   new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeZone: 'America/Bogota' }).format(new Date(value));
-const isAdmin = user?.role === 'admin';
-
-let adminExercises: Awaited<ReturnType<typeof getDbExercises>> = [];
-if (isAdmin) {
-  try {
-    adminExercises = await getDbExercises({ onlyActive: false });
-  } catch (err) {
-    console.warn('Error cargando ejercicios en perfil admin:', err);
-  }
-}
-const adminTotal = adminExercises.length;
-const adminClassic = adminExercises.filter(e => e.mode === 'classic').length;
-const adminContextual = adminExercises.filter(e => e.mode === 'contextual').length;
-const adminActive = adminExercises.filter(e => e.is_active).length;
-const adminInactive = adminExercises.filter(e => !e.is_active).length;
 
 const birthdayLabel = user?.birthday
   ? new Intl.DateTimeFormat('es-CO', { dateStyle: 'long', timeZone: 'UTC' }).format(new Date(`${user.birthday}T12:00:00Z`))
@@ -64,32 +75,116 @@ const resultLabels = { pending: 'En curso', passed: 'Correcto', failed: 'Por rev
 const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
   dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota',
 }).format(new Date(value));
-
 ---
 
-<AccountShell title={isAdmin ? "Perfil de Administrador" : "Mi perfil"} description={isAdmin ? "Gestión de credenciales, rol de administrador y estado del sistema." : "Tus datos, tu cuenta y tu actividad en PyLevel."} active="perfil" isAdmin={isAdmin}>
+<AccountShell title={isAdmin ? "Administración de Accesos" : "Mi perfil"} description={isAdmin ? "Gestión de cuentas y habilitación de administradores en PyLevel." : "Tus datos, tu cuenta y tu actividad en PyLevel."} active="perfil" isAdmin={isAdmin}>
   {unavailable || !user ? (
     <section class="account-card account-empty">
       <h2>No pudimos cargar tu perfil</h2>
       <p>Tu información sigue guardada. Vuelve a intentar cuando el servicio esté disponible.</p>
       <a class="account-button secondary" href="/perfil">Volver a intentar</a>
     </section>
+  ) : isAdmin ? (
+    <div class="admin-view-wrap">
+      <!-- Tarjeta: Habilitar Administrador -->
+      <section class="account-card" aria-labelledby="add-admin-title">
+        <div class="section-top">
+          <div>
+            <span class="account-label">CONTROL DE ACCESOS</span>
+            <h2 id="add-admin-title" style="margin-top: 6px;">Habilitar Nuevo Administrador</h2>
+            <p class="account-muted">Ingresa el nombre y correo electrónico. El sistema habilitará inmediatamente los privilegios de administrador para esa cuenta.</p>
+          </div>
+        </div>
+
+        <form id="add-admin-form" class="add-admin-form">
+          <div class="admin-fields-row">
+            <div class="form-group flex-1">
+              <label for="admin-name">Nombre completo</label>
+              <input
+                type="text"
+                id="admin-name"
+                name="name"
+                class="admin-text-input"
+                placeholder="Ej. Carlos Mendoza"
+                required
+              />
+            </div>
+            <div class="form-group flex-1">
+              <label for="admin-email">Correo electrónico</label>
+              <input
+                type="email"
+                id="admin-email"
+                name="email"
+                class="admin-text-input"
+                placeholder="admin@pylevel.dev"
+                required
+              />
+            </div>
+          </div>
+          <div class="admin-form-actions">
+            <button type="submit" id="btn-submit-admin" class="account-button primary">
+              Habilitar Administrador →
+            </button>
+            <span id="add-admin-feedback" class="admin-feedback" style="display: none;"></span>
+          </div>
+        </form>
+      </section>
+
+      <!-- Tarjeta: Lista de Administradores Registrados -->
+      <section class="account-card account-section" aria-labelledby="admins-table-title">
+        <div class="section-top">
+          <div>
+            <h2 id="admins-table-title">Administradores Habilitados</h2>
+            <p class="account-muted">Cuentas autorizadas para gestionar ejercicios, revisar métricas y supervisar el sistema.</p>
+          </div>
+          <span class="section-count" id="admin-count-pill">{registeredAdmins.length} {registeredAdmins.length === 1 ? 'cuenta' : 'cuentas'}</span>
+        </div>
+
+        <div class="account-table-wrap">
+          <table class="account-table">
+            <thead>
+              <tr>
+                <th>NOMBRE</th>
+                <th>CORREO ELECTRÓNICO</th>
+                <th>FECHA DE ALTA</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody id="admins-table-rows">
+              {registeredAdmins.map(adm => (
+                <tr>
+                  <td><strong>{adm.displayName}</strong></td>
+                  <td><code>{adm.email}</code></td>
+                  <td>{date(adm.createdAt)}</td>
+                  <td><span class="account-status green">Habilitado</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Sesión activa del administrador -->
+      <aside class="account-card admin-session-card">
+        <div class="admin-session-left">
+          <span class="account-label">SESIÓN ACTIVA</span>
+          <h3>{user.displayName}</h3>
+          <p class="account-muted">Conectado como <strong>{user.email}</strong> con rol de Administrador.</p>
+        </div>
+        <div>
+          <button id="admin-logout-btn" class="account-button danger" type="button">Cerrar sesión</button>
+        </div>
+      </aside>
+    </div>
   ) : (
     <>
-      <!-- Grid de Cuenta Personal -->
       <div class="account-grid">
         <section class="account-card" aria-labelledby="personal-title">
           <div class="profile-identity">
             <div class="profile-avatar" id="account-avatar" aria-hidden="true">{initials}</div>
             <div>
               <h2 id="account-name">{user.displayName}</h2>
-              <p id="account-occupation">{isAdmin ? 'Administrador de PyLevel' : (user.occupation || 'Completa tu ocupación')}</p>
-              {isAdmin && (
-                <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
-                  <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#38BDF8;"></span>
-                  <span>Rol Administrador</span>
-                </div>
-              )}
+              <p id="account-occupation">{user.occupation || 'Completa tu ocupación'}</p>
             </div>
           </div>
 
@@ -145,7 +240,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
             </div>
             <div>
               <dt>ROL EN PLATAFORMA</dt>
-              <dd>{isAdmin ? 'Administrador' : 'Estudiante'}</dd>
+              <dd>Estudiante</dd>
             </div>
           </dl>
           <div class="profile-session">
@@ -157,423 +252,355 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
         </aside>
       </div>
 
-      <!-- SECCIÓN CONDICIONAL: ADMIN VS ESTUDIANTE -->
-      {isAdmin ? (
-        <>
-          <!-- Banner de Control Administrativo -->
-          <section class="admin-profile-banner" aria-labelledby="admin-profile-heading">
-            <div class="apb-content">
-              <div class="apb-badge">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <span>PANEL DE CONTROL ADMINISTRATIVO</span>
-              </div>
-              <h2 id="admin-profile-heading">Gestión Integral de PyLevel</h2>
-              <p>Tu cuenta cuenta con privilegios administrativos para gestionar el catálogo pedagógico de ejercicios, generar nuevos desafíos asistidos por PyBot IA y supervisar el avance de las cohortes de estudiantes.</p>
-              <div class="apb-actions">
-                <a href="/admin/" class="account-button primary">
-                  <span>Administrar Catálogo</span>
-                  <span>→</span>
-                </a>
-                <a href="/progreso/" class="account-button secondary">
-                  <span>Analítica de Estudiantes</span>
-                  <span>→</span>
-                </a>
-                <a href="/manuales/#capitulo-admin" class="account-button secondary">
-                  <span>Manual de Admin</span>
-                </a>
-              </div>
-            </div>
-            <div class="apb-meta">
-              <div class="apb-stat">
-                <span class="apbs-label">EJERCICIOS EN CATÁLOGO</span>
-                <span class="apbs-value">{adminTotal}</span>
-              </div>
-              <div class="apb-stat">
-                <span class="apbs-label">DESAFÍOS CLÁSICOS</span>
-                <span class="apbs-value">{adminClassic}</span>
-              </div>
-              <div class="apb-stat">
-                <span class="apbs-label">PROYECTOS MULTI-ARCHIVO</span>
-                <span class="apbs-value">{adminContextual}</span>
-              </div>
-              <div class="apb-stat">
-                <span class="apbs-label">ESTADO DEL CATÁLOGO</span>
-                <span class="apbs-value">{adminActive} activos · {adminInactive} inactivos</span>
-              </div>
-            </div>
-          </section>
-
-          <!-- Módulos de Gestión Administrativa -->
-          <section class="account-card account-section" aria-labelledby="admin-modules-heading">
-            <div class="section-top">
-              <div>
-                <h2 id="admin-modules-heading">Módulos Administrativos</h2>
-                <p class="account-muted">Herramientas y controles para la configuración de la plataforma.</p>
-              </div>
-            </div>
-
-            <div class="admin-modules-grid">
-              <div class="admin-mod-card">
-                <div class="amc-icon">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#38BDF8" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
-                </div>
-                <div class="amc-info">
-                  <h3>Catálogo de Ejercicios y Retos</h3>
-                  <p>Creación manual o asistida por PyBot, edición de código inicial, configuración de pruebas públicas y activación/desactivación inmediata.</p>
-                  <div class="amc-stats-row">
-                    <span class="amc-pill active">{adminActive} Activos</span>
-                    <span class="amc-pill inactive">{adminInactive} Desactivados</span>
-                  </div>
-                </div>
-                <a href="/admin/" class="amc-btn">Administrar Ejercicios →</a>
-              </div>
-
-              <div class="admin-mod-card">
-                <div class="amc-icon">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#34D399" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-                </div>
-                <div class="amc-info">
-                  <h3>Analítica Global de Estudiantes</h3>
-                  <p>Tasa de aprobación por cohorte, ranking de dificultad por ejercicio, tiempo de resolución y alertas tempranas de estudiantes rezagados.</p>
-                  <div class="amc-stats-row">
-                    <span class="amc-pill normal">Métricas en tiempo real</span>
-                  </div>
-                </div>
-                <a href="/progreso/" class="amc-btn">Ver Analítica →</a>
-              </div>
-
-              <div class="admin-mod-card">
-                <div class="amc-icon">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FBBF24" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-                </div>
-                <div class="amc-info">
-                  <h3>Manual de Administración y Arquitectura</h3>
-                  <p>Guía de administración, diseño de pruebas unitarias, especificación de la base de datos PostgreSQL y motores de evaluación.</p>
-                  <div class="amc-stats-row">
-                    <span class="amc-pill normal">Documentación completa</span>
-                  </div>
-                </div>
-                <a href="/manuales/#capitulo-admin" class="amc-btn">Consultar Manual →</a>
-              </div>
-            </div>
-          </section>
-        </>
-      ) : (
-        <>
-          {nextStep && (
-            <section class="priority-banner" aria-labelledby="priority-heading">
-              <div class="pb-content">
-                <div class="pb-badge"><span class="pb-dot" aria-hidden="true"></span>TU SIGUIENTE PASO</div>
-                <h2 id="priority-heading">{nextStep.title}</h2>
-                <p>{nextStep.text}</p>
-                <div class="pb-actions">
-                  <a href={nextStep.href} class="account-button primary">{nextStep.action} →</a>
-                  <a href="/progreso/" class="account-button secondary">Ver progreso y métricas</a>
-                </div>
-              </div>
-              <div class="pb-meta">
-                <div class="pb-stat"><span class="pbs-label">EJERCICIOS SUPERADOS</span><span class="pbs-value">{progress?.completed.length} de {progress?.total}</span></div>
-                <div class="pb-stat"><span class="pbs-label">EJECUCIONES Y PRUEBAS</span><span class="pbs-value">{progress?.attempts}</span></div>
-                <div class="pb-stat"><span class="pbs-label">EJERCICIOS EN PROGRESO</span><span class="pbs-value">{progress?.inProgress}</span></div>
-              </div>
-            </section>
-          )}
-
-          <!-- Avance real de práctica por tema (Estudiantes) -->
-          <section class="account-card account-section" aria-labelledby="comp-heading">
-            <div class="section-top">
-              <div>
-                <h2 id="comp-heading">Avance por temas</h2>
-                <p class="account-muted">Ejercicios superados por tema. Estos porcentajes no representan una calificación de competencias.</p>
-              </div>
-            </div>
-
-            <div class="comp-matrix">
-              {competencias.map(c => (
-                <div class="comp-block">
-                  <div class="cb-header">
-                    <div>
-                      <h3>{c.label}</h3>
-                      <p class="account-muted">{c.subLabel}</p>
-                    </div>
-                    <span class="cb-pct" style={`color:${c.color}`}>{c.pct}%</span>
-                  </div>
-                  <div class="bar-main-bg" role="progressbar" aria-label={`Ejercicios superados en ${c.label}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.pct}>
-                    <div class="bar-main-fill" style={`width:${c.pct}%;background:${c.color}`}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
-
-      {/* Historial de práctica si aplica */}
-      {(!isAdmin || historial.length > 0) && (
-        <section class="account-card account-section" aria-labelledby="hist-heading">
-          <div class="section-top">
-            <div>
-              <h2 id="hist-heading">Historial de práctica</h2>
-              <p class="account-muted">Últimas ejecuciones y pruebas registradas en tu cuenta.</p>
+      {nextStep && (
+        <section class="priority-banner" aria-labelledby="priority-heading">
+          <div class="pb-content">
+            <div class="pb-badge"><span class="pb-dot" aria-hidden="true"></span>TU SIGUIENTE PASO</div>
+            <h2 id="priority-heading">{nextStep.title}</h2>
+            <p>{nextStep.text}</p>
+            <div class="pb-actions">
+              <a href={nextStep.href} class="account-button primary">{nextStep.action} →</a>
+              <a href="/progreso/" class="account-button secondary">Ver progreso y métricas</a>
             </div>
           </div>
-          {historial.length ? (
-            <div class="account-table-wrap">
-              <table class="account-table">
-                <thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead>
-                <tbody>
-                  {historial.map(item => (
-                    <tr>
-                      <td><a href={item.href}><strong>{item.title}</strong></a><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'}</small></td>
-                      <td>{item.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td>
-                      <td>
-                        <span class:list={['account-status', item.result === 'passed' ? 'green' : item.result === 'failed' ? 'gold' : 'muted']}>
-                          {item.result === 'passed' && item.kind === 'test' ? 'Pruebas superadas' : resultLabels[item.result]}
-                        </span>
-                        {item.kind === 'test' && item.testsRun > 0 && <small>{item.testsRun} pruebas ejecutadas</small>}
-                      </td>
-                      <td>{activityDate(item.createdAt)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div class="account-empty">
-              <h3>Aún no hay práctica registrada</h3>
-              <p>Ejecuta una solución o prueba un ejercicio para empezar tu historial.</p>
-              <a class="account-button secondary" href="/ejercicios/">Elegir un ejercicio →</a>
-            </div>
-          )}
+          <div class="pb-meta">
+            <div class="pb-stat"><span class="pbs-label">EJERCICIOS SUPERADOS</span><span class="pbs-value">{progress?.completed.length} de {progress?.total}</span></div>
+            <div class="pb-stat"><span class="pbs-label">EJECUCIONES Y PRUEBAS</span><span class="pbs-value">{progress?.attempts}</span></div>
+            <div class="pb-stat"><span class="pbs-label">EJERCICIOS EN PROGRESO</span><span class="pbs-value">{progress?.inProgress}</span></div>
+          </div>
         </section>
       )}
 
-      {/* Evaluaciones y exámenes si aplica */}
-      {(!isAdmin || exams.length > 0) && (
-        <section class="account-card account-section" aria-labelledby="exams-title">
-          <div class="section-top">
-            <div>
-              <h2 id="exams-title">Mis exámenes</h2>
-              <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
-            </div>
-            <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
+      <!-- Avance real de práctica por tema -->
+      <section class="account-card account-section" aria-labelledby="comp-heading">
+        <div class="section-top">
+          <div>
+            <h2 id="comp-heading">Avance por temas</h2>
+            <p class="account-muted">Ejercicios superados por tema. Estos porcentajes no representan una calificación de competencias.</p>
           </div>
-          {exams.length ? (
-            <div class="account-table-wrap">
-              <table class="account-table">
-                <thead>
+        </div>
+
+        <div class="comp-matrix">
+          {competencias.map(c => (
+            <div class="comp-block">
+              <div class="cb-header">
+                <div>
+                  <h3>{c.label}</h3>
+                  <p class="account-muted">{c.subLabel}</p>
+                </div>
+                <span class="cb-pct" style={`color:${c.color}`}>{c.pct}%</span>
+              </div>
+              <div class="bar-main-bg" role="progressbar" aria-label={`Ejercicios superados en ${c.label}`} aria-valuemin="0" aria-valuemax="100" aria-valuenow={c.pct}>
+                <div class="bar-main-fill" style={`width:${c.pct}%;background:${c.color}`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- Historial de práctica -->
+      <section class="account-card account-section" aria-labelledby="hist-heading">
+        <div class="section-top">
+          <div>
+            <h2 id="hist-heading">Historial de práctica</h2>
+            <p class="account-muted">Últimas ejecuciones y pruebas registradas en tu cuenta.</p>
+          </div>
+        </div>
+        {historial.length ? (
+          <div class="account-table-wrap">
+            <table class="account-table">
+              <thead><tr><th>EJERCICIO</th><th>ACCIÓN</th><th>RESULTADO</th><th>FECHA</th></tr></thead>
+              <tbody>
+                {historial.map(item => (
                   <tr>
-                    <th>EXAMEN</th>
-                    <th>FECHA DE INICIO</th>
-                    <th>ESTADO</th>
-                    <th>EVALUACIÓN</th>
-                    <th></th>
+                    <td><a href={item.href}><strong>{item.title}</strong></a><small>{item.mode === 'classic' ? 'Clásico' : 'Contextualizado'}</small></td>
+                    <td>{item.kind === 'test' ? 'Pruebas públicas' : 'Ejecutar código'}</td>
+                    <td>
+                      <span class:list={['account-status', item.result === 'passed' ? 'green' : item.result === 'failed' ? 'gold' : 'muted']}>
+                        {item.result === 'passed' && item.kind === 'test' ? 'Pruebas superadas' : resultLabels[item.result]}
+                      </span>
+                      {item.kind === 'test' && item.testsRun > 0 && <small>{item.testsRun} pruebas ejecutadas</small>}
+                    </td>
+                    <td>{activityDate(item.createdAt)}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {exams.map(attempt => (
-                    <tr>
-                      <td>
-                        <strong>{attempt.title}</strong>
-                        <small>Intento {attempt.id.slice(0, 8)}</small>
-                      </td>
-                      <td>{date(attempt.startedAt)}</td>
-                      <td>
-                        <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
-                          {examStatus[attempt.status]}
-                        </span>
-                      </td>
-                      <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
-                      <td>
-                        {attempt.current && (
-                          <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div class="account-empty">
-              <span aria-hidden="true">▤</span>
-              <h3>Aún no has realizado exámenes</h3>
-              <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
-              <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
-            </div>
-          )}
-        </section>
-      )}
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="account-empty">
+            <h3>Aún no hay práctica registrada</h3>
+            <p>Ejecuta una solución o prueba un ejercicio para empezar tu historial.</p>
+            <a class="account-button secondary" href="/ejercicios/">Elegir un ejercicio →</a>
+          </div>
+        )}
+      </section>
+
+      <!-- Mis Exámenes -->
+      <section class="account-card account-section" aria-labelledby="exams-title">
+        <div class="section-top">
+          <div>
+            <h2 id="exams-title">Mis exámenes</h2>
+            <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
+          </div>
+          <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
+        </div>
+        {exams.length ? (
+          <div class="account-table-wrap">
+            <table class="account-table">
+              <thead>
+                <tr>
+                  <th>EXAMEN</th>
+                  <th>FECHA DE INICIO</th>
+                  <th>ESTADO</th>
+                  <th>EVALUACIÓN</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {exams.map(attempt => (
+                  <tr>
+                    <td>
+                      <strong>{attempt.title}</strong>
+                      <small>Intento {attempt.id.slice(0, 8)}</small>
+                    </td>
+                    <td>{date(attempt.startedAt)}</td>
+                    <td>
+                      <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
+                        {examStatus[attempt.status]}
+                      </span>
+                    </td>
+                    <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
+                    <td>
+                      {attempt.current && (
+                        <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="account-empty">
+            <span aria-hidden="true">▤</span>
+            <h3>Aún no has realizado exámenes</h3>
+            <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
+            <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
+          </div>
+        )}
+      </section>
     </>
   )}
 </AccountShell>
 
 <script>
-  import { initProfile } from '../account/profile-client';
-  initProfile();
+  // Inicialización de perfil de estudiante
+  const profileForm = document.getElementById('profile-form');
+  if (profileForm) {
+    import('../account/profile-client').then(({ initProfile }) => initProfile());
+  }
+
+  // Lógica exclusiva de administración: Agregar administradores
+  const addAdminForm = document.getElementById('add-admin-form') as HTMLFormElement | null;
+  const adminNameInput = document.getElementById('admin-name') as HTMLInputElement | null;
+  const adminEmailInput = document.getElementById('admin-email') as HTMLInputElement | null;
+  const btnSubmitAdmin = document.getElementById('btn-submit-admin') as HTMLButtonElement | null;
+  const addAdminFeedback = document.getElementById('add-admin-feedback') as HTMLElement | null;
+  const adminsTableRows = document.getElementById('admins-table-rows');
+  const adminCountPill = document.getElementById('admin-count-pill');
+
+  if (addAdminForm && adminNameInput && adminEmailInput && btnSubmitAdmin && addAdminFeedback) {
+    addAdminForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = adminNameInput.value.trim();
+      const email = adminEmailInput.value.trim();
+
+      if (!name || !email) {
+        addAdminFeedback.textContent = 'Por favor completa el nombre y el correo.';
+        addAdminFeedback.className = 'admin-feedback error';
+        addAdminFeedback.style.display = 'inline-block';
+        return;
+      }
+
+      btnSubmitAdmin.disabled = true;
+      btnSubmitAdmin.textContent = 'Habilitando...';
+      addAdminFeedback.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/admins', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email }),
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          addAdminFeedback.textContent = data.error || 'No se pudo habilitar el administrador.';
+          addAdminFeedback.className = 'admin-feedback error';
+          addAdminFeedback.style.display = 'inline-block';
+          btnSubmitAdmin.disabled = false;
+          btnSubmitAdmin.textContent = 'Habilitar Administrador →';
+          return;
+        }
+
+        addAdminFeedback.textContent = data.message || `Administrador ${name} habilitado con éxito.`;
+        addAdminFeedback.className = 'admin-feedback success';
+        addAdminFeedback.style.display = 'inline-block';
+
+        // Agregar fila a la tabla si no existe
+        if (adminsTableRows && data.admin) {
+          const existingRow = Array.from(adminsTableRows.querySelectorAll('tr')).find(
+            tr => tr.textContent?.toLowerCase().includes(data.admin.email.toLowerCase())
+          );
+
+          if (!existingRow) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td><strong>${data.admin.displayName}</strong></td>
+              <td><code>${data.admin.email}</code></td>
+              <td>Hoy</td>
+              <td><span class="account-status green">Habilitado</span></td>
+            `;
+            adminsTableRows.appendChild(tr);
+            if (adminCountPill) {
+              const currentTotal = adminsTableRows.querySelectorAll('tr').length;
+              adminCountPill.textContent = `${currentTotal} ${currentTotal === 1 ? 'cuenta' : 'cuentas'}`;
+            }
+          }
+        }
+
+        adminNameInput.value = '';
+        adminEmailInput.value = '';
+      } catch (err) {
+        addAdminFeedback.textContent = 'Error de conexión con el servidor.';
+        addAdminFeedback.className = 'admin-feedback error';
+        addAdminFeedback.style.display = 'inline-block';
+      } finally {
+        btnSubmitAdmin.disabled = false;
+        btnSubmitAdmin.textContent = 'Habilitar Administrador →';
+      }
+    });
+  }
+
+  // Logout para administrador
+  const adminLogoutBtn = document.getElementById('admin-logout-btn');
+  if (adminLogoutBtn) {
+    adminLogoutBtn.addEventListener('click', async () => {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST' });
+        localStorage.removeItem('pylevel:current_user');
+        window.location.href = '/login';
+      } catch {
+        window.location.href = '/login';
+      }
+    });
+  }
 </script>
 
 <style>
-  /* Banner Administrativo */
-  .admin-profile-banner {
-    background: linear-gradient(135deg, rgba(15, 31, 56, 0.95) 0%, rgba(12, 74, 110, 0.25) 50%, rgba(15, 23, 42, 0.95) 100%);
-    border: 1px solid rgba(56, 189, 248, 0.35);
-    border-radius: 14px;
-    padding: 28px 32px;
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 32px;
-    align-items: start;
-    margin-top: 24px;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-  }
-  .apb-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font: 700 11px ui-monospace, monospace;
-    letter-spacing: 1px;
-    color: #38BDF8;
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    padding: 4px 10px;
-    border-radius: 6px;
-    margin-bottom: 14px;
-  }
-  .admin-profile-banner h2 {
-    font-size: 24px;
-    letter-spacing: -0.8px;
-    color: #f1f5f9;
-    margin: 0 0 10px;
-  }
-  .admin-profile-banner p {
-    font-size: 13.5px;
-    line-height: 1.65;
-    color: #94a3b8;
-    margin: 0 0 20px;
-    max-width: 620px;
-  }
-  .apb-actions {
+  /* Vista Exclusiva de Administrador */
+  .admin-view-wrap {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 18px;
+  }
+
+  .add-admin-form {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .admin-fields-row {
+    display: flex;
+    gap: 16px;
     flex-wrap: wrap;
   }
-  .apb-meta {
+
+  .flex-1 {
+    flex: 1;
+    min-width: 240px;
+  }
+
+  .form-group {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font: 600 11px ui-monospace, monospace;
+    letter-spacing: 0.5px;
+    color: #94A3B8;
+  }
+
+  .admin-text-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #0B1120;
+    border: 1px solid #1E293B;
+    border-radius: 8px;
+    color: #F8FAFC;
+    font-size: 13.5px;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .admin-text-input:focus {
+    outline: none;
+    border-color: #38BDF8;
+    box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  }
+
+  .admin-form-actions {
+    display: flex;
+    align-items: center;
     gap: 14px;
-    min-width: 260px;
-    background: rgba(2, 6, 23, 0.45);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 10px;
-    padding: 16px 20px;
-  }
-  .apb-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .apbs-label {
-    font: 600 10px ui-monospace, monospace;
-    letter-spacing: 1px;
-    color: #64748b;
-  }
-  .apbs-value {
-    font: 700 15px ui-monospace, monospace;
-    color: #38BDF8;
+    flex-wrap: wrap;
+    margin-top: 4px;
   }
 
-  /* Grid de Módulos Administrativos */
-  .admin-modules-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 18px;
-    margin-top: 20px;
+  .admin-feedback {
+    font-size: 12.5px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    line-height: 1.4;
   }
-  .admin-mod-card {
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 12px;
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 16px;
-    transition: transform 0.15s ease, border-color 0.15s ease;
-  }
-  .admin-mod-card:hover {
-    transform: translateY(-2px);
-    border-color: rgba(56, 189, 248, 0.4);
-  }
-  .amc-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.04);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .amc-info h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #f1f5f9;
-    margin: 0 0 8px;
-  }
-  .amc-info p {
-    font-size: 13px;
-    line-height: 1.55;
-    color: #94a3b8;
-    margin: 0 0 14px;
-  }
-  .amc-stats-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .amc-pill {
-    font: 700 11px ui-monospace, monospace;
-    padding: 3px 8px;
-    border-radius: 4px;
-  }
-  .amc-pill.active {
+
+  .admin-feedback.success {
     background: rgba(16, 185, 129, 0.12);
-    color: #10B981;
     border: 1px solid rgba(16, 185, 129, 0.3);
-  }
-  .amc-pill.inactive {
-    background: rgba(245, 158, 11, 0.12);
-    color: #F59E0B;
-    border: 1px solid rgba(245, 158, 11, 0.3);
-  }
-  .amc-pill.normal {
-    background: rgba(56, 189, 248, 0.1);
-    color: #38BDF8;
-    border: 1px solid rgba(56, 189, 248, 0.25);
-  }
-  .amc-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 9px 14px;
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: #38BDF8;
-    font-size: 13px;
-    font-weight: 600;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.15s ease;
-  }
-  .amc-btn:hover {
-    background: #38BDF8;
-    color: #0F172A;
+    color: #34D399;
   }
 
-  /* Vista de Estudiante Original */
+  .admin-feedback.error {
+    background: rgba(244, 63, 94, 0.12);
+    border: 1px solid rgba(244, 63, 94, 0.3);
+    color: #F43F5E;
+  }
+
+  .admin-session-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid #1E293B;
+    padding: 20px 24px;
+  }
+
+  .admin-session-left h3 {
+    margin: 4px 0 2px;
+    font-size: 16px;
+    color: #F8FAFC;
+  }
+
+  /* Estilos originales de estudiante */
   .priority-banner {
     background: linear-gradient(135deg, rgba(15, 31, 56, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
     border: 1px solid rgba(55, 118, 171, 0.4);
@@ -686,11 +713,14 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
   }
 
   @media (max-width: 900px) {
-    .priority-banner, .admin-profile-banner {
+    .priority-banner {
       grid-template-columns: 1fr;
     }
-    .pb-meta, .apb-meta {
+    .pb-meta {
       display: none;
+    }
+    .admin-fields-row {
+      flex-direction: column;
     }
   }
 </style>

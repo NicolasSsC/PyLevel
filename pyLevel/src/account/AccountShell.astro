@@ -13,21 +13,18 @@ const { title, description, active, isAdmin = false } = Astro.props;
 ---
 <AppLayout title={`${title} · PyLevel`}>
   <main class="account-page">
-    <header class="account-heading">
-      <div>
-        <p class="account-eyebrow">{isAdmin ? 'PANEL DE ADMINISTRACIÓN · PYLEVEL' : 'MI ESPACIO · PYLEVEL'}</p>
-        <h1>{title}</h1>
-        <p>{description}</p>
-      </div>
-      <div class="account-heading-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-        {isAdmin && (
-          <a href="/admin/" class="account-button primary" style="background: #0284C7;">
-            Administrar ejercicios
-          </a>
-        )}
-        <a href="/ejercicios/" class="account-button secondary">Explorar ejercicios →</a>
-      </div>
-    </header>
+    {!isAdmin && (
+      <header class="account-heading">
+        <div>
+          <p class="account-eyebrow">MI ESPACIO · PYLEVEL</p>
+          <h1>{title}</h1>
+          <p>{description}</p>
+        </div>
+        <div class="account-heading-actions" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <a href="/ejercicios/" class="account-button secondary">Explorar ejercicios →</a>
+        </div>
+      </header>
+    )}
     <nav class="account-tabs" aria-label="Mi cuenta">
       <a href="/perfil" aria-current={active === 'perfil' ? 'page' : undefined}>
         {isAdmin ? 'Perfil Admin' : 'Mi perfil'}

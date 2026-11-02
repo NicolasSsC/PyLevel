@@ -62,14 +62,6 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
               <span>Ver Manuales</span>
             </a>
-            <button type="button" id="btn-batch-classic" class="btn-batch-action">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span>10 Clásicos con PyBot</span>
-            </button>
-            <button type="button" id="btn-batch-contextual" class="btn-batch-action btn-batch-contextual">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-              <span>10 Proyectos con PyBot</span>
-            </button>
             <button type="button" id="btn-create-exercise" class="btn-create">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               <span>Crear Nuevo Ejercicio</span>
@@ -223,25 +215,6 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
             <input type="hidden" id="form-is-edit" value="false" />
             <input type="hidden" id="form-original-id" value="" />
 
-            <!-- Asistente de IA PyBot para Generar Borrador -->
-            <div class="ai-assistant-card">
-              <div class="ai-assistant-header">
-                <div class="ai-badge">
-                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#38BDF8" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                  <span>CREAR CON ASISTENTE PYBOT IA</span>
-                </div>
-                <span class="ai-assistant-tip">Autocompleta el formulario con código inicial, pruebas unitarias y enunciado</span>
-              </div>
-              <div class="ai-assistant-inputs">
-                <input type="text" id="ai-draft-topic" class="admin-input flex-1" placeholder="Indica el tema o concepto (ej. Recursión, Grafos, POO, Diccionarios)" />
-                <button type="button" id="btn-ai-generate-draft" class="btn-ai-generate">
-                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
-                  <span id="ai-generate-btn-label">Generar con PyBot</span>
-                </button>
-              </div>
-              <p id="ai-status-msg" class="ai-status-note" style="display:none;"></p>
-            </div>
-
             <!-- Selector de Modalidad -->
             <div class="form-row">
               <div class="form-group flex-1">
@@ -372,31 +345,7 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
         </div>
       </dialog>
 
-      <!-- Modal de Generación en Lote con PyBot IA -->
-      <dialog id="batch-modal" class="admin-modal confirm-modal">
-        <div class="modal-content" style="max-width: 480px; text-align: left;">
-          <div style="display:flex; align-items:center; gap: 14px; margin-bottom: 1.25rem;">
-            <div id="batch-modal-icon" class="batch-spin-icon">
-              <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#38BDF8" stroke-width="2.5">
-                <circle cx="12" cy="12" r="10" stroke-opacity="0.2"></circle>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
-              </svg>
-            </div>
-            <div>
-              <h3 id="batch-modal-title" style="margin:0 0 4px; font-size: 1.15rem; color:#F8FAFC;">Generación con PyBot IA</h3>
-              <p id="batch-modal-subtitle" style="margin:0; font-size: 0.82rem; color:#94A3B8;">Creando ejercicios y guardando en PostgreSQL...</p>
-            </div>
-          </div>
-          <div class="batch-meter-bg">
-            <div id="batch-meter-fill" class="batch-meter-fill"></div>
-          </div>
-          <p id="batch-status-text" style="font-size: 0.88rem; color: #CBD5E1; margin: 0.9rem 0 0; line-height: 1.5;">Iniciando motor pedagógico PyBot...</p>
-          <div id="batch-actions-row" style="display:none; justify-content: flex-end; margin-top: 1.5rem;">
-            <button type="button" id="btn-batch-done" class="btn-primary">Aceptar y Ver Catálogo</button>
-          </div>
-        </div>
-      </dialog>
-    </main>
+      </main>
   )}
 </Layout>
 
@@ -1107,146 +1056,7 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
     margin-top: 1.5rem;
   }
 
-  /* Botones de generación con PyBot IA */
-  .btn-batch-action {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.22) 0%, rgba(37, 99, 235, 0.25) 100%);
-    color: #C084FC;
-    border: 1px solid rgba(192, 132, 252, 0.45);
-    font-weight: 600;
-    padding: 0.75rem 1.15rem;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn-batch-action:hover {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4) 0%, rgba(37, 99, 235, 0.45) 100%);
-    border-color: #C084FC;
-    color: #FFFFFF;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(192, 132, 252, 0.35);
-  }
-
-  .btn-batch-contextual {
-    color: #38BDF8;
-    border-color: rgba(56, 189, 248, 0.45);
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(30, 64, 175, 0.25) 100%);
-  }
-
-  .btn-batch-contextual:hover {
-    border-color: #38BDF8;
-    color: #FFFFFF;
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(30, 64, 175, 0.4) 100%);
-    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.35);
-  }
-
-  /* Asistente de IA en el Modal */
-  .ai-assistant-card {
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.65) 100%);
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    border-radius: 10px;
-    padding: 1rem 1.15rem;
-    margin-bottom: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .ai-assistant-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .ai-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font: 700 10.5px ui-monospace, monospace;
-    letter-spacing: 1px;
-    color: #38BDF8;
-    background: rgba(56, 189, 248, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.25);
-    padding: 2.5px 8px;
-    border-radius: 4px;
-  }
-
-  .ai-assistant-tip {
-    font-size: 0.78rem;
-    color: #94A3B8;
-  }
-
-  .ai-assistant-inputs {
-    display: flex;
-    gap: 0.6rem;
-    align-items: center;
-  }
-
-  .btn-ai-generate {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #0284C7;
-    color: #FFFFFF;
-    border: none;
-    padding: 0.65rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.15s ease;
-  }
-
-  .btn-ai-generate:hover:not(:disabled) {
-    background: #0EA5E9;
-  }
-
-  .btn-ai-generate:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .ai-status-note {
-    font-size: 0.82rem;
-    margin: 0;
-    padding: 6px 12px;
-    border-radius: 6px;
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34D399;
-  }
-
-  /* Modal de progreso por lotes */
-  .batch-meter-bg {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-top: 1rem;
-  }
-
-  .batch-meter-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, #38BDF8, #818CF8);
-    border-radius: 4px;
-    transition: width 0.35s ease;
-  }
-
-  .batch-spin-icon {
-    animation: batchSpin 1.4s linear infinite;
-  }
-
-  @keyframes batchSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
   }
 
   @media (max-width: 768px) {
@@ -1577,118 +1387,5 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
   filterStatus?.addEventListener('change', applyFilters);
   searchInput?.addEventListener('input', applyFilters);
 
-  // PyBot IA: Generar Borrador Individual para Formulario
-  const btnAiGenerateDraft = document.getElementById('btn-ai-generate-draft') as HTMLButtonElement;
-  const aiTopicInput = document.getElementById('ai-draft-topic') as HTMLInputElement;
-  const aiBtnLabel = document.getElementById('ai-generate-btn-label') as HTMLElement;
-  const aiStatusMsg = document.getElementById('ai-status-msg') as HTMLElement;
-
-  btnAiGenerateDraft?.addEventListener('click', async () => {
-    const tema = aiTopicInput.value.trim() || (formMode.value === 'classic' ? 'Algoritmos y Lógica' : 'POO y Modularización');
-    btnAiGenerateDraft.disabled = true;
-    aiBtnLabel.textContent = 'Consultando a PyBot IA...';
-    aiStatusMsg.style.display = 'none';
-
-    try {
-      const res = await fetch('/api/admin/generate-draft', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          mode: formMode.value,
-          tema,
-          difficulty: formDifficulty.value,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.draft) {
-        alert(data.error || 'No se pudo generar el borrador con PyBot.');
-        return;
-      }
-
-      const d = data.draft;
-      if (!formIsEdit.value || formIsEdit.value === 'false') {
-        formId.value = d.id;
-      }
-      formTitle.value = d.title;
-      formDifficulty.value = d.difficulty;
-      formLevel.value = d.level;
-      formTopics.value = Array.isArray(d.topics) ? d.topics.join(', ') : d.topics;
-      formDesc.value = d.description;
-      formStatement.value = d.statement;
-      formExpected.value = d.expected || '';
-      formMainPy.value = d.mainPy;
-      formTestPy.value = d.testPy;
-      if (d.hints && d.hints[0]) formHint.value = d.hints[0];
-      if (d.solution) formSolution.value = d.solution;
-
-      aiStatusMsg.textContent = 'Borrador generado con éxito por PyBot IA. Revisa los archivos y pulsa Guardar Ejercicio.';
-      aiStatusMsg.style.display = 'block';
-    } catch (err) {
-      alert('Error de conexión al consultar PyBot IA.');
-    } finally {
-      btnAiGenerateDraft.disabled = false;
-      aiBtnLabel.textContent = 'Generar con PyBot';
-    }
-  });
-
-  // PyBot IA: Generar Lote de 10 Ejercicios
-  const batchModal = document.getElementById('batch-modal') as HTMLDialogElement;
-  const batchModalTitle = document.getElementById('batch-modal-title') as HTMLElement;
-  const batchModalSubtitle = document.getElementById('batch-modal-subtitle') as HTMLElement;
-  const batchMeterFill = document.getElementById('batch-meter-fill') as HTMLElement;
-  const batchStatusText = document.getElementById('batch-status-text') as HTMLElement;
-  const batchActionsRow = document.getElementById('batch-actions-row') as HTMLElement;
-  const btnBatchDone = document.getElementById('btn-batch-done') as HTMLButtonElement;
-
-  async function runBatchGeneration(mode: 'classic' | 'contextual') {
-    const modeName = mode === 'classic' ? 'Desafíos Clásicos' : 'Proyectos Multi-archivo';
-    batchModalTitle.textContent = `Generando 10 ${modeName} con PyBot IA`;
-    batchModalSubtitle.textContent = 'Construyendo enunciados, soluciones y suites de pruebas unitarias...';
-    batchMeterFill.style.width = '20%';
-    batchMeterFill.style.background = 'linear-gradient(90deg, #38BDF8, #818CF8)';
-    batchStatusText.textContent = 'Iniciando generación asistida por IA...';
-    batchActionsRow.style.display = 'none';
-    batchModal.showModal();
-
-    try {
-      setTimeout(() => {
-        batchMeterFill.style.width = '60%';
-        batchStatusText.textContent = 'Validando pruebas unitarias y guardando en PostgreSQL...';
-      }, 700);
-
-      const res = await fetch('/api/admin/generate-batch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode, count: 10 }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        batchMeterFill.style.width = '100%';
-        batchMeterFill.style.background = '#EF4444';
-        batchStatusText.textContent = `Error: ${data.error || 'No se pudo completar el lote.'}`;
-        batchActionsRow.style.display = 'flex';
-        return;
-      }
-
-      batchMeterFill.style.width = '100%';
-      batchMeterFill.style.background = '#10B981';
-      batchStatusText.textContent = `Lote completado con éxito. Se guardaron ${data.count} ejercicios nuevos en PostgreSQL.`;
-      batchActionsRow.style.display = 'flex';
-    } catch (err) {
-      batchMeterFill.style.width = '100%';
-      batchMeterFill.style.background = '#EF4444';
-      batchStatusText.textContent = 'Error de conexión con el servidor al procesar el lote.';
-      batchActionsRow.style.display = 'flex';
-    }
-  }
-
-  document.getElementById('btn-batch-classic')?.addEventListener('click', () => runBatchGeneration('classic'));
-  document.getElementById('btn-batch-contextual')?.addEventListener('click', () => runBatchGeneration('contextual'));
-  btnBatchDone?.addEventListener('click', () => {
-    batchModal.close();
-    window.location.reload();
-  });
-</script>
+  </script>
 
