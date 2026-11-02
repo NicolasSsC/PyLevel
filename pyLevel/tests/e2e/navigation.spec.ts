@@ -55,11 +55,15 @@ test('una sesión activa muestra los accesos y salir los oculta, incluso al volv
   await expect(page.locator('#mobile-drawer').getByRole('link', { name: 'Todos los ejercicios' })).toBeEnabled();
   await expect(page.locator('#mobile-drawer').getByRole('link', { name: 'Examen de Python' })).toBeEnabled();
   await page.getByRole('button', { name: 'Abrir menú' }).click();
+  await page.goto('/ejercicios/');
+  await expect(page.locator('.nav-links [data-session-link="/ejercicios/"]')).toHaveAttribute('aria-disabled', 'false');
   await page.getByRole('button', { name: 'Menú de perfil de usuario' }).click();
   await page.getByRole('menuitem', { name: 'Cerrar sesión', exact: true }).click();
-  await expect(page).toHaveURL(/\/login$/);
-  await page.goBack();
+  await expect(page).toHaveURL('http://127.0.0.1:4341/');
   await expect(page.getByRole('link', { name: 'Iniciar sesión' })).toBeVisible();
+  await page.goBack();
+  await expect(page).toHaveURL(/\/ejercicios\/?$/);
+  await expect(page.locator('.nav-links')).toBeHidden();
   await expect(page.locator('#pybot-widget')).toBeHidden();
   await page.getByRole('button', { name: 'Abrir menú' }).click();
   await expect(page.locator('#mobile-drawer').getByRole('link', { name: 'Todos los ejercicios', includeHidden: true })).toBeHidden();

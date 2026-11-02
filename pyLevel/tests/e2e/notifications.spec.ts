@@ -44,14 +44,15 @@ test('cada cuenta conserva su propio estado al salir y volver a iniciar sesión'
   await page.getByRole('button', { name: 'Notificaciones', exact: true }).click();
   await page.getByRole('button', { name: 'Marcar leídas', exact: true }).click();
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL('http://127.0.0.1:4341/');
 
   await registerStudent(page);
   await page.getByRole('button', { name: 'Notificaciones', exact: true }).click();
   await expect(page.locator('#unread-count-text')).toHaveText('2 nuevas');
   await expect(page.locator('#notif-list .unread')).toHaveCount(2);
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL('http://127.0.0.1:4341/');
+  await page.getByRole('link', { name: 'Iniciar sesión', exact: true }).click();
   await page.getByLabel('Correo', { exact: true }).fill(first.email);
   await page.getByLabel('Clave', { exact: true }).fill(first.password);
   await page.getByRole('button', { name: 'Iniciar sesión', exact: true }).click();

@@ -117,6 +117,16 @@ for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }
     const signin = page.getByRole('link', { name: 'Iniciar sesión' });
     await expect(signin).toBeInViewport();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    if (viewport.width === 320) {
+      // Font metrics differ between Windows and the Linux CI runner.
+      for (const font of ['Arial, sans-serif', 'Verdana, sans-serif']) {
+        const style = await page.addStyleTag({ content: `:root { --font-sans: ${font}; }` });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `Inicio no debe desbordar con ${font}`).toBe(true);
+        await expect(signin).toBeInViewport({ ratio: 1 });
+        await expect(page.getByRole('button', { name: 'Abrir menú' })).toBeInViewport({ ratio: 1 });
+        await style.evaluate(node => node.parentNode?.removeChild(node));
+      }
+    }
     await signin.click();
     await expect(page.getByPlaceholder('Correo')).toBeInViewport();
     await expect(page.getByRole('button', { name: 'Iniciar sesión' })).toBeInViewport();

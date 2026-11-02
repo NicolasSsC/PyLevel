@@ -30,7 +30,8 @@ test('registra una cuenta, conserva la sesión y permite salir e ingresar', asyn
   await page.reload();
   await expect(page.getByLabel('Correo electrónico', { exact: true })).toHaveValue(student.email);
   await page.getByRole('button', { name: 'Cerrar sesión', exact: true }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await expect(page).toHaveURL('http://127.0.0.1:4341/');
+  await expect(page.getByRole('link', { name: 'Iniciar sesión', exact: true })).toBeVisible();
   await page.goto('/perfil');
   await expect(page).toHaveURL(/\/login\?next=/);
   await page.getByLabel('Correo').fill(student.email);

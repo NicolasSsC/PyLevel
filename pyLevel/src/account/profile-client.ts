@@ -38,7 +38,7 @@ export function initProfile() {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error();
       try { localStorage.removeItem('pylevel:current_user'); } catch {}
-      window.location.href = '/login';
+      window.location.href = '/';
     } catch { document.getElementById('logout-status')!.textContent = 'No se pudo cerrar la sesión. Vuelve a intentar.'; button.disabled = false; }
   });
 }
