@@ -1215,8 +1215,8 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
     try {
       const response = await fetch('/api/auth/logout', { method: 'POST' });
       if (!response.ok) throw new Error('logout');
-      localStorage.removeItem('pylevel:current_user');
-      window.location.href = '/login';
+      try { localStorage.removeItem('pylevel:current_user'); } catch { /* The server session is already closed. */ }
+      window.location.href = '/';
     } catch {
       if (logoutBtn) logoutBtn.textContent = 'No se pudo cerrar sesión. Reintentar';
     }

@@ -89,6 +89,7 @@ test('movimiento reducido y redimensionado devuelven todos los artículos al flu
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await expect(journey.getByRole('button', { name: 'Progreso', exact: true })).toBeVisible();
   await page.setViewportSize({ width: 320, height: 568 });
+  await page.addStyleTag({ content: ':root { --font-sans: Arial, sans-serif; }' });
   await expect(journey.getByRole('heading', { level: 3 })).toHaveCount(4);
   await expect(journey.locator('article[inert]')).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

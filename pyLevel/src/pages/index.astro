@@ -26,9 +26,13 @@ import PythonIntroAnimation from '../components/PythonIntroAnimation.astro';
 			html[data-home-intro] #python-home,
 			html[data-home-intro] #pybot-widget { visibility: hidden; }
 			@media (max-width: 400px) {
-				body:has(#python-home) #top-navbar .nav-container { padding-inline: 12px; gap: 8px; }
+				body:has(#python-home) #top-navbar .nav-container { padding-inline: 8px; gap: 8px; }
 				body:has(#python-home) #top-navbar .nav-right { gap: 4px; }
 				body:has(#python-home) #top-navbar .brand-badge { display: none; }
+				body:has(#python-home) #top-navbar .brand-link { font-size: 20px; min-height: 44px; }
+				body:has(#python-home) #top-navbar .nav-signin { padding-inline: 8px; gap: 0; }
+				body:has(#python-home) #top-navbar .nav-signin > span { display: none; }
+				body:has(#python-home) #top-navbar .icon-btn { width: 44px; height: 44px; flex-shrink: 0; }
 			}
 		</style>
 	</Fragment>
