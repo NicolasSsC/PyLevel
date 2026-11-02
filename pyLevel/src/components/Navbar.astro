@@ -1135,10 +1135,10 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
           if (navLoginAdmin) navLoginAdmin.style.display = 'none';
 
           const profileLinkSpan = document.querySelector('a[href="/perfil"] span');
-          if (profileLinkSpan) profileLinkSpan.textContent = 'Perfil Docente';
+          if (profileLinkSpan) profileLinkSpan.textContent = 'Perfil Admin';
           const progressLinkSpan = document.querySelector('a[href="/progreso/"] span');
           if (progressLinkSpan) progressLinkSpan.textContent = 'Métricas de Estudiantes';
-          if (dropBio) dropBio.textContent = 'Docente / Administrador';
+          if (dropBio) dropBio.textContent = 'Administrador de PyLevel';
         }
         const mobileName = document.getElementById('mobile-name');
         const mobileEmail = document.getElementById('mobile-email');

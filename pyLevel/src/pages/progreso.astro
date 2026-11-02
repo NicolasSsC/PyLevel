@@ -199,7 +199,7 @@ const maxAdminDay = Math.max(1, ...(adminAnalytics?.days.map(d => d.attempts) ??
                 <p class="account-muted">
                   Los picos de actividad suelen correlacionarse con fechas de talleres o entregas de proyectos.
                 </p>
-                <a class="account-button secondary" href="/manuales/#capitulo-admin">Consultar guía docente →</a>
+                <a class="account-button secondary" href="/manuales/#capitulo-admin">Consultar guía de admin →</a>
               </div>
             </section>
           </div>
@@ -313,7 +313,7 @@ const maxAdminDay = Math.max(1, ...(adminAnalytics?.days.map(d => d.attempts) ??
       )}
 
       {/* ========================================================= */}
-      {/* VISTA 2: PRÁCTICA PERSONAL (ESTUDIANTE O DOCENTE)         */}
+      {/* VISTA 2: PRÁCTICA PERSONAL (ESTUDIANTE O ADMIN)            */}
       {/* ========================================================= */}
       <div id="personal-view" style={isAdmin ? "display: none;" : ""}>
         {progress && (

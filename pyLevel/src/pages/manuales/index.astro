@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Manuales y Documentación Oficial · PyLevel" description="Guías de usuario, manual del estudiante, manual del docente y referencia completa de Python 3 para PyLevel.">
+<Layout title="Manuales y Documentación Oficial · PyLevel" description="Guías de usuario, manual del estudiante, manual del administrador y referencia completa de Python 3 para PyLevel.">
   <main class="manuals-page">
     <!-- Header Hero -->
     <header class="manuals-header">
@@ -10,7 +10,7 @@ import Layout from '../../layouts/Layout.astro';
         <span class="manuals-eyebrow">CENTRO DE DOCUMENTACIÓN Y GUÍAS</span>
         <h1 class="manuals-title">Manuales de PyLevel</h1>
         <p class="manuals-desc">
-          Encuentra toda la documentación necesaria: guías paso a paso para estudiantes, manual de administración y docencia para gestionar ejercicios, y una referencia rápida de Python 3.
+          Encuentra toda la documentación necesaria: guías paso a paso para estudiantes, manual de administración para gestionar ejercicios, y una referencia rápida de Python 3.
         </p>
       </div>
 
@@ -102,7 +102,9 @@ import Layout from '../../layouts/Layout.astro';
               PyLevel es una plataforma de aprendizaje y evaluación orientada a estudiantes de Ingeniería de Software. A diferencia de plataformas teóricas convencionales, aquí todo el aprendizaje se basa en <strong>evidencia real de ejecución de código Python</strong> en entornos seguros.
             </p>
             <div class="doc-callout callout-info">
-              <div class="callout-icon">💡</div>
+              <div class="callout-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              </div>
               <div class="callout-body">
                 <strong>Recomendación inicial:</strong>
                 Crea tu cuenta desde <a href="/registro">Registro</a> o inicia sesión en <a href="/login">Iniciar Sesión</a> para que todos tus ejercicios completados, tiempos y estadísticas queden registrados en tu perfil.
@@ -137,7 +139,9 @@ import Layout from '../../layouts/Layout.astro';
               </li>
             </ol>
             <div class="doc-callout callout-tip">
-              <div class="callout-icon">🎯</div>
+              <div class="callout-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
               <div class="callout-body">
                 <strong>Persistencia automática:</strong> El editor guarda automáticamente tu borrador local en el navegador mientras escribes. Si cierras la pestaña por error, al volver tu código estará intacto.
               </div>
@@ -186,9 +190,9 @@ import Layout from '../../layouts/Layout.astro';
         <!-- ============================================== -->
         <section class="doc-chapter" id="capitulo-admin">
           <div class="chapter-badge">SECCIÓN 2</div>
-          <h2 class="chapter-title">Manual del Administrador y Docente</h2>
+          <h2 class="chapter-title">Manual del Administrador</h2>
           <p class="chapter-intro">
-            Guía completa para profesores y administradores de PyLevel sobre el nuevo <a href="/admin/">Panel Administrativo</a>: creación de retos, modificación en vivo, desactivación temporal y diseño de suites de prueba.
+            Guía completa para administradores de PyLevel sobre el nuevo <a href="/admin/">Panel Administrativo</a>: creación de retos, modificación en vivo, desactivación temporal y diseño de suites de prueba.
           </p>
 
           <div class="doc-topic" id="admin-acceso">
@@ -290,7 +294,9 @@ if __name__ == '__main__':
     unittest.main()</code></pre>
             </div>
             <div class="doc-callout callout-warning">
-              <div class="callout-icon">⚠️</div>
+              <div class="callout-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
               <div class="callout-body">
                 <strong>Regla de Acreditación de PyLevel:</strong> Para que el ejecutor declare un ejercicio como <em>superado</em> en las métricas del estudiante, el proceso debe terminar con código de salida <code>0</code> y el reporte de <code>unittest</code> debe contener al menos una prueba exitosa con resultado <code>OK</code>.
               </div>

@@ -67,7 +67,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
 
 ---
 
-<AccountShell title={isAdmin ? "Perfil Docente y Administrador" : "Mi perfil"} description={isAdmin ? "Gestión de credenciales docentes, rol de administrador y estado del sistema." : "Tus datos, tu cuenta y tu actividad en PyLevel."} active="perfil" isAdmin={isAdmin}>
+<AccountShell title={isAdmin ? "Perfil de Administrador" : "Mi perfil"} description={isAdmin ? "Gestión de credenciales, rol de administrador y estado del sistema." : "Tus datos, tu cuenta y tu actividad en PyLevel."} active="perfil" isAdmin={isAdmin}>
   {unavailable || !user ? (
     <section class="account-card account-empty">
       <h2>No pudimos cargar tu perfil</h2>
@@ -83,11 +83,11 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
             <div class="profile-avatar" id="account-avatar" aria-hidden="true">{initials}</div>
             <div>
               <h2 id="account-name">{user.displayName}</h2>
-              <p id="account-occupation">{isAdmin ? 'Docente / Administrador de PyLevel' : (user.occupation || 'Completa tu ocupación')}</p>
+              <p id="account-occupation">{isAdmin ? 'Administrador de PyLevel' : (user.occupation || 'Completa tu ocupación')}</p>
               {isAdmin && (
                 <div style="margin-top: 6px; display: inline-flex; align-items: center; gap: 6px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38BDF8; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px;">
                   <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:#38BDF8;"></span>
-                  <span>Rol Docente Administrador</span>
+                  <span>Rol Administrador</span>
                 </div>
               )}
             </div>
@@ -145,7 +145,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
             </div>
             <div>
               <dt>ROL EN PLATAFORMA</dt>
-              <dd>{isAdmin ? 'Administrador / Docente' : 'Estudiante'}</dd>
+              <dd>{isAdmin ? 'Administrador' : 'Estudiante'}</dd>
             </div>
           </dl>
           <div class="profile-session">
@@ -167,7 +167,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
-                <span>PANEL DE CONTROL DOCENTE Y ADMINISTRATIVO</span>
+                <span>PANEL DE CONTROL ADMINISTRATIVO</span>
               </div>
               <h2 id="admin-profile-heading">Gestión Integral de PyLevel</h2>
               <p>Tu cuenta cuenta con privilegios administrativos para gestionar el catálogo pedagógico de ejercicios, generar nuevos desafíos asistidos por PyBot IA y supervisar el avance de las cohortes de estudiantes.</p>
@@ -181,7 +181,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
                   <span>→</span>
                 </a>
                 <a href="/manuales/#capitulo-admin" class="account-button secondary">
-                  <span>Manual Docente</span>
+                  <span>Manual de Admin</span>
                 </a>
               </div>
             </div>
@@ -205,12 +205,12 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
             </div>
           </section>
 
-          <!-- Módulos de Gestión Docente -->
+          <!-- Módulos de Gestión Administrativa -->
           <section class="account-card account-section" aria-labelledby="admin-modules-heading">
             <div class="section-top">
               <div>
                 <h2 id="admin-modules-heading">Módulos Administrativos</h2>
-                <p class="account-muted">Herramientas pedagógicas y de control para la configuración del curso.</p>
+                <p class="account-muted">Herramientas y controles para la configuración de la plataforma.</p>
               </div>
             </div>
 
@@ -249,8 +249,8 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
                   <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#FBBF24" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
                 </div>
                 <div class="amc-info">
-                  <h3>Manual Docente y Arquitectura</h3>
-                  <p>Guía de diseño de pruebas unitarias para docentes, especificación de la base de datos PostgreSQL y motores de evaluación.</p>
+                  <h3>Manual de Administración y Arquitectura</h3>
+                  <p>Guía de administración, diseño de pruebas unitarias, especificación de la base de datos PostgreSQL y motores de evaluación.</p>
                   <div class="amc-stats-row">
                     <span class="amc-pill normal">Documentación completa</span>
                   </div>
@@ -486,7 +486,7 @@ const activityDate = (value: string) => new Intl.DateTimeFormat('es-CO', {
     color: #38BDF8;
   }
 
-  /* Grid de Módulos Docentes */
+  /* Grid de Módulos Administrativos */
   .admin-modules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));

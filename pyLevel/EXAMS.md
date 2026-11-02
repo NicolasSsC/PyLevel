@@ -74,7 +74,7 @@ el aviso o el registro al cerrar abruptamente el proceso, especialmente en móvi
 `last_seen_at` permite consultar la última comunicación; su ausencia no demuestra
 un cierre ni una infracción. Las señales del navegador son informativas, pueden
 producir falsos positivos y no son prueba de fraude. Esta versión no incluye
-panel docente en vivo, penalización automática, pruebas ocultas ni calificación:
+panel de administración en vivo, penalización automática, pruebas ocultas ni calificación:
 la entrega y las incidencias quedan pendientes de revisión. El resumen permite
 al estudiante consultar sus respuestas y los últimos 100 eventos.
 

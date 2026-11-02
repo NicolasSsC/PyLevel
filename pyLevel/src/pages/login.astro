@@ -4,7 +4,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 
 <AppLayout
   title="Iniciar Sesión · PyLevel"
-  description="Acceso a la plataforma PyLevel para estudiantes y administradores docentes."
+  description="Acceso a la plataforma PyLevel para estudiantes y administradores."
 >
   <div class="auth-page">
     <div class="auth-card">
@@ -132,7 +132,7 @@ import AppLayout from '../layouts/AppLayout.astro';
       if (badgeIconStudent) badgeIconStudent.style.display = 'none';
       if (badgeIconAdmin) badgeIconAdmin.style.display = 'block';
       if (authTitle) authTitle.textContent = 'Acceso de Administrador';
-      if (authSubtitle) authSubtitle.textContent = 'Gestión docente del catálogo de retos y proyectos de PyLevel.';
+      if (authSubtitle) authSubtitle.textContent = 'Gestión del catálogo de retos y proyectos de PyLevel.';
       if (emailLabel) emailLabel.textContent = 'Correo de Administrador';
       if (emailInput) emailInput.placeholder = 'admin@pylevel.dev';
       if (btnText) btnText.textContent = 'Iniciar sesión como admin';

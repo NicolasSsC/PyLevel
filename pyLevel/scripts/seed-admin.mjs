@@ -24,7 +24,7 @@ if (check.rows.length === 0) {
   );
   await pool.query(
     `INSERT INTO profiles (user_id, display_name, bio, updated_at)
-     VALUES ($1, 'Administrador PyLevel', 'Docente y Administrador del Sistema', $2)`,
+     VALUES ($1, 'Administrador PyLevel', 'Administrador del Sistema', $2)`,
     [userId, now]
   );
   console.log('Usuario admin@pylevel.dev creado exitosamente con contraseña admin123');

@@ -25,11 +25,11 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
           </svg>
         </div>
         <h1>Acceso Restringido</h1>
-        <p>Este panel es exclusivo para administradores y docentes de PyLevel.</p>
+        <p>Este panel es exclusivo para administradores de PyLevel.</p>
         {user ? (
           <div class="user-info-box">
             <p>Has iniciado sesión como <strong>{user.email}</strong>, pero tu cuenta no cuenta con rol de administrador.</p>
-            <p class="hint-text">Si eres docente o el desarrollador principal, inicia sesión con la cuenta administradora autorizada o solicita asignación de rol.</p>
+            <p class="hint-text">Si eres el administrador o desarrollador principal, inicia sesión con la cuenta administradora autorizada o solicita asignación de rol.</p>
           </div>
         ) : (
           <div class="user-info-box">
@@ -53,7 +53,7 @@ const inactiveCount = allExercises.filter(e => !e.is_active).length;
         </div>
         <div class="header-main-row">
           <div>
-            <div class="admin-badge">PANEL DE CONTROL DOCENTE</div>
+            <div class="admin-badge">PANEL DE CONTROL ADMINISTRATIVO</div>
             <h1 class="admin-title">Gestión de Ejercicios y Retos</h1>
             <p class="admin-subtitle">Crea, edita, desactiva o elimina desafíos clásicos y proyectos multi-archivo en tiempo real.</p>
           </div>
