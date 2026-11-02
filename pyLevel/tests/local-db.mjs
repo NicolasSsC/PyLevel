@@ -20,7 +20,8 @@ await db.exec(await readFile(new URL('../migrations/003_exam_camera.sql', import
 const id = randomUUID();
 await db.query('INSERT INTO users VALUES ($1, $2, $3, true, now(), now())', [id, 'demo@pylevel.test', await bcrypt.hash('PruebaLocal2026!', 10)]);
 await db.query('INSERT INTO profiles (user_id, display_name, avatar_url, bio, updated_at) VALUES ($1, $2, NULL, $3, now())', [id, 'Estudiante de prueba', 'Cuenta temporal para verificar el examen']);
-const server = new PGLiteSocketServer({ db, host: '127.0.0.1', port: 55439, maxConnections: 8 });
+const port = Number(process.env.LOCAL_TEST_DB_PORT || 55439);
+const server = new PGLiteSocketServer({ db, host: '127.0.0.1', port, maxConnections: 8 });
 await server.start();
-console.log('PostgreSQL temporal listo en 127.0.0.1:55439. Sin persistencia ni datos reales.');
+console.log(`PostgreSQL temporal listo en 127.0.0.1:${port}. Sin persistencia ni datos reales.`);
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, async () => { await server.stop(); await db.close(); process.exit(0); });

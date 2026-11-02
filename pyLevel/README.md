@@ -1,4 +1,7 @@
-# Astro Starter Kit: Basics
+# PyLevel
+
+Para las pruebas de navegador con Playwright, consulta [TESTING.md](./TESTING.md).
+Incluye instalación, comandos, casos cubiertos, reportes y ejecución en GitHub Actions.
 
 ```sh
 pnpm create astro@latest -- --template basics

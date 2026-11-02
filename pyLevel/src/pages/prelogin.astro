@@ -1,0 +1,5 @@
+---
+export const prerender = false;
+// Preserve existing entry links and the pending destination.
+return Astro.redirect('/login' + Astro.url.search, 302);
+---

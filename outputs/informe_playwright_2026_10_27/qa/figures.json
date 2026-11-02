@@ -1,0 +1,42 @@
+[
+  {
+    "file": "evidence\\01_reporte_playwright.png",
+    "caption": "Figura 1. Reporte HTML de la ejecución actual con los diez casos aprobados.",
+    "sha256": "a3a02e263d025a10c1955800acca97e32c4b681e86397d0b02340586a1864210"
+  },
+  {
+    "file": "evidence\\02_credenciales.png",
+    "caption": "Figura 2. T04. Mensaje de rechazo al ingresar una contraseña incorrecta. El HTTP 401 asociado es esperado.",
+    "sha256": "0185119e6003f3185caa95471103687ede7737ec307dfa941534d28f596317cd"
+  },
+  {
+    "file": "evidence\\03_perfil.png",
+    "caption": "Figura 3. T06. Nombre, ocupación y cumpleaños conservados después de recargar. La página aparece en la posición de desplazamiento usada por la prueba.",
+    "sha256": "4e5ca3ae87012d8e5a995688633195a6dd0b2cc8c1a50b9219bb2b09fb1a4de4"
+  },
+  {
+    "file": "evidence\\05_examen_respuesta.jpeg",
+    "caption": "Figura 4. T08. Respuesta escrita durante el examen. Fotograma original de la traza anterior a la recarga.",
+    "sha256": "53e335f8ee0e8ba92973ce4f8d0d65d9d8c094773afde304d3a0e638ca78d012"
+  },
+  {
+    "file": "evidence\\06_examen_entregado.jpeg",
+    "caption": "Figura 5. T08. Examen entregado con una de tres respuestas y evaluación pendiente. La incidencia de cámara corresponde a la dificultad declarada; no demuestra detección de rostros.",
+    "sha256": "3d157d6d4310f4654a441f5c50b18c1dd0d960fdba31b050e711ba9814942d60"
+  },
+  {
+    "file": "evidence\\04_progreso.jpeg",
+    "caption": "Figura 6. T07. Estado inicial de progreso de una cuenta sin actividad. Fotograma original de la traza; el test verifica los textos del estado inicial y el enlace al catálogo.",
+    "sha256": "663814892de38fe02eb1cd2b0920f4e50206cebe1cfa446db58e313d6e39af5e"
+  },
+  {
+    "file": "evidence\\07_catalogo.png",
+    "caption": "Figura 7. T09. Catálogo alcanzado desde el inicio después de saltar la introducción. No se ejecutaron soluciones Python.",
+    "sha256": "3ee600adcd803b95b8c2b558bcc525d2e47b6c7750880dfc6be744b29a7e462c"
+  },
+  {
+    "file": "mobile-check\\mobile-settled.png",
+    "caption": "Figura 8. Inicio con ventana de 390 × 844 después de la espera adicional. Captura de la comprobación complementaria; no corresponde a un dispositivo móvil físico.",
+    "sha256": "3702842674431a266be33faf0f4cf2adbcd55e9c0c6afd904f8146bb56c56cc3"
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "output": "C:\\programming\\pyLevel\\outputs\\backlog_trello\\PyLevel_Backlog_para_Trello.docx",
+  "tasks": 83,
+  "states": {
+    "Hecho": 45,
+    "Parcial": 13,
+    "Pendiente": 25
+  },
+  "round_trip": "All table values match the approved list",
+  "preview_pages": 3,
+  "native_pagination_verified": false,
+  "alternative_preview_review": "All three pages visually inspected; no clipping or overlap found",
+  "native_renderer": "Unavailable: LibreOffice soffice.exe not found; Word unavailable"
+}

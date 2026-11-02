@@ -1,0 +1,66 @@
+---
+import type { loadExamHistory } from './data';
+interface Props { exams: Awaited<ReturnType<typeof loadExamHistory>> }
+const { exams } = Astro.props;
+const date = (value: string) => new Intl.DateTimeFormat('es-CO', {
+  dateStyle: 'medium', timeZone: 'America/Bogota',
+}).format(new Date(value));
+const examStatus = { in_progress: 'En curso', submitted: 'Entregado', expired: 'Tiempo finalizado' };
+const finished = exams.filter(attempt => attempt.status !== 'in_progress').length;
+const inProgress = exams.length - finished;
+---
+
+      <section class="account-card account-section" aria-labelledby="exams-title">
+        <div class="section-top">
+          <div>
+            <h2 id="exams-title">Mis exámenes</h2>
+            <p class="account-muted">Evaluaciones asociadas a tu cuenta y su estado actual.</p>
+            {exams.length > 0 && <p class="account-muted">{finished} {finished === 1 ? 'finalizado' : 'finalizados'}{inProgress > 0 ? ` · ${inProgress} en curso` : ''}</p>}
+          </div>
+          <span class="section-count">{exams.length} {exams.length === 1 ? 'intento' : 'intentos'}</span>
+        </div>
+        {exams.length ? (
+          <div class="account-table-wrap">
+            <table class="account-table">
+              <thead>
+                <tr>
+                  <th>EXAMEN</th>
+                  <th>FECHA DE INICIO</th>
+                  <th>ESTADO</th>
+                  <th>EVALUACIÓN</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {exams.map(attempt => (
+                  <tr>
+                    <td>
+                      <strong>{attempt.title}</strong>
+                      <small>Intento {attempt.id.slice(0, 8)}</small>
+                    </td>
+                    <td>{date(attempt.startedAt)}</td>
+                    <td>
+                      <span class:list={['account-status', { gold: attempt.status === 'expired', green: attempt.status === 'submitted' }]}>
+                        {examStatus[attempt.status]}
+                      </span>
+                    </td>
+                    <td>{attempt.status === 'in_progress' ? 'Sin entregar' : 'Pendiente de revisión'}</td>
+                    <td>
+                      {attempt.current && (
+                        <a href="/examen/">{attempt.status === 'in_progress' ? 'Continuar →' : 'Ver entrega →'}</a>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div class="account-empty">
+            <span aria-hidden="true">▤</span>
+            <h3>Aún no has realizado exámenes</h3>
+            <p>Cuando comiences una evaluación, podrás consultar aquí tu intento y volver a su entrega.</p>
+            <a class="account-button secondary" href="/examen/">Ver examen disponible →</a>
+          </div>
+        )}
+      </section>

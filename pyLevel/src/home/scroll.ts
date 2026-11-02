@@ -5,12 +5,28 @@ export function initHome() {
   const reveals = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal]'));
   const chapters = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-chapter]'));
   const scenes = Array.from(root.querySelectorAll<HTMLElement>('[data-scene]'));
+  const pages = Array.from(root.querySelectorAll<HTMLElement>('[data-page-panel]'));
   const visibleScenes = new Map<string, number>();
   let revealObserver: IntersectionObserver | null = null;
   let sceneObserver: IntersectionObserver | null = null;
+  let pageObserver: IntersectionObserver | null = null;
   let frame = 0;
 
+  function configurePages() {
+    pageObserver?.disconnect();
+    pageObserver = null;
+    const animate = !reduced.matches && 'IntersectionObserver' in window;
+    document.documentElement.classList.toggle('home-pages', animate && window.innerWidth > 760 && window.innerHeight >= 680);
+    root!.classList.toggle('page-motion', animate);
+    if (!animate) { pages.forEach(page => page.classList.add('is-page-visible')); return; }
+    pageObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => entry.target.classList.toggle('is-page-visible', entry.isIntersecting));
+    }, { rootMargin: '-5% 0px -5% 0px', threshold: 0 });
+    pages.forEach(page => pageObserver!.observe(page));
+  }
+
   function configureMotion() {
+    configurePages();
     revealObserver?.disconnect();
     revealObserver = null;
     root!.classList.toggle('home-motion', !reduced.matches);
@@ -52,6 +68,7 @@ export function initHome() {
     if (!reduced.matches) root!.style.setProperty('--hero-drift', `${Math.min(window.scrollY * .16, 80)}px`);
   }
   function onScroll() { if (!frame) frame = requestAnimationFrame(updateScroll); }
+  function onResize() { configurePages(); onScroll(); }
   const anchors = Array.from(root.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
   function jumpToSection(event: MouseEvent) {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -70,13 +87,14 @@ export function initHome() {
   updateScroll();
   reduced.addEventListener('change', configureMotion);
   window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll, { passive: true });
+  window.addEventListener('resize', onResize, { passive: true });
   window.addEventListener('pagehide', event => {
     cancelAnimationFrame(frame); frame = 0;
     // BFCache keeps this document: leave its observers/listeners ready for return.
     if (event.persisted) return;
-    revealObserver?.disconnect(); sceneObserver?.disconnect();
-    window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onScroll);
+    revealObserver?.disconnect(); sceneObserver?.disconnect(); pageObserver?.disconnect();
+    document.documentElement.classList.remove('home-pages');
+    window.removeEventListener('scroll', onScroll); window.removeEventListener('resize', onResize);
     reduced.removeEventListener('change', configureMotion);
   }, { once: true });
   window.addEventListener('pageshow', event => {

@@ -1,0 +1,51 @@
+All10
+Passed10
+Failed0
+Flaky0
+Skipped0
+Project: chromium
+27/10/2026, 12:32:44 a.m.
+Total time: 29.7s
+account.spec.ts
+protege /perfil cuando no hay sesiónchromium
+842ms
+account.spec.ts:5
+View Trace
+protege /progreso/ cuando no hay sesiónchromium
+383ms
+account.spec.ts:5
+View Trace
+protege /examen/ cuando no hay sesiónchromium
+388ms
+account.spec.ts:5
+View Trace
+rechaza una contraseña incorrectachromium
+764ms
+account.spec.ts:13
+View Trace
+registra una cuenta, conserva la sesión y permite salir e ingresarchromium
+3.6s
+account.spec.ts:22
+View Trace
+guarda los datos personales y los conserva al recargarchromium
+2.1s
+account.spec.ts:39
+View Trace
+muestra el progreso inicial y feedback de una cuenta nuevachromium
+2.0s
+account.spec.ts:52
+View Trace
+exam.spec.ts
+exige consentimiento, guarda una respuesta y entrega el examen sin cámarachromium
+4.1s
+exam.spec.ts:4
+View Trace
+home.spec.ts
+permite saltar la introducción y navegar a ejercicioschromium
+1.5s
+home.spec.ts:3
+View Trace
+muestra el inicio en móvil sin desbordamiento horizontalchromium
+1.4s
+home.spec.ts:11
+View Trace

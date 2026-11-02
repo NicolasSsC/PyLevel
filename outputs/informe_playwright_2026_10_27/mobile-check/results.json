@@ -1,0 +1,182 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Users\\nicol\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\bin\\node.exe",
+      "C:\\programming\\pyLevel\\pyLevel\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check\\mobile.config.ts"
+    ],
+    "configFile": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check\\mobile.config.ts",
+    "rootDir": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check",
+        "testIgnore": [],
+        "testMatch": [
+          "mobile.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check",
+        "snapshotDir": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check",
+        "testIgnore": [],
+        "testMatch": "mobile.spec.ts",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4341",
+          "locale": "es-CO",
+          "timezoneId": "America/Bogota",
+          "trace": "on",
+          "screenshot": "on",
+          "video": "retain-on-failure",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "node tests/e2e/server.mjs",
+      "url": "http://127.0.0.1:4341/api/auth/me",
+      "reuseExistingServer": false,
+      "timeout": 180000,
+      "stdout": "pipe",
+      "stderr": "pipe",
+      "cwd": "C:/programming/pyLevel/pyLevel"
+    }
+  },
+  "suites": [
+    {
+      "title": "mobile.spec.ts",
+      "file": "mobile.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "observación móvil después de asentarse la animación",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-27T05:37:00.684Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check\\test-results\\mobile-observación-móvil-después-de-asentarse-la-animación-chromium\\test-finished-1.png"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\mobile-check\\test-results\\mobile-observación-móvil-después-de-asentarse-la-animación-chromium\\trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e79c838550b25e92508e-6f151f1dff8a66880fff",
+          "file": "mobile.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-27T05:36:55.275Z",
+    "duration": 10281.514,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

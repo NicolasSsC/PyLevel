@@ -1,0 +1,69 @@
+{
+  "input": "C:\\programming\\pyLevel\\outputs\\requerimientos_formalizados\\PyLevel_Requerimientos_nuevos_y_actualizados.docx",
+  "fonts_by_char_count": {
+    "Aptos": 12470
+  },
+  "direct_run_formatting_runs": 689,
+  "direct_paragraph_formatting_paragraphs": 1373,
+  "heading_like_paragraphs_not_heading_style": [],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "PyLevel Requerimientos nuevos y actualizados",
+        "style": "Title"
+      },
+      {
+        "para_index": 2,
+        "text": "Este complemento incorpora las necesidades identificadas durante el desarrollo de PyLevel y actualiza los requisitos afe",
+        "style": "normal"
+      },
+      {
+        "para_index": 3,
+        "text": "Las historias de la secci\u00f3n de evaluaci\u00f3n, correspondientes a ex\u00e1menes, guardado de respuestas, incidencias y c\u00e1mara, ti",
+        "style": "normal"
+      },
+      {
+        "para_index": 4,
+        "text": "Actualizaci\u00f3n del alcance",
+        "style": "Heading 2"
+      },
+      {
+        "para_index": 5,
+        "text": "El panel docente queda retirado del alcance. HU-12, RF-12 y sus requisitos derivados se conservan \u00fanicamente como refere",
+        "style": "normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 1,
+        "run_text": "PyLevel Requerimientos nuevos y actualizados",
+        "style": "Title"
+      },
+      {
+        "para_index": 2,
+        "run_text": "Este complemento incorpora las necesidades identificadas durante el desarrollo d",
+        "style": "normal"
+      },
+      {
+        "para_index": 3,
+        "run_text": "Las historias de la secci\u00f3n de evaluaci\u00f3n, correspondientes a ex\u00e1menes, guardado",
+        "style": "normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "Actualizaci\u00f3n del alcance",
+        "style": "Heading 2"
+      },
+      {
+        "para_index": 5,
+        "run_text": "El panel docente queda retirado del alcance. HU-12, RF-12 y sus requisitos deriv",
+        "style": "normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

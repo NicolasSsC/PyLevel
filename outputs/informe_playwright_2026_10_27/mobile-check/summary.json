@@ -1,0 +1,267 @@
+{
+  "purpose": "Observational capture after the existing mobile test flow",
+  "result": "passed",
+  "waitMs": 1500,
+  "before": {
+    "measuredAt": "2026-10-27T05:37:03.508Z",
+    "monotonicMs": 2635.9000000003725,
+    "title": "Con Python, construyelo que te imagines.",
+    "effectiveOpacity": 0,
+    "ancestors": [
+      {
+        "tag": "H2",
+        "id": "finale-title",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 20,
+          "y": 438.828125,
+          "width": 350,
+          "height": 72.3125
+        }
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "home-container finale-content is-visible",
+        "opacity": "0",
+        "transform": "matrix(1, 0, 0, 1, 0, 24)",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "opacity, transform",
+        "transitionDuration": "0.7s, 0.8s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 20,
+          "y": 265.828125,
+          "width": 350,
+          "height": 500.1875
+        }
+      },
+      {
+        "tag": "SECTION",
+        "id": "",
+        "className": "home-finale",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": 240.828125,
+          "width": 390,
+          "height": 502.1875
+        }
+      },
+      {
+        "tag": "MAIN",
+        "id": "python-home",
+        "className": "home-page home-motion",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4655,
+          "width": 390,
+          "height": 5567.609375
+        }
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "background-color, color",
+        "transitionDuration": "0.2s, 0.2s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4723,
+          "width": 390,
+          "height": 5635.609375
+        }
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "background-color, color",
+        "transitionDuration": "0.2s, 0.2s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4723,
+          "width": 390,
+          "height": 5635.609375
+        }
+      }
+    ],
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "documentWidth": 390,
+    "horizontalOverflow": false,
+    "scrollY": 4723
+  },
+  "after": {
+    "measuredAt": "2026-10-27T05:37:05.116Z",
+    "monotonicMs": 4241.5,
+    "title": "Con Python, construyelo que te imagines.",
+    "effectiveOpacity": 1,
+    "ancestors": [
+      {
+        "tag": "H2",
+        "id": "finale-title",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 20,
+          "y": 414.828125,
+          "width": 350,
+          "height": 72.3125
+        }
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "className": "home-container finale-content is-visible",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "opacity, transform",
+        "transitionDuration": "0.7s, 0.8s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 20,
+          "y": 241.828125,
+          "width": 350,
+          "height": 500.1875
+        }
+      },
+      {
+        "tag": "SECTION",
+        "id": "",
+        "className": "home-finale",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": 240.828125,
+          "width": 390,
+          "height": 502.1875
+        }
+      },
+      {
+        "tag": "MAIN",
+        "id": "python-home",
+        "className": "home-page home-motion",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "all",
+        "transitionDuration": "0s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4655,
+          "width": 390,
+          "height": 5567.609375
+        }
+      },
+      {
+        "tag": "BODY",
+        "id": "",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "background-color, color",
+        "transitionDuration": "0.2s, 0.2s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4723,
+          "width": 390,
+          "height": 5635.609375
+        }
+      },
+      {
+        "tag": "HTML",
+        "id": "",
+        "className": "",
+        "opacity": "1",
+        "transform": "none",
+        "visibility": "visible",
+        "display": "block",
+        "transitionProperty": "background-color, color",
+        "transitionDuration": "0.2s, 0.2s",
+        "animationName": "none",
+        "animationDuration": "0s",
+        "rect": {
+          "x": 0,
+          "y": -4723,
+          "width": 390,
+          "height": 5635.609375
+        }
+      }
+    ],
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "documentWidth": 390,
+    "horizontalOverflow": false,
+    "scrollY": 4723
+  },
+  "screenshots": {
+    "before": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check/mobile-before.png",
+    "after": "C:/programming/pyLevel/outputs/informe_playwright_2026_10_27/mobile-check/mobile-settled.png"
+  }
+}
