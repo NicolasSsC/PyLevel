@@ -1,0 +1,14 @@
+{
+  "histories": 19,
+  "requirements": 61,
+  "tables": 80,
+  "planned_pages": 41,
+  "traceability": "passed",
+  "table_fidelity": "source rows merges fills borders fonts and geometry preserved; invalid fractional width attributes rounded by less than half a twip",
+  "package_preservation": "8 source parts byte-identical",
+  "all_preview_pages_inspected": true,
+  "native_pagination_verified": false,
+  "native_render_reason": "LibreOffice and Word unavailable",
+  "reference_sha256": "bed2c34f5ab1ca3e283976936c9edc3bea06349cbcefe537af6d947d7a179fb5",
+  "output_sha256": "487beb439ae32f0ef8615f9fca8bcbb774290f9f72a406fc38f4a07610983a87"
+}

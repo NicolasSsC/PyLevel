@@ -6,6 +6,37 @@ import PythonIntroAnimation from '../components/PythonIntroAnimation.astro';
 ---
 
 <Layout title="PyLevel · Imagina lo que puedes crear con Python" description="Descubre lo que puedes crear con Python: inteligencia artificial, robótica, análisis de datos y aplicaciones. Tu siguiente idea empieza en PyLevel.">
+	<Fragment slot="head">
+		<script is:inline>
+			(() => {
+				let seen = false;
+				try { seen = sessionStorage.getItem('pylevel_preload_seen') === 'true'; } catch {}
+				if (seen && new URLSearchParams(location.search).get('intro') !== '1') return;
+				const root = document.documentElement;
+				root.dataset.homeIntro = 'pending';
+				// Keep Inicio usable if the animation script fails to load.
+				window.setTimeout(() => {
+					if (root.dataset.homeIntro === 'pending') delete root.dataset.homeIntro;
+				}, 8000);
+			})();
+		</script>
+		<style is:global>
+			html[data-home-intro] body { overflow: hidden; background: #0d1520; }
+			html[data-home-intro] #top-navbar,
+			html[data-home-intro] #python-home,
+			html[data-home-intro] #pybot-widget { visibility: hidden; }
+			@media (max-width: 400px) {
+				body:has(#python-home) #top-navbar .nav-container { padding-inline: 12px; gap: 8px; }
+				body:has(#python-home) #top-navbar .nav-right { gap: 4px; }
+				body:has(#python-home) #top-navbar .brand-badge { display: none; }
+			}
+		</style>
+	</Fragment>
 	<PythonIntroAnimation />
 	<PythonHome />
 </Layout>
+
+<script>
+	import { initHomePreload } from '../home/entry';
+	initHomePreload();
+</script>

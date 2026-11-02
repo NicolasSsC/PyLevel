@@ -1,0 +1,137 @@
+[
+  {
+    "table": 0,
+    "width": [
+      "9025.511811023624"
+    ],
+    "grid": [
+      "2254.994520534719",
+      "2254.994520534719",
+      "4515.522769954186"
+    ],
+    "rows": [
+      [
+        {
+          "text": "Fuente",
+          "span": []
+        },
+        {
+          "text": "Entrevista",
+          "span": []
+        },
+        {
+          "text": "HU-01(codigo identificador)",
+          "span": []
+        }
+      ],
+      [
+        {
+          "text": "Historia de Usuario",
+          "span": [
+            "2"
+          ]
+        },
+        {
+          "text": "",
+          "span": []
+        }
+      ],
+      [
+        {
+          "text": "Necesidad",
+          "span": [
+            "3"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "",
+          "span": [
+            "3"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "Requerimientos Derivados",
+          "span": [
+            "3"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "",
+          "span": [
+            "3"
+          ]
+        }
+      ]
+    ]
+  },
+  {
+    "table": 1,
+    "width": [
+      "9792.0"
+    ],
+    "grid": [
+      "4896",
+      "4896"
+    ],
+    "rows": [
+      [
+        {
+          "text": "Nombre",
+          "span": []
+        },
+        {
+          "text": "RF-52 — (codigo identificador requerimiento)",
+          "span": []
+        }
+      ],
+      [
+        {
+          "text": "Resumen",
+          "span": []
+        },
+        {
+          "text": "",
+          "span": []
+        }
+      ],
+      [
+        {
+          "text": "Entradas",
+          "span": [
+            "2"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "",
+          "span": [
+            "2"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "Resultados",
+          "span": [
+            "2"
+          ]
+        }
+      ],
+      [
+        {
+          "text": "",
+          "span": [
+            "2"
+          ]
+        }
+      ]
+    ]
+  }
+]

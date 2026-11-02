@@ -1,5 +1,6 @@
 ---
 import UseCaseVisual from './UseCaseVisual.astro';
+import AboutPyLevel from './AboutPyLevel.astro';
 
 const uses = [
   { id: 'inteligencia-artificial', kind: 'ai' as const, number: '01', nav: 'Inteligencia artificial', heading: 'Enséñale al código a', accent: 'ver posibilidades.', description: 'Reconocer una imagen, encontrar patrones o construir un asistente. Con Python puedes explorar el aprendizaje automático y dar forma a sistemas que aprenden de los datos.', tags: ['Modelos de IA', 'Visión por computador', 'Asistentes'], note: 'De los datos a nuevas ideas.', source: 'https://pytorch.org/', library: 'Explora PyTorch' },
@@ -15,51 +16,38 @@ const reasons = [
 ---
 <main class="home-page" id="python-home">
   <div class="reading-progress" aria-hidden="true"><span></span></div>
-  <aside class="home-side-menu" aria-label="Menú principal de PyLevel">
-    <a class="side-menu-brand" href="#inicio" data-screen-target="inicio" aria-label="PyLevel, inicio">Py<span>Level.</span></a>
-    <span class="side-menu-caption">EXPLORAR</span>
-    <nav>
-      <a href="#inicio" data-screen-target="inicio"><span class="side-menu-icon">⌂</span><span class="side-menu-label">Inicio</span></a>
-      <a href="#aprender" data-screen-target="aprender"><span class="side-menu-icon">01</span><span class="side-menu-label">Aprender Python</span></a>
-      <a href="#inteligencia-artificial" data-screen-target="inteligencia-artificial"><span class="side-menu-icon">02</span><span class="side-menu-label">Inteligencia artificial</span></a>
-      <a href="#robotica" data-screen-target="robotica"><span class="side-menu-icon">03</span><span class="side-menu-label">Robótica</span></a>
-      <a href="#analisis-de-datos" data-screen-target="analisis-de-datos"><span class="side-menu-icon">04</span><span class="side-menu-label">Análisis de datos</span></a>
-      <a href="#desarrollo" data-screen-target="desarrollo"><span class="side-menu-icon">05</span><span class="side-menu-label">Desarrollo de aplicaciones</span></a>
-      <a href="/ejercicios/"><span class="side-menu-icon">06</span><span class="side-menu-label">Ejercicios</span></a>
-      <a href="#final" data-screen-target="final"><span class="side-menu-icon">↗</span><span class="side-menu-label">Siguiente paso</span></a>
-    </nav>
-    <span class="side-menu-footer">APRENDE · CREA</span>
-  </aside>
 
-  <section data-screen="inicio" class="home-hero home-container" aria-labelledby="home-title">
-    <div class="hero-copy">
-      <p class="home-eyebrow"><span class="tiny-spark" aria-hidden="true">✳</span> UN LENGUAJE. MUCHOS CAMINOS.</p>
-      <h1 id="home-title">Tu próxima<br/>gran idea empieza<br/>con <span class="python-word">Python<span class="gold-period">.</span></span></h1>
-      <p class="hero-description">De tu primera línea de código a eso que todavía estás imaginando. Descubre un lenguaje para aprender, experimentar y crear.</p>
-      <div class="hero-actions">
-        <a href="/ejercicios/" class="home-button primary">Empieza a crear <span aria-hidden="true">↗</span></a>
-        <a href="#posibilidades" class="hero-discover">Descubre las posibilidades <span aria-hidden="true">↓</span></a>
-        <a href="/?intro=1" class="hero-intro-link" id="replay-intro-link" title="Reproducir animación de bienvenida"><span class="intro-play-icon" aria-hidden="true">▶</span> Ver intro</a>
+  <section class="home-hero" aria-labelledby="home-title" data-page-panel>
+    <div class="home-container hero-grid">
+      <div class="hero-copy">
+        <p class="home-eyebrow"><span class="tiny-spark" aria-hidden="true">✳</span> UN LENGUAJE. MUCHOS CAMINOS.</p>
+        <h1 id="home-title">Tu próxima<br/>gran idea empieza<br/>con <span class="python-word">Python<span class="gold-period">.</span></span></h1>
+        <p class="hero-description">De tu primera línea de código a eso que todavía estás imaginando. Descubre un lenguaje para aprender, experimentar y crear.</p>
+        <div class="hero-actions">
+          <a href="/ejercicios/" class="home-button primary">Empieza a crear <span aria-hidden="true">↗</span></a>
+          <a href="#posibilidades" class="hero-discover">Descubre las posibilidades <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-footnote"><span class="mini-line" aria-hidden="true"></span><span>No necesitas tenerlo todo claro.<br/>Solo curiosidad y una primera idea.</span></div>
       </div>
-      <div class="hero-footnote"><span class="mini-line" aria-hidden="true"></span><span>No necesitas tenerlo todo claro.<br/>Solo curiosidad y una primera idea.</span></div>
+      <div class="hero-art" aria-label="Logo de Python, rodeado de ideas para crear">
+        <div class="hero-halo halo-blue"></div><div class="hero-halo halo-yellow"></div>
+        <div class="orbit-stage" aria-hidden="true"><div class="orbit orbit-outer"></div><div class="orbit orbit-inner"></div><div class="orbit-axis"></div><span class="orbit-dot dot-blue"></span><span class="orbit-dot dot-yellow"></span><span class="orbit-cross cross-top">+</span><span class="orbit-cross cross-bottom">+</span></div>
+        <div class="python-logo-wrap"><img src="/python-logo.svg" class="python-logo" alt="Python" width="290" height="351" fetchpriority="high" decoding="async" /></div>
+        <div class="hero-tag tag-ai" aria-hidden="true"><span class="tag-icon">✳</span> inteligencia artificial</div>
+        <div class="hero-tag tag-data" aria-hidden="true"><span class="tag-icon">▥</span> datos que cuentan historias</div>
+        <div class="hero-code" aria-hidden="true"><div class="code-tab"><span></span> primera_idea.py <i>Python 3</i></div><code><span class="code-purple">print</span>(<span class="code-yellow">"Hola, posibilidades."</span>)<span class="code-cursor"></span></code></div>
+        <span class="art-coordinate" aria-hidden="true">IMAGINAR → PROGRAMAR → CREAR</span>
+      </div>
+      <a href="#que-es-pylevel" class="scroll-cue"><span class="scroll-line" aria-hidden="true"></span> SIGUE EXPLORANDO <span aria-hidden="true">↓</span></a>
     </div>
-    <div class="hero-art" aria-label="Logo de Python, rodeado de ideas para crear">
-      <div class="hero-halo halo-blue"></div><div class="hero-halo halo-yellow"></div>
-      <div class="orbit-stage" aria-hidden="true"><div class="orbit orbit-outer"></div><div class="orbit orbit-inner"></div><div class="orbit-axis"></div><span class="orbit-dot dot-blue"></span><span class="orbit-dot dot-yellow"></span><span class="orbit-cross cross-top">+</span><span class="orbit-cross cross-bottom">+</span></div>
-      <div class="python-logo-wrap"><img src="/python-logo.svg" class="python-logo" alt="Python" width="290" height="351" fetchpriority="high" decoding="async" /></div>
-      <div class="hero-tag tag-ai" aria-hidden="true"><span class="tag-icon">✳</span> inteligencia artificial</div>
-      <div class="hero-tag tag-data" aria-hidden="true"><span class="tag-icon">▥</span> datos que cuentan historias</div>
-      <div class="hero-code" aria-hidden="true"><div class="code-tab"><span></span> primera_idea.py <i>Python 3</i></div><code><span class="code-purple">print</span>(<span class="code-yellow">"Hola, posibilidades."</span>)<span class="code-cursor"></span></code></div>
-      <span class="art-coordinate" aria-hidden="true">IMAGINAR → PROGRAMAR → CREAR</span>
-    </div>
-    <a href="#por-que-python" class="scroll-cue"><span class="scroll-line" aria-hidden="true"></span> SIGUE EXPLORANDO <span aria-hidden="true">↓</span></a>
   </section>
 
-  <div data-screen="inicio" class="possibility-strip"><div class="home-container strip-content"><span>Una misma base.<br/><strong>Muchos futuros posibles.</strong></span><div class="strip-links">{uses.map(use => <a href={`#${use.id}`}><span class="strip-star" aria-hidden="true">✳</span>{use.kind === 'ai' ? 'Inteligencia artificial' : use.kind === 'robot' ? 'Robótica' : use.kind === 'data' ? 'Datos' : 'Desarrollo'}</a>)}</div></div></div>
+  <AboutPyLevel />
 
-  <section data-screen="aprender" id="por-que-python" class="home-why home-container" aria-labelledby="why-title">
+  <div id="por-que-python" class="python-page" data-page-panel>
+  <section class="home-why home-container" aria-labelledby="why-title">
     <div class="why-intro" data-reveal>
-      <p class="home-eyebrow"><span class="section-index">01 /</span> POR QUÉ PYTHON</p>
+      <p class="home-eyebrow"><span class="section-index">02 /</span> POR QUÉ PYTHON</p>
       <h2 id="why-title">Las grandes ideas<br/>también empiezan<br/><span class="text-soft">con algo sencillo.</span></h2>
       <p>Python es un lenguaje de programación de propósito general. Puedes usarlo para resolver un problema cotidiano o para explorar un campo completamente nuevo.</p>
       <a href="/ejercicios/clasicos/" class="home-text-link">Empieza por los fundamentos <span aria-hidden="true">↗</span></a>
@@ -73,22 +61,23 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
       <div class="reasons">{reasons.map(reason => <article class="reason" data-reveal><span>{reason.number}</span><div><h3>{reason.title}</h3><p>{reason.text}</p></div></article>)}</div>
     </div>
   </section>
+  </div>
 
-  <section data-screen="temas" id="posibilidades" class="home-possibilities home-container" aria-labelledby="uses-title">
+  <section id="posibilidades" class="home-possibilities home-container" aria-labelledby="uses-title">
     <div class="uses-sidebar">
-      <p class="home-eyebrow"><span class="section-index">02 /</span> PARA QUÉ SIRVE PYTHON</p>
+      <p class="home-eyebrow"><span class="section-index">03 /</span> PARA QUÉ SIRVE PYTHON</p>
       <h2 id="uses-title">Una herramienta.<br/><span class="text-soft">Mucho por<br/>imaginar.</span></h2>
       <p>Elige lo que despierta tu curiosidad. El mismo lenguaje puede llevarte por caminos muy diferentes.</p>
-      <nav class="chapter-nav" aria-label="Usos de Python">{uses.map((use, i) => <a href={`#${use.id}`} data-screen-target={use.id} data-chapter={use.id} aria-current={i === 0 ? 'location' : undefined}><span>{use.number}</span>{use.nav}<span class="chapter-arrow" aria-hidden="true">↗</span></a>)}</nav>
+      <nav class="chapter-nav" aria-label="Usos de Python">{uses.map((use, i) => <a href={`#${use.id}`} data-chapter={use.id} aria-current={i === 0 ? 'location' : undefined}><span>{use.number}</span>{use.nav}<span class="chapter-arrow" aria-hidden="true">↗</span></a>)}</nav>
       <span class="sidebar-note"><span aria-hidden="true">↳</span> Desliza. Encuentra tu siguiente idea.</span>
     </div>
-    <div class="use-stories">{uses.map(use => <article class:list={['use-story', `story-${use.kind}`]} id={use.id} data-scene={use.id} aria-labelledby={`title-${use.kind}`}>
+    <div class="use-stories">{uses.map(use => <article class:list={['use-story', `story-${use.kind}`]} id={use.id} data-scene={use.id} data-page-panel aria-labelledby={`title-${use.kind}`}>
       <div class="story-illustration" data-reveal><UseCaseVisual kind={use.kind} /></div>
       <div class="story-copy" data-reveal><div class="story-kicker"><span>{use.number} / {use.nav.toUpperCase()}</span><span aria-hidden="true">↗</span></div><h3 id={`title-${use.kind}`}>{use.heading}<br/><span>{use.accent}</span></h3><p>{use.description}</p><ul class="story-tags" aria-label="Posibilidades">{use.tags.map(tag => <li>{tag}</li>)}</ul><div class="story-bottom"><span>{use.note}</span><a href={use.source} target="_blank" rel="noopener noreferrer">{use.library} <span aria-hidden="true">↗</span><span class="sr-only"> (abre en otra pestaña)</span></a></div></div>
     </article>)}</div>
   </section>
 
-  <section data-screen="final" class="home-finale" aria-labelledby="finale-title">
+  <section class="home-finale" aria-labelledby="finale-title" data-page-panel>
     <div class="finale-grid" aria-hidden="true"></div><div class="finale-glow" aria-hidden="true"></div>
     <div class="home-container finale-content" data-reveal><span class="finale-star" aria-hidden="true">✳</span><p class="home-eyebrow">EL SIGUIENTE PASO ES TUYO</p><h2 id="finale-title">Con Python, construye<br/>lo que <span>te imagines.</span></h2><p>Un robot. Una aplicación. Una idea que todavía no tiene nombre.<br/>Todo puede empezar con una primera línea.</p><a href="/ejercicios/" class="home-button yellow">Dale forma a tu primera idea <span aria-hidden="true">↗</span></a><span class="finale-signature" aria-hidden="true">tu_idea + Python = posibilidades</span></div>
   </section>
@@ -99,93 +88,53 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   import { initHome } from './scroll';
   initHome();
 
-  const replayLink = document.getElementById('replay-intro-link');
-  if (replayLink) {
-    replayLink.addEventListener('click', (e) => {
-      try { sessionStorage.removeItem('pylevel_intro_seen'); } catch { /* The URL still forces replay. */ }
-      if (window.location.search.includes('intro=1')) {
-        e.preventDefault();
-        window.location.reload();
-      }
-    });
-  }
-
-  // Navegación entre pantallas de PyLevel
-  const homePage = document.querySelector<HTMLElement>('.home-page');
-
-  if (homePage) {
-    const screenSections = [...homePage.querySelectorAll<HTMLElement>('[data-screen]')];
-    const storyCards = [...homePage.querySelectorAll<HTMLElement>('.use-story')];
-    const screenLinks = [...homePage.querySelectorAll<HTMLAnchorElement>('[data-screen-target]')];
-
-    function showScreen(screen: string) {
-      const isTopic = storyCards.some(card => card.id === screen);
-      const currentScreen = isTopic ? 'temas' : screen;
-
-      if (!['inicio', 'aprender', 'temas', 'final'].includes(currentScreen)) return;
-
-      homePage?.classList.toggle('screen-topic', isTopic);
-
-      screenSections.forEach(section => {
-        section.classList.toggle('screen-hidden', section.dataset.screen !== currentScreen);
-      });
-
-      storyCards.forEach(card => {
-        card.classList.toggle('screen-selected', card.id === screen);
-      });
-
-      screenLinks.forEach(link => {
-        const active = link.dataset.screenTarget === screen;
-        if (active) link.setAttribute('aria-current', 'page');
-        else link.removeAttribute('aria-current');
-      });
-
-      window.scrollTo({ top: 0, behavior: 'auto' });
-    }
-
-    homePage.addEventListener('click', event => {
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const link = target.closest<HTMLAnchorElement>('[data-screen-target]');
-      if (!link || !homePage.contains(link)) return;
-
-      event.preventDefault();
-      const screen = link.dataset.screenTarget;
-      if (!screen) return;
-
-      showScreen(screen);
-      history.replaceState(null, '', screen === 'inicio' ? location.pathname : `#${screen}`);
-    });
-
-    showScreen('inicio');
-  }
-
 </script>
 
 <style>
+  :global(html:has(#python-home)) { scroll-padding-top: var(--nav-height, 68px); }
+  :global(html.home-pages) { scroll-snap-type: y proximity; }
   .home-page { --home-blue: #3179b6; --home-yellow: #d5a815; --home-soft: #7d919f; --hero-drift: 0px; overflow: clip; background: var(--color-bg); color: var(--color-text-primary); }
   :global(html[data-theme='dark']) .home-page { --home-blue: #71b9ee; --home-yellow: #ffd343; --home-soft: #6d879e; }
   .home-container { width: min(1200px, calc(100% - 80px)); margin-inline: auto; }
-  .home-page :global([id]) { scroll-margin-top: 105px; }
+  .home-page :global([id]) { scroll-margin-top: 0; }
   .home-page a { text-decoration: none; }.home-page a:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 6px; border-radius: 4px; }
   .home-page .home-eyebrow { display: flex; align-items: center; gap: 9px; font: 600 10px var(--font-mono); letter-spacing: 1.8px; color: var(--color-text-secondary); margin: 0 0 25px; }
   .tiny-spark { color: var(--home-yellow); font-size: 21px; line-height: 1; }.section-index { color: var(--home-blue); letter-spacing: .5px; margin-right: 7px; }
   .reading-progress { position: fixed; top: var(--nav-height); left: 0; right: 0; z-index: 90; height: 2px; pointer-events: none; }.reading-progress span { display: block; height: 100%; background: linear-gradient(90deg, #3776ab, #ffd343); transform-origin: left; transform: scaleX(var(--reading-progress, 0)); }
-  .home-hero { min-height: min(790px, calc(100svh - 68px)); display: grid; grid-template-columns: 1.12fr 1fr; align-items: center; position: relative; padding-block: 74px 108px; gap: 20px; }
+  .home-hero {
+    position: relative;
+    width: 100%;
+    min-height: calc(100svh - var(--nav-height, 68px));
+    min-height: calc(100vh - var(--nav-height, 68px));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    isolation: isolate;
+    background:
+      radial-gradient(ellipse at 82% 44%, color-mix(in srgb, var(--home-blue) 12%, transparent), transparent 45%),
+      radial-gradient(ellipse at 8% 8%, color-mix(in srgb, var(--home-yellow) 8%, transparent), transparent 38%);
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.12fr 1fr;
+    align-items: center;
+    position: relative;
+    gap: clamp(24px, 3.5vw, 45px);
+    padding-block: 40px 60px;
+    min-height: calc(100svh - var(--nav-height, 68px));
+    min-height: calc(100vh - var(--nav-height, 68px));
+  }
   .hero-copy { position: relative; z-index: 2; }.hero-copy h1 { font-size: clamp(42px, 4.8vw, 65px); font-weight: 700; line-height: 1.09; letter-spacing: -3px; margin: 0; }.python-word { color: var(--home-blue); }.gold-period { color: var(--home-yellow); }
   .hero-description { max-width: 430px; font-size: 15px; line-height: 1.85; color: var(--color-text-secondary); margin: 25px 0 28px; }.hero-actions { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .home-button { display: inline-flex; align-items: center; justify-content: center; gap: 30px; padding: 16px 21px; font: 600 12px var(--font-sans); border-radius: 7px; transition: transform .2s ease, box-shadow .2s ease; }.home-button:hover { transform: translateY(-3px); box-shadow: 0 8px 24px #285d8e25; }.home-button.primary { color: white; background: #3776ab; border: 1px solid #568cb857; }.home-button > span { font-size: 18px; font-weight: 400; }.home-button.yellow { background: #ffd343; color: #172c40; border: 1px solid #ffe78a; }
   .hero-discover { color: var(--color-text-secondary); font-size: 11px; display: flex; gap: 12px; align-items: center; }.hero-discover:hover { color: var(--color-text-primary); }.hero-discover > span { color: var(--home-blue); font-size: 17px; }
-  .hero-intro-link { color: var(--color-text-secondary); font: 600 11px var(--font-sans); display: inline-flex; gap: 8px; align-items: center; padding: 10px 15px; border-radius: 7px; border: 1px solid color-mix(in srgb, var(--home-blue) 30%, transparent); background: color-mix(in srgb, var(--home-blue) 8%, transparent); transition: all .2s ease; }.hero-intro-link:hover { color: var(--color-text-primary); border-color: var(--home-blue); background: color-mix(in srgb, var(--home-blue) 18%, transparent); transform: translateY(-2px); }.intro-play-icon { color: var(--home-yellow); font-size: 10px; line-height: 1; }
   .hero-footnote { margin-top: 42px; display: flex; align-items: flex-start; gap: 11px; color: var(--color-text-secondary); font-size: 10px; line-height: 1.8; }.mini-line { display: block; width: 23px; height: 1px; background: var(--home-yellow); margin-top: 9px; }
   .hero-art { position: relative; height: 470px; display: grid; place-items: center; transform: translateY(calc(var(--hero-drift) * -.45)); }.hero-halo { position: absolute; width: 300px; height: 300px; pointer-events: none; filter: blur(55px); border-radius: 50%; opacity: .12; }.halo-blue { background: #1f8cd8; left: 5%; top: 0; }.halo-yellow { background: #ffd343; right: 0; bottom: 45px; opacity: .09; }
   .orbit-stage { position: absolute; inset: 20px -20px 20px; }.orbit { position: absolute; border: 1px solid color-mix(in srgb, var(--home-blue) 16%, transparent); border-radius: 50%; aspect-ratio: 1; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); }.orbit-outer { width: 96%; border-style: dashed; }.orbit-inner { width: 72%; border-color: color-mix(in srgb, var(--home-blue) 12%, transparent); }.orbit-axis { position: absolute; width: 108%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--home-blue) 20%, transparent), transparent); left: -4%; top: 51%; transform: rotate(-28deg); }.orbit-dot { width: 7px; height: 7px; border-radius: 50%; position: absolute; }.dot-blue { background: #6caee0; left: 12%; top: 20%; box-shadow: 0 0 16px #6caee040; }.dot-yellow { background: #ffd343; bottom: 21%; right: 12%; box-shadow: 0 0 16px #ffd34340; }.orbit-cross { position: absolute; font: 18px var(--font-mono); color: var(--home-soft); opacity: .45; }.cross-top { right: 21%; top: 8%; }.cross-bottom { left: 16%; bottom: 12%; }
   .python-logo-wrap { position: relative; width: 242px; transform: translateY(-8px); z-index: 1; }.python-logo { display: block; width: 100%; height: auto; filter: drop-shadow(0 22px 25px #172c4029); }.home-motion .python-logo-wrap { animation: logo-float 7s ease-in-out infinite; }
   .hero-tag { position: absolute; z-index: 2; font: 9px var(--font-mono); padding: 12px 15px; background: var(--color-surface); color: var(--color-text-secondary); border: 1px solid var(--color-border); border-radius: 7px; display: flex; align-items: center; gap: 9px; box-shadow: var(--card-shadow); white-space: nowrap; }.tag-icon { font-size: 15px; color: var(--home-yellow); }.tag-ai { top: 38px; right: -7px; transform: rotate(4deg); }.tag-data { bottom: 98px; right: -20px; transform: rotate(-4deg); }.tag-data .tag-icon { color: var(--home-blue); }
   .hero-code { position: absolute; left: -35px; bottom: 20px; width: 295px; background: #122236; border: 1px solid #33495b; border-radius: 9px; transform: rotate(-4deg); z-index: 3; box-shadow: 0 20px 40px #0b17221a; overflow: hidden; }.code-tab { font: 8px var(--font-mono); color: #91abc0; display: flex; align-items: center; gap: 8px; padding: 10px 13px; border-bottom: 1px solid #33495b80; }.code-tab > span { width: 5px; height: 5px; border-radius: 50%; background: #ffd343; }.code-tab i { margin-left: auto; font-size: 7px; font-style: normal; color: #677e94; }.hero-code > code { display: block; padding: 20px 16px 22px; color: #d7e6f0; font: 11px var(--font-mono); }.code-purple { color: #c5a4f2; }.code-yellow { color: #f4cf72; }.code-blue { color: #77bbef; }.code-muted { color: #69869e; }.code-cursor { display: inline-block; vertical-align: text-bottom; height: 13px; width: 1px; background: #ffd343; margin-left: 4px; }.home-motion .code-cursor { animation: cursor-blink 1.3s steps(2, end) infinite; }.art-coordinate { position: absolute; bottom: -18px; right: 3%; font: 7px var(--font-mono); letter-spacing: 1.7px; color: var(--color-text-muted); }
-  .scroll-cue { position: absolute; bottom: 31px; left: 0; display: flex; align-items: center; gap: 12px; color: var(--color-text-muted); font: 8px var(--font-mono); letter-spacing: 1.7px; }.scroll-line { height: 25px; width: 1px; background: linear-gradient(transparent, var(--home-blue)); }.scroll-cue > span:last-child { color: var(--home-blue); margin-left: 7px; }
-  .possibility-strip { border-block: 1px solid var(--color-border); background: color-mix(in srgb, var(--color-surface) 55%, transparent); }.strip-content { display: flex; justify-content: space-between; align-items: center; gap: 22px; padding-block: 25px; }.strip-content > span { color: var(--color-text-secondary); font-size: 10px; line-height: 1.8; flex-shrink: 0; }.strip-content strong { font-weight: 500; color: var(--color-text-primary); }.strip-links { display: flex; gap: clamp(25px, 4vw, 65px); align-items: center; }.strip-links a { color: var(--color-text-secondary); font-size: 11px; display: flex; align-items: center; gap: 13px; }.strip-star { color: var(--home-yellow); font-size: 14px; }.strip-links a:hover { color: var(--home-blue); }
+  .scroll-cue { position: absolute; bottom: 20px; left: 0; display: flex; align-items: center; gap: 12px; color: var(--color-text-muted); font: 8px var(--font-mono); letter-spacing: 1.7px; }.scroll-line { height: 25px; width: 1px; background: linear-gradient(transparent, var(--home-blue)); }.scroll-cue > span:last-child { color: var(--home-blue); margin-left: 7px; }
   .home-why { display: grid; grid-template-columns: 1fr 1fr; gap: 100px; padding-block: 130px 125px; }.home-page h2 { font-size: clamp(30px, 3.3vw, 43px); line-height: 1.17; font-weight: 600; letter-spacing: -1.9px; margin: 0; }.text-soft { color: var(--home-soft); }.why-intro > p:not(.home-eyebrow), .uses-sidebar > p:not(.home-eyebrow) { color: var(--color-text-secondary); font-size: 13px; line-height: 1.95; max-width: 345px; margin: 26px 0; }.home-text-link { display: inline-flex; gap: 19px; align-items: center; font-size: 11px; color: var(--home-blue); margin-top: 3px; }.home-text-link > span { font-size: 18px; }
   .why-code { background: #122236; border: 1px solid #30495e; border-radius: 11px; overflow: hidden; box-shadow: 0 10px 30px #1021330d; }.why-code-title { display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #30495e80; padding: 14px 17px; font-size: 10px; color: #9db3c7; }.why-code-title > span:last-child { margin-left: auto; color: #6c89a0; }.small-python { background: #74b8ee1a; color: #8acafa; font: 600 10px var(--font-mono); width: 23px; height: 23px; display: grid; place-items: center; border-radius: 5px; }.why-code pre { padding: 22px; margin: 0; overflow-x: auto; color: #d0deea; font: 11px/1.9 var(--font-mono); }.why-code-output { display: flex; gap: 16px; padding: 13px 22px; border-top: 1px solid #30495e70; font: 9px var(--font-mono); color: #9bb3c8; }.why-code-output > span:first-child { color: #688398; }.output-highlight { color: #f4cf72; }
   .reasons { margin-top: 28px; }.reason { display: flex; gap: 17px; padding-block: 20px; border-bottom: 1px solid var(--color-border); }.reason:last-child { border: 0; padding-bottom: 0; }.reason > span { color: var(--home-blue); font: 10px var(--font-mono); padding-top: 2px; }.reason h3 { font-size: 14px; font-weight: 600; letter-spacing: -.2px; margin: 0 0 7px; }.reason p { color: var(--color-text-secondary); font-size: 11px; line-height: 1.8; margin: 0; max-width: 390px; }
@@ -196,31 +145,19 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
   .home-motion [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .8s cubic-bezier(.2,.7,.2,1); }.home-motion [data-reveal].is-visible { opacity: 1; transform: none; }
   @keyframes logo-float { 0%,100% { transform: translateY(-8px); } 50% { transform: translateY(-20px); } } @keyframes cursor-blink { 50% { opacity: 0; } }
-  @media(min-width: 1400px) { .home-hero { min-height: 760px; }.hero-art { height: 500px; }.hero-copy h1 { font-size: 70px; }.python-logo-wrap { width: 265px; } }
-  @media(max-width: 1050px) { .home-container { width: calc(100% - 64px); }.home-hero { grid-template-columns: 1.1fr 1fr; min-height: 660px; gap: 0; padding-block: 65px 100px; }.hero-copy h1 { font-size: 52px; letter-spacing: -2.6px; }.hero-art { height: 390px; }.python-logo-wrap { width: 205px; }.hero-code { left: -5px; width: 270px; bottom: 0; }.hero-tag { font-size: 8px; padding: 10px; }.tag-ai { right: -10px; top: 15px; }.tag-data { right: -5px; bottom: 70px; }.hero-description { font-size: 13px; max-width: 340px; }.hero-actions { gap: 18px; }.hero-discover { font-size: 10px; }.home-why { gap: 55px; padding-block: 100px; }.home-possibilities { gap: 60px; padding-block: 95px; grid-template-columns: .9fr 1.2fr; }.strip-links { gap: 24px; }.strip-links a { font-size: 10px; gap: 8px; }.why-code pre { padding: 18px; font-size: 9px; }.home-page h2 { font-size: 36px; } }
-  @media(max-width: 760px) { .home-container { width: calc(100% - 40px); }.home-hero { min-height: 0; grid-template-columns: 1fr; padding-block: 52px 77px; }.hero-copy { max-width: 560px; }.hero-copy h1 { font-size: clamp(43px, 8vw, 61px); letter-spacing: -2.4px; }.hero-description { max-width: 410px; font-size: 13px; margin-block: 22px 25px; }.home-page .home-eyebrow { font-size: 8px; letter-spacing: 1.1px; margin-bottom: 22px; }.hero-actions { gap: 20px; }.home-button { font-size: 11px; padding: 14px 17px; gap: 23px; }.hero-footnote { margin-top: 28px; }.hero-art { height: 355px; width: min(430px, 95%); margin: 20px auto 0; transform: none; }.python-logo-wrap { width: 194px; }.orbit-stage { inset: 0 10px; }.hero-code { left: 0; bottom: -3px; width: 260px; }.hero-code > code { font-size: 10px; padding: 17px 14px; }.tag-ai { top: 30px; right: -3px; }.tag-data { bottom: 70px; right: -7px; }.art-coordinate { bottom: -32px; font-size: 6px; }.scroll-cue { bottom: 15px; font-size: 7px; left: 2px; }.hero-halo { width: 230px; height: 230px; filter: blur(45px); }.strip-content { padding-block: 22px; flex-direction: column; align-items: flex-start; gap: 20px; }.strip-content > span { font-size: 10px; }.strip-content > span > br { display: none; }.strip-content strong { margin-left: 4px; }.strip-links { width: 100%; flex-wrap: wrap; gap: 16px 24px; }.strip-links a { font-size: 10px; }.strip-star { font-size: 12px; }.home-why { grid-template-columns: 1fr; gap: 38px; padding-block: 75px; }.home-page h2 { font-size: 34px; letter-spacing: -1.4px; }.why-intro > p:not(.home-eyebrow) { font-size: 12px; max-width: 440px; margin-block: 22px; }.why-code pre { font-size: clamp(9px, 2.6vw, 12px); padding: 20px; }.reasons { margin-top: 20px; }.reason { padding-block: 20px; }.reason p { max-width: none; font-size: 12px; }.home-possibilities { display: block; padding-block: 75px 70px; }.uses-sidebar { position: static; }.uses-sidebar h2 br:last-child { display: none; }.uses-sidebar > p:not(.home-eyebrow) { max-width: 440px; }.chapter-nav { max-width: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; margin-bottom: 32px; }.chapter-nav a { font-size: 9px; gap: 9px; padding-block: 14px; }.chapter-nav > a[aria-current='location'] { padding-left: 8px; }.sidebar-note { display: none; }.use-stories { margin-top: 38px; }.use-story { padding-bottom: 45px; margin-bottom: 45px; }.story-copy h3 { font-size: 30px; }.story-copy > p { font-size: 12px; max-width: none; }.story-kicker { font-size: 8px; }.story-bottom { font-size: 9px; }.finale-content { padding-block: 70px 65px; }.home-page .finale-content h2 { font-size: clamp(32px, 6.6vw, 46px); letter-spacing: -1.5px; }.finale-content > p:not(.home-eyebrow) { font-size: 11px; max-width: 350px; }.finale-star { font-size: 36px; }.home-footer { grid-template-columns: 1fr auto; gap: 16px; padding-top: 28px; }.home-footer > p { grid-column: 1; grid-row: 2; margin: 0; }.home-footer > div { gap: 17px; grid-column: 2; grid-row: 1 / 3; }.home-footer > small { margin-top: 8px; line-height: 1.7; }.home-footer > div > a { font-size: 9px; } }
+  @media(min-width: 1400px) { .hero-art { height: 500px; }.hero-copy h1 { font-size: 70px; }.python-logo-wrap { width: 265px; } }
+  @media(max-width: 1050px) { .home-container { width: calc(100% - 64px); }.hero-grid { grid-template-columns: 1.1fr 1fr; gap: 0; padding-block: 40px 60px; }.hero-copy h1 { font-size: 52px; letter-spacing: -2.6px; }.hero-art { height: 390px; }.python-logo-wrap { width: 205px; }.hero-code { left: -5px; width: 270px; bottom: 0; }.hero-tag { font-size: 8px; padding: 10px; }.tag-ai { right: -10px; top: 15px; }.tag-data { right: -5px; bottom: 70px; }.hero-description { font-size: 13px; max-width: 340px; }.hero-actions { gap: 18px; }.hero-discover { font-size: 10px; }.home-why { gap: 55px; padding-block: 100px; }.home-possibilities { gap: 60px; padding-block: 95px; grid-template-columns: .9fr 1.2fr; }.why-code pre { padding: 18px; font-size: 9px; }.home-page h2 { font-size: 36px; } }
+  @media(max-width: 760px) { .home-container { width: calc(100% - 40px); }.home-hero { min-height: auto; }.hero-grid { min-height: auto; grid-template-columns: 1fr; padding-block: 40px 50px; }.hero-copy { max-width: 560px; }.hero-copy h1 { font-size: clamp(43px, 8vw, 61px); letter-spacing: -2.4px; }.hero-description { max-width: 410px; font-size: 13px; margin-block: 22px 25px; }.home-page .home-eyebrow { font-size: 8px; letter-spacing: 1.1px; margin-bottom: 22px; }.hero-actions { gap: 20px; }.home-button { font-size: 11px; padding: 14px 17px; gap: 23px; }.hero-footnote { margin-top: 28px; }.hero-art { height: 355px; width: min(430px, 95%); margin: 20px auto 0; transform: none; }.python-logo-wrap { width: 194px; }.orbit-stage { inset: 0 10px; }.hero-code { left: 0; bottom: -3px; width: 260px; }.hero-code > code { font-size: 10px; padding: 17px 14px; }.tag-ai { top: 30px; right: -3px; }.tag-data { bottom: 70px; right: -7px; }.art-coordinate { bottom: -32px; font-size: 6px; }.scroll-cue { bottom: 15px; font-size: 7px; left: 2px; }.hero-halo { width: 230px; height: 230px; filter: blur(45px); }.home-why { grid-template-columns: 1fr; gap: 38px; padding-block: 75px; }.home-page h2 { font-size: 34px; letter-spacing: -1.4px; }.why-intro > p:not(.home-eyebrow) { font-size: 12px; max-width: 440px; margin-block: 22px; }.why-code pre { font-size: clamp(9px, 2.6vw, 12px); padding: 20px; }.reasons { margin-top: 20px; }.reason { padding-block: 20px; }.reason p { max-width: none; font-size: 12px; }.home-possibilities { display: block; padding-block: 75px 70px; }.uses-sidebar { position: static; }.uses-sidebar h2 br:last-child { display: none; }.uses-sidebar > p:not(.home-eyebrow) { max-width: 440px; }.chapter-nav { max-width: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; margin-bottom: 32px; }.chapter-nav a { font-size: 9px; gap: 9px; padding-block: 14px; }.chapter-nav > a[aria-current='location'] { padding-left: 8px; }.sidebar-note { display: none; }.use-stories { margin-top: 38px; }.use-story { padding-bottom: 45px; margin-bottom: 45px; }.story-copy h3 { font-size: 30px; }.story-copy > p { font-size: 12px; max-width: none; }.story-kicker { font-size: 8px; }.story-bottom { font-size: 9px; }.finale-content { padding-block: 70px 65px; }.home-page .finale-content h2 { font-size: clamp(32px, 6.6vw, 46px); letter-spacing: -1.5px; }.finale-content > p:not(.home-eyebrow) { font-size: 11px; max-width: 350px; }.finale-star { font-size: 36px; }.home-footer { grid-template-columns: 1fr auto; gap: 16px; padding-top: 28px; }.home-footer > p { grid-column: 1; grid-row: 2; margin: 0; }.home-footer > div { gap: 17px; grid-column: 2; grid-row: 1 / 3; }.home-footer > small { margin-top: 8px; line-height: 1.7; }.home-footer > div > a { font-size: 9px; } }
   @media(prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }.hero-art { transform: none; }.home-motion [data-reveal] { opacity: 1; transform: none; } }
 
   /* Refinamiento visual PyLevel */
-  .home-hero {
-    isolation: isolate;
-    background:
-      radial-gradient(ellipse at 82% 44%, color-mix(in srgb, var(--home-blue) 10%, transparent), transparent 38%),
-      radial-gradient(ellipse at 8% 8%, color-mix(in srgb, var(--home-yellow) 7%, transparent), transparent 32%);
-  }
-
   .hero-copy h1 {
     text-wrap: balance;
     text-shadow: 0 3px 24px color-mix(in srgb, var(--home-blue) 9%, transparent);
   }
 
-  .home-button,
-  .hero-intro-link {
+  .home-button {
     box-shadow: 0 5px 18px color-mix(in srgb, var(--home-blue) 9%, transparent);
-  }
-
-  .possibility-strip {
-    backdrop-filter: blur(12px);
   }
 
   .home-why {
@@ -307,259 +244,29 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   }
 
 
-  /* Menú lateral principal PyLevel - diseño tecnológico */
-  .home-page {
-    margin-left: 184px;
-  }
-
-  .home-side-menu {
-    --menu-navy: #101d30;
-    --menu-blue: #2563eb;
-    --menu-yellow: #facc15;
-    --menu-gray: #aab6c7;
-
-    position: fixed;
-    z-index: 80;
-    top: calc(var(--nav-height) + 22px);
-    bottom: 20px;
-    left: 16px;
-    width: 150px;
-    padding: 22px 12px 16px;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(165deg, #172942 0%, #101d30 55%, #0b1728 100%);
-    border: 1px solid #ffffff18;
-    border-radius: 16px;
-    box-shadow: 0 18px 45px #101d3038;
-    overflow: hidden;
-  }
-
-  .home-side-menu::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 15px;
-    right: 15px;
-    height: 3px;
-    border-radius: 0 0 5px 5px;
-    background: linear-gradient(90deg, var(--menu-blue), var(--menu-yellow));
-  }
-
-  .side-menu-brand {
-    display: block;
-    color: #fff;
-    font-size: 21px;
-    font-weight: 850;
-    letter-spacing: -1.2px;
-    padding: 3px 9px 30px;
-  }
-
-  .side-menu-brand span {
-    color: var(--menu-yellow);
-  }
-
-  .side-menu-caption,
-  .side-menu-footer {
-    padding-inline: 9px;
-    color: #8293aa;
-    font: 8px var(--font-mono);
-    letter-spacing: 1.7px;
-  }
-
-  .home-side-menu nav {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 14px;
-  }
-
-  .home-side-menu nav a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    min-height: 42px;
-    padding: 8px;
-    border: 1px solid transparent;
-    border-radius: 9px;
-    color: #c3cede;
-    font-size: 10px;
-    font-weight: 550;
-    transition: background .2s ease, color .2s ease, border-color .2s ease, transform .2s ease;
-  }
-
-  .home-side-menu nav a:hover,
-  .home-side-menu nav a:focus-visible {
-    color: #fff;
-    background: #ffffff0d;
-    border-color: #ffffff16;
-    transform: translateX(2px);
-    outline: none;
-  }
-
-  .side-menu-icon {
-    display: grid;
-    place-items: center;
-    flex: 0 0 26px;
-    height: 26px;
-    border: 1px solid #60a5fa35;
-    border-radius: 8px;
-    background: #2563eb24;
-    color: #8bb8ff;
-    font: 10px var(--font-mono);
-    transition: background .2s ease, color .2s ease, border-color .2s ease;
-  }
-
-  .home-page .home-side-menu nav a[aria-current="page"] {
-    color: #fff;
-    background: linear-gradient(100deg, #2563eb, #1d4ed8);
-    border-color: #60a5fa70;
-    box-shadow: 0 5px 16px #2563eb45;
-  }
-
-  .home-page .home-side-menu nav a[aria-current="page"]::before {
-    content: "";
-    position: absolute;
-    left: -1px;
-    top: 9px;
-    bottom: 9px;
-    width: 3px;
-    border-radius: 0 4px 4px 0;
-    background: var(--menu-yellow);
-  }
-
-  .home-page .home-side-menu nav a[aria-current="page"] .side-menu-icon {
-    color: var(--menu-yellow);
-    background: #ffffff18;
-    border-color: #ffffff35;
-  }
-
-  .side-menu-footer {
-    margin-top: auto;
-    padding: 17px 9px 2px;
-    border-top: 1px solid #ffffff18;
-    color: #8fa1b8;
-    font-size: 7px;
-  }
-
-  .side-menu-footer::first-letter {
-    color: var(--menu-yellow);
-  }
-
-  @media (max-width: 1050px) {
-    .home-page { margin-left: 78px; }
-
-    .home-side-menu {
-      left: 10px;
-      width: 58px;
-      padding: 22px 7px 14px;
-      align-items: center;
-    }
-
-    .side-menu-brand {
-      padding-inline: 0;
-      font-size: 14px;
-    }
-
-    .side-menu-caption,
-    .side-menu-label,
-    .side-menu-footer { display: none; }
-
-    .home-side-menu nav { width: 100%; }
-
-    .home-side-menu nav a {
-      justify-content: center;
-      padding: 7px 2px;
-    }
-  }
-
+  /* Each chapter occupies the available screen; longer content can grow. */
+  .home-page { --home-screen: calc(100svh - var(--nav-height, 68px)); }
+  [data-page-panel] { min-height: var(--home-screen); scroll-snap-align: start; }
+  .home-hero, .hero-grid { min-height: var(--home-screen); }
+  .python-page { display: flex; flex-direction: column; background: var(--color-bg); }
+  .python-page .home-why { flex: 1; align-content: center; align-items: center; padding-block: clamp(36px, 5svh, 64px); }
+  .home-possibilities { padding-block: 0; gap: clamp(40px, 6vw, 90px); }
+  .uses-sidebar { top: var(--nav-height, 68px); min-height: var(--home-screen); display: flex; flex-direction: column; justify-content: center; padding-block: 40px; }
+  .use-story, .use-story:last-child { display: flex; flex-direction: column; justify-content: center; min-height: var(--home-screen); margin: 0; padding: 36px 22px; border-radius: 0; border: 0; border-bottom: 1px solid var(--color-border); box-shadow: none; background: transparent; }
+  .use-story:hover { transform: none; box-shadow: none; }
+  .home-finale { display: grid; align-items: center; min-height: var(--home-screen); }
+  .finale-content { padding-block: 48px; }
+  .home-footer { scroll-snap-align: end; }
+  .page-motion [data-page-panel] { opacity: .2; transition: opacity .55s ease; }
+  .page-motion [data-page-panel].is-page-visible { opacity: 1; }
   @media (max-width: 760px) {
-    .home-page { margin-left: 0; }
-
-    .home-side-menu {
-      position: sticky;
-      top: var(--nav-height);
-      bottom: auto;
-      left: auto;
-      width: 100%;
-      height: auto;
-      padding: 7px 12px;
-      border-radius: 0;
-      border-inline: 0;
-      border-top: 0;
-      box-shadow: 0 5px 15px #101d3020;
-      flex-direction: row;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .home-side-menu::before {
-      left: 0;
-      right: 0;
-    }
-
-    .side-menu-brand {
-      padding: 5px 4px;
-      font-size: 15px;
-    }
-
-    .side-menu-caption,
-    .side-menu-footer { display: none; }
-
-    .home-side-menu nav {
-      display: flex;
-      flex-direction: row;
-      gap: 5px;
-      margin: 0;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-
-    .home-side-menu nav::-webkit-scrollbar { display: none; }
-
-    .home-side-menu nav a {
-      flex: 0 0 auto;
-      min-height: 34px;
-      padding: 5px 8px;
-      gap: 5px;
-      font-size: 9px;
-      white-space: nowrap;
-    }
-
-    .side-menu-icon {
-      flex-basis: 20px;
-      height: 20px;
-      font-size: 9px;
-    }
-
-    .side-menu-label { display: inline; }
+    .python-page .home-why { padding-block: 56px; }
+    .home-possibilities { padding-top: 48px; }
+    .uses-sidebar { position: static; min-height: 0; padding: 0; }
+    .use-story, .use-story:last-child { padding: 32px 0; }
+    .finale-content { padding-block: 56px; }
   }
-
-
-  /* Vistas independientes del menú lateral */
-  .home-page .screen-hidden { display: none !important; }
-  .home-page.screen-topic .uses-sidebar { display: none; }
-  .home-page.screen-topic .home-possibilities { display: block; min-height: 70vh; }
-  .home-page.screen-topic .use-story { display: none; }
-  .home-page.screen-topic .use-story.screen-selected {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: center;
-    gap: 55px;
-    min-height: 60vh;
-    padding: 25px 0;
-    margin: 0;
-    border: 0;
+  @media (prefers-reduced-motion: reduce) {
+    .page-motion [data-page-panel] { opacity: 1; transition: none; }
   }
-  .home-page.screen-topic .use-story.screen-selected .story-copy { margin-top: 0; }
-  .home-page .home-side-menu a[aria-current="page"] {
-    color: var(--home-blue);
-    background: color-mix(in srgb, var(--home-blue) 9%, transparent);
-  }
-  @media(max-width:760px) {
-    .home-page.screen-topic .use-story.screen-selected {
-      grid-template-columns: 1fr;
-      gap: 25px;
-    }
-  }
-\n</style>
+</style>

@@ -23,6 +23,8 @@ export function getDbPool(): pg.Pool {
   const user = (process.env.PGUSER || process.env.DB_USER || 'pylevel_user').trim();
   const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
   const database = (process.env.PGDATABASE || process.env.DB_NAME || 'pylevel').trim();
+  const poolSize = Number(process.env.DB_POOL_MAX || 5);
+  if (!Number.isInteger(poolSize) || poolSize < 1) throw new Error('DB_POOL_MAX debe ser un entero positivo.');
 
   pool = new Pool({
     host,
@@ -33,7 +35,7 @@ export function getDbPool(): pg.Pool {
     // Explicit opt-out is limited to local development/test databases.
     ssl: process.env.DB_SSL === 'false' && ['127.0.0.1', 'localhost', '::1'].includes(host)
       ? false : { rejectUnauthorized: false },
-    max: 5,
+    max: poolSize,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 10000,
   });

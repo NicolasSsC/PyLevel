@@ -1,0 +1,54 @@
+[
+  {
+    "file": "02_credenciales.png",
+    "test": "rechaza una contraseña incorrecta",
+    "source": "test-results\\account-rechaza-una-contraseña-incorrecta-chromium\\test-finished-1.png",
+    "kind": "test-final-screenshot",
+    "sha256": "0185119e6003f3185caa95471103687ede7737ec307dfa941534d28f596317cd"
+  },
+  {
+    "file": "03_perfil.png",
+    "test": "guarda los datos personales y los conserva al recargar",
+    "source": "test-results\\account-guarda-los-datos-p-4f5dc--y-los-conserva-al-recargar-chromium\\test-finished-1.png",
+    "kind": "test-final-screenshot",
+    "sha256": "4e5ca3ae87012d8e5a995688633195a6dd0b2cc8c1a50b9219bb2b09fb1a4de4"
+  },
+  {
+    "file": "07_catalogo.png",
+    "test": "permite saltar la introducción y navegar a ejercicios",
+    "source": "test-results\\home-permite-saltar-la-introducción-y-navegar-a-ejercicios-chromium\\test-finished-1.png",
+    "kind": "test-final-screenshot",
+    "sha256": "3ee600adcd803b95b8c2b558bcc525d2e47b6c7750880dfc6be744b29a7e462c"
+  },
+  {
+    "file": "08_movil.png",
+    "test": "muestra el inicio en móvil sin desbordamiento horizontal",
+    "source": "test-results\\home-muestra-el-inicio-en--7f194-n-desbordamiento-horizontal-chromium\\test-finished-1.png",
+    "kind": "test-final-screenshot",
+    "sha256": "ec002f61b7c071b06bec1ba61902a346f0691a6f6501b983a08f7ac5a8031e76"
+  },
+  {
+    "file": "04_progreso.jpeg",
+    "source": "test-results\\account-muestra-el-progres-6e5a8-eedback-de-una-cuenta-nueva-chromium\\trace.zip",
+    "member": "screencast/page@9aa4268823c288559bfb537bf2dac68d-1793079185717.jpeg",
+    "timestamp": 22174.918,
+    "kind": "original-trace-screencast-frame",
+    "sha256": "663814892de38fe02eb1cd2b0920f4e50206cebe1cfa446db58e313d6e39af5e"
+  },
+  {
+    "file": "05_examen_respuesta.jpeg",
+    "source": "test-results\\exam-exige-consentimiento--f82fe-ntrega-el-examen-sin-cámara-chromium\\trace.zip",
+    "member": "screencast/page@ac4bd492f0c2983ee9f6d4afab8549d9-1793079189138.jpeg",
+    "timestamp": 25595.563,
+    "kind": "original-trace-screencast-frame",
+    "sha256": "53e335f8ee0e8ba92973ce4f8d0d65d9d8c094773afde304d3a0e638ca78d012"
+  },
+  {
+    "file": "06_examen_entregado.jpeg",
+    "source": "test-results\\exam-exige-consentimiento--f82fe-ntrega-el-examen-sin-cámara-chromium\\trace.zip",
+    "member": "screencast/page@ac4bd492f0c2983ee9f6d4afab8549d9-1793079189821.jpeg",
+    "timestamp": 26278.297,
+    "kind": "original-trace-screencast-frame",
+    "sha256": "3d157d6d4310f4654a441f5c50b18c1dd0d960fdba31b050e711ba9814942d60"
+  }
+]

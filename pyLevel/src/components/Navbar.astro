@@ -24,18 +24,10 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
       </a>
 
       <!-- Primary Navigation Links -->
-      <nav class="nav-links" aria-label="Navegación principal">
-        <a href="/" class:list={['nav-item', { active: isHome }]}>
-          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          <span>Inicio</span>
-        </a>
-
+      <nav class="nav-links" aria-label="Navegación principal" data-session-only hidden>
         <!-- Ejercicios with dropdown -->
-        <div class="nav-dropdown-trigger" id="exercises-menu-trigger">
-          <a href="/ejercicios/" class:list={['nav-item', { active: isExercises }]}>
+        <div class="nav-dropdown-trigger" id="exercises-menu-trigger" data-session-locked="true">
+          <a data-session-link="/ejercicios/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class:list={['nav-item', { active: isExercises }]}>
             <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="16 18 22 12 16 6"></polyline>
               <polyline points="8 6 2 12 8 18"></polyline>
@@ -47,16 +39,16 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
           </a>
 
           <!-- Ejercicios Submenu Popover -->
-          <div class="dropdown-popover exercises-popover" role="menu">
+          <div class="dropdown-popover exercises-popover" role="menu" data-session-submenu hidden inert>
             <div class="popover-arrow"></div>
-            <a href="/ejercicios/clasicos/" class="popover-item" role="menuitem">
+            <a data-session-link="/ejercicios/clasicos/" class="popover-item" role="menuitem" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder.">
               <div class="popover-icon classic-icon">&lt;/&gt;</div>
               <div class="popover-text">
                 <strong>Ejercicios Clásicos</strong>
                 <span>Fundamentos, bucles, condiciones y algoritmos</span>
               </div>
             </a>
-            <a href="/ejercicios/contextualizados/" class="popover-item" role="menuitem">
+            <a data-session-link="/ejercicios/contextualizados/" class="popover-item" role="menuitem" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder.">
               <div class="popover-icon project-icon">{'{ }'}</div>
               <div class="popover-text">
                 <strong>Contextualizados</strong>
@@ -65,7 +57,7 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
             </a>
           </div>
         </div>
-        <a href="/examen/" class:list={['nav-item', { active: pathname.startsWith('/examen') }]}>
+        <a data-session-link="/examen/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class:list={['nav-item', { active: pathname.startsWith('/examen') }]}>
           <span aria-hidden="true">▤</span><span>Examen</span>
         </a>
       </nav>
@@ -100,7 +92,7 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
       </button>
 
       <!-- Notifications -->
-      <div class="dropdown-wrapper" id="notifications-wrapper">
+      <div class="dropdown-wrapper" id="notifications-wrapper" hidden>
         <button
           id="notifications-btn"
           class="icon-btn notif-btn"
@@ -121,7 +113,7 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
           <div class="dropdown-header">
             <div class="header-title">
               <h3>Notificaciones</h3>
-              <span class="unread-pill" id="unread-count-text">2 nuevas</span>
+              <span class="unread-pill" id="unread-count-text" role="status" aria-live="polite" aria-atomic="true">2 nuevas</span>
             </div>
             <button id="mark-read-btn" class="header-action-btn" type="button">Marcar leídas</button>
           </div>
@@ -161,7 +153,8 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
       </div>
 
       <!-- User Profile -->
-      <div class="dropdown-wrapper" id="profile-wrapper">
+      {isHome && <a href="/login" id="home-signin-link" class="nav-signin">Iniciar sesión <span aria-hidden="true">↗</span></a>}
+      <div class="dropdown-wrapper" id="profile-wrapper" hidden={isHome}>
         <button
           id="profile-btn"
           class="profile-btn"
@@ -197,20 +190,13 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                 <circle cx="12" cy="7" r="4"></circle>
               </svg>
-              <span>Mi Perfil</span>
+              <span>Mi perfil</span>
             </a>
             <a href="/progreso/" class="menu-item" role="menuitem">
               <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
               </svg>
               <span>Progreso y Métricas</span>
-            </a>
-            <a href="/perfil#personal-title" class="menu-item" role="menuitem">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-              </svg>
-              <span>Configuración</span>
             </a>
           </div>
 
@@ -258,18 +244,18 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
         </svg>
         <span>Inicio</span>
       </a>
-      <a href="/ejercicios/" class:list={['mobile-nav-item', { active: isExercises }]}>
+      <a data-session-link="/ejercicios/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class:list={['mobile-nav-item', { active: isExercises }]}>
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="16 18 22 12 16 6"></polyline>
           <polyline points="8 6 2 12 8 18"></polyline>
         </svg>
         <span>Todos los ejercicios</span>
       </a>
-      <div class="mobile-sublinks">
-        <a href="/ejercicios/clasicos/" class="mobile-sublink">&lt;/&gt; Ejercicios Clásicos</a>
-        <a href="/ejercicios/contextualizados/" class="mobile-sublink">{'{ }'} Contextualizados</a>
+      <div class="mobile-sublinks" data-session-only hidden>
+        <a data-session-link="/ejercicios/clasicos/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class="mobile-sublink">&lt;/&gt; Ejercicios Clásicos</a>
+        <a data-session-link="/ejercicios/contextualizados/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class="mobile-sublink">{'{ }'} Contextualizados</a>
       </div>
-      <a href="/examen/" class:list={['mobile-nav-item', { active: pathname.startsWith('/examen') }]}>Examen de Python</a>
+      <a data-session-link="/examen/" role="link" aria-disabled="true" tabindex="-1" title="Inicia sesión para acceder." class:list={['mobile-nav-item', { active: pathname.startsWith('/examen') }]}>Examen de Python</a>
     </div>
 
     <div class="mobile-drawer-footer">
@@ -326,6 +312,12 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
     font-size: 24px;
     letter-spacing: -0.8px;
     user-select: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .brand-link:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
   }
 
   .brand-badge {
@@ -474,6 +466,12 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
     gap: 10px;
   }
 
+  .nav-signin { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 44px; padding: 10px 15px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-primary-light); color: var(--color-text-primary); font-size: 13px; font-weight: 650; text-decoration: none; white-space: nowrap; transition: background .2s ease, border-color .2s ease; }
+  .nav-signin:hover { background: var(--color-surface-hover); border-color: var(--color-primary); }
+  .nav-signin:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+  .nav-signin[hidden], .dropdown-wrapper[hidden] { display: none; }
+  @media (max-width: 400px) { .nav-signin { padding-inline: 10px; gap: 6px; font-size: 12px; } }
+
   .icon-btn {
     display: grid;
     place-items: center;
@@ -615,9 +613,11 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
     border-radius: 4px;
   }
 
-  .header-action-btn:hover {
+  .header-action-btn:hover:enabled {
     text-decoration: underline;
   }
+
+  .header-action-btn:disabled { opacity: .5; cursor: default; }
 
   .notif-list {
     max-height: 320px;
@@ -990,6 +990,9 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
       color: var(--color-text-muted);
     }
   }
+  [data-session-link][aria-disabled='true'], [data-session-only][hidden] { display: none; }
+  .exercises-popover[hidden] { display: none; }
+  .nav-dropdown-trigger[data-session-locked='true'] .chevron-icon { transform: none; }
 </style>
 
 <script>
@@ -998,8 +1001,44 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
   const notifBtn = document.getElementById('notifications-btn');
   const notifDropdown = document.getElementById('notifications-dropdown');
   const notifBadge = document.getElementById('notif-badge');
-  const markReadBtn = document.getElementById('mark-read-btn');
+  const markReadBtn = document.getElementById('mark-read-btn') as HTMLButtonElement | null;
   const unreadCountText = document.getElementById('unread-count-text');
+  const notifications = [...document.querySelectorAll<HTMLElement>('#notif-list .notif-item[data-id]')]
+    .map(item => ({ item, id: item.dataset.id!, initiallyUnread: item.classList.contains('unread') }));
+  let notificationUserId: string | null = null;
+  let notificationReadIds = new Set<string>();
+
+  function renderNotificationState() {
+    let unread = 0;
+    notifications.forEach(({ item, id, initiallyUnread }) => {
+      const isUnread = initiallyUnread && !notificationReadIds.has(id);
+      item.classList.toggle('unread', isUnread);
+      if (isUnread) unread++;
+    });
+    if (notifBadge) {
+      notifBadge.textContent = String(unread);
+      notifBadge.hidden = unread === 0;
+      notifBadge.classList.toggle('hidden-badge', unread === 0);
+      notifBadge.setAttribute('aria-label', `${unread} ${unread === 1 ? 'notificación no leída' : 'notificaciones no leídas'}`);
+    }
+    if (unreadCountText) {
+      unreadCountText.textContent = `${unread} ${unread === 1 ? 'nueva' : 'nuevas'}`;
+      unreadCountText.style.opacity = unread ? '1' : '0.5';
+    }
+    if (markReadBtn) markReadBtn.disabled = !notificationUserId || unread === 0;
+  }
+
+  function restoreNotificationState(userId: string | null) {
+    if (notificationUserId !== userId) notificationReadIds = new Set();
+    notificationUserId = userId;
+    if (userId) {
+      try {
+        const saved = JSON.parse(localStorage.getItem(`pylevel:notifications:read:${userId}`) || '[]');
+        notificationReadIds = new Set(Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []);
+      } catch { /* Keep this page usable when browser storage is unavailable. */ }
+    }
+    renderNotificationState();
+  }
   
   const profileBtn = document.getElementById('profile-btn');
   const profileDropdown = document.getElementById('profile-dropdown');
@@ -1065,22 +1104,67 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
   // Mark all notifications as read
   markReadBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
-    const unreadItems = document.querySelectorAll('.notif-item.unread');
-    unreadItems.forEach(item => item.classList.remove('unread'));
-    if (notifBadge) {
-      notifBadge.classList.add('hidden-badge');
-    }
-    if (unreadCountText) {
-      unreadCountText.textContent = '0 nuevas';
-      unreadCountText.style.opacity = '0.5';
+    if (!notificationUserId) return;
+    notifications.forEach(({ id }) => notificationReadIds.add(id));
+    try {
+      localStorage.setItem(`pylevel:notifications:read:${notificationUserId}`, JSON.stringify([...notificationReadIds]));
+    } catch { /* Reading notifications still works for the current page. */ }
+    renderNotificationState();
+  });
+  window.addEventListener('storage', event => {
+    if (notificationUserId && (event.key === null || event.key === `pylevel:notifications:read:${notificationUserId}`)) {
+      restoreNotificationState(notificationUserId);
     }
   });
 
   // Real session sync and logout
+  const sessionLinks = [...document.querySelectorAll<HTMLAnchorElement>('#top-navbar [data-session-link]')];
+  let sessionRequest = 0;
+
+  function setSessionNavigation(authenticated: boolean) {
+    const notificationsWrapper = document.getElementById('notifications-wrapper');
+    if (notificationsWrapper) notificationsWrapper.hidden = !authenticated;
+    const pybot = document.getElementById('pybot-widget');
+    if (pybot) {
+      pybot.hidden = !authenticated;
+      if (!authenticated && document.getElementById('pybot-trigger-btn')?.getAttribute('aria-expanded') === 'true') {
+        document.getElementById('pybot-close-btn')?.click();
+      }
+    }
+    document.querySelectorAll<HTMLElement>('#top-navbar [data-session-only]').forEach(group => { group.hidden = !authenticated; });
+    sessionLinks.forEach(link => {
+      link.setAttribute('aria-disabled', String(!authenticated));
+      if (authenticated && link.dataset.sessionLink) {
+        link.href = link.dataset.sessionLink;
+        link.removeAttribute('tabindex');
+        link.removeAttribute('title');
+      } else {
+        link.removeAttribute('href');
+        link.tabIndex = -1;
+        link.title = 'Inicia sesión para acceder.';
+      }
+    });
+    const exerciseMenu = document.getElementById('exercises-menu-trigger');
+    if (exerciseMenu) exerciseMenu.dataset.sessionLocked = String(!authenticated);
+    const submenu = document.querySelector<HTMLElement>('[data-session-submenu]');
+    if (submenu) { submenu.hidden = !authenticated; submenu.inert = !authenticated; }
+    const signinLink = document.getElementById('home-signin-link');
+    if (signinLink) {
+      signinLink.hidden = authenticated;
+      const profile = document.getElementById('profile-wrapper');
+      if (profile) profile.hidden = !authenticated;
+    }
+  }
+
   async function checkAuthSession() {
+    const request = ++sessionRequest;
     try {
       const res = await fetch('/api/auth/me');
+      if (!res.ok) throw new Error('session');
       const data = await res.json();
+      if (request !== sessionRequest) return;
+      restoreNotificationState(typeof data.user?.id === 'string' ? data.user.id : null);
+      setSessionNavigation(!!data.user);
       if (data.user) {
         const initials = (data.user.displayName || 'US')
           .split(' ')
@@ -1110,10 +1194,22 @@ const firstName = user.displayName ? user.displayName.split(' ')[0] : 'Estudiant
         if (mobileEmail) mobileEmail.textContent = data.user.email;
         if (mobileAvatar) mobileAvatar.textContent = initials;
       }
-    } catch {}
+    } catch {
+      if (request === sessionRequest) {
+        restoreNotificationState(null);
+        setSessionNavigation(false);
+      }
+    }
   }
   checkAuthSession();
   window.addEventListener('pylevel:profile-updated', checkAuthSession);
+  window.addEventListener('focus', checkAuthSession);
+  window.addEventListener('pageshow', event => {
+    if (event.persisted) {
+      setSessionNavigation(false);
+      checkAuthSession();
+    }
+  });
 
   logoutBtn?.addEventListener('click', async () => {
     try {

@@ -1,0 +1,12 @@
+{
+  "output": "C:\\programming\\pyLevel\\outputs\\informe_playwright_2026_10_27\\PyLevel_Informe_de_pruebas_Playwright.docx",
+  "images": 8,
+  "embedded_images_identical_to_evidence": true,
+  "text_roundtrip": true,
+  "preview_pages": 7,
+  "native_word_render_verified": false,
+  "passed": 10,
+  "failed": 0,
+  "alternative_preview_pages_visually_reviewed": 7,
+  "native_render_limitation": "Packaged renderer attempted; LibreOffice soffice.exe unavailable on PATH. Alternative preview inspected, native Word pagination unverified."
+}

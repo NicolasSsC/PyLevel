@@ -1,0 +1,14 @@
+{
+  "changed_histories": [
+    "HU-24",
+    "HU-25",
+    "HU-26",
+    "HU-27"
+  ],
+  "change": "Only Historia de Usuario text in four cells",
+  "table_format": "unchanged",
+  "functional_requirements": "unchanged",
+  "source": "Propuesta de la docente",
+  "native_pagination_verified": false,
+  "output_sha256": "e12bfb31d7cb52b68548753b0d02fffebb4ff14d048a350240924303d7263dc1"
+}

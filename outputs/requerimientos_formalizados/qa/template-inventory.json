@@ -1,0 +1,47 @@
+{
+  "word/numbering.xml": {
+    "size": 1690,
+    "sha256": "d2a3e08465525eee874ea10d780540816951a37b115e90f1cd56aefdd76adc2e",
+    "policy": "preserve-only"
+  },
+  "word/settings.xml": {
+    "size": 2152,
+    "sha256": "26f2853fde05b88d4b0a9da0bb016d56a896901f60c9272dddf33c3f3fa61e4a",
+    "policy": "preserve-only"
+  },
+  "word/fontTable.xml": {
+    "size": 1769,
+    "sha256": "46a5b1aee33a84dc9da0384be9195c13aa1b1fe3d0d15a635733aea63aaf897c",
+    "policy": "preserve-only"
+  },
+  "word/styles.xml": {
+    "size": 6091,
+    "sha256": "b20bf7339fa3a3f99a58dd5cb7797a170c2f11c604414dd863fc230ab5dd42b1",
+    "policy": "preserve-only"
+  },
+  "word/document.xml": {
+    "size": 22211,
+    "sha256": "f4b5f38569c9acf62d516cfc1599df98d9d41451752f4325c3ce7ae5b30b75e4",
+    "policy": "editable"
+  },
+  "word/_rels/document.xml.rels": {
+    "size": 812,
+    "sha256": "2f88ba313d7d77c73d3737c12338686a29f13f029e69a783e026da83a7dd891c",
+    "policy": "preserve-only"
+  },
+  "_rels/.rels": {
+    "size": 298,
+    "sha256": "1cc87395d4a229f21c23af406724de12dd9454071925f983e4b648a7b2be8cc5",
+    "policy": "preserve-only"
+  },
+  "word/theme/theme1.xml": {
+    "size": 7643,
+    "sha256": "b2295d3198893d2c03f5e584c749a15751b798aefdcd9bee2889f13903d68cb2",
+    "policy": "preserve-only"
+  },
+  "[Content_Types].xml": {
+    "size": 1172,
+    "sha256": "70100a2bc0a6ff5fcce135d1b8ab0d9f108c4cdd39ead3ce88eda6ca2b6d7581",
+    "policy": "preserve-only"
+  }
+}

@@ -1,0 +1,181 @@
+---
+const features = [
+  {
+    id: 'ejercicios', title: 'Ejercicios', number: '01', eyebrow: 'APRENDE HACIENDO',
+    summary: 'De una función a un proyecto completo.',
+    description: 'Pon tus ideas en práctica. Empieza con un reto de lógica o explora un proyecto con archivos, errores por resolver y una solución por construir.',
+    details: [
+      ['Retos a tu medida', 'Ejercicios clásicos por tema y dificultad para reforzar tus fundamentos.'],
+      ['Problemas con contexto', 'Proyectos para comprender el código y resolver situaciones concretas.'],
+      ['Código y resultados', 'Un editor para escribir Python, ejecutar tu solución y comprobarla con pruebas.'],
+    ],
+    path: 'm8 7-5 5 5 5m8-10 5 5-5 5m-2-13-4 16',
+  },
+  {
+    id: 'pybot', title: 'Asistente PyBot', number: '02', eyebrow: 'UNA AYUDA PARA SEGUIR',
+    summary: 'Una duda puede ser el siguiente paso.',
+    description: 'Cuando algo no está claro, conversa con PyBot. Consulta tus dudas de Python y encuentra orientación para seguir trabajando en tu solución.',
+    details: [
+      ['Aclara conceptos', 'Pregunta sobre sintaxis, estructuras de datos y fundamentos de Python.'],
+      ['Revisa tu razonamiento', 'Explica qué estás intentando y pide ayuda para entender el problema.'],
+      ['Continúa practicando', 'Consulta al asistente desde el botón de PyBot mientras recorres la plataforma.'],
+    ],
+    path: 'M8 4h4v4m-7 0h14v12H5Zm-3 5h3m14 0h3M9 12v2m6-2v2m-6 3h6',
+  },
+  {
+    id: 'examenes', title: 'Exámenes', number: '03', eyebrow: 'PON A PRUEBA LO APRENDIDO',
+    summary: 'Dale a tus conocimientos un nuevo reto.',
+    description: 'Pasa de la práctica a la evaluación. Resuelve las actividades de un examen de Python y consulta tus intentos desde tu cuenta.',
+    details: [
+      ['Un espacio de evaluación', 'Actividades para poner en práctica lo que sabes de Python.'],
+      ['Tus intentos registrados', 'Conserva el seguimiento de tus sesiones de examen en tu cuenta.'],
+      ['Práctica con un propósito', 'Vuelve a los ejercicios para reforzar los temas que quieras trabajar.'],
+    ],
+    path: 'M8 4H4v17h16V4h-4M8 3h8v4H8Zm0 11 3 3 5-6',
+  },
+  {
+    id: 'progreso', title: 'Progreso', number: '04', eyebrow: 'CADA INTENTO CUENTA',
+    summary: 'Entiende tu recorrido y decide cómo seguir.',
+    description: 'Reúne tu actividad en un mismo lugar. Consulta lo que has practicado y encuentra un siguiente paso a partir de tus resultados.',
+    details: [
+      ['Tu actividad, a la vista', 'Revisa tus ejecuciones, pruebas y días de práctica.'],
+      ['Ejercicios y avances', 'Distingue los ejercicios superados de los que sigues trabajando.'],
+      ['Un siguiente paso', 'Consulta recomendaciones basadas en tu actividad para continuar practicando.'],
+    ],
+    path: 'M4 3v17h17M8 16v-4m5 4V8m5 8V5',
+  },
+];
+---
+
+<section id="que-es-pylevel" class="about-pylevel" aria-labelledby="about-title">
+  <div class="about-container">
+    <div class="feature-journey" id="pylevel-journey" role="region" aria-label="Herramientas de PyLevel">
+      <div class="journey-snap-points" aria-hidden="true">{features.map((_, index) => <span style={`--page-step: ${index}`}></span>)}</div>
+      <div class="journey-stage">
+        <header class="about-intro">
+          <div class="about-heading"><p class="about-eyebrow"><span>01 /</span> CONOCE LA PLATAFORMA</p><h2 id="about-title">¿Qué es <span>PyLevel?</span></h2></div>
+          <div class="about-intro-copy"><p class="about-lead">Un espacio para aprender haciendo.</p><p class="about-description">PyLevel es una plataforma de práctica y evaluación de Python. Resuelve ejercicios, recibe orientación y aprende de tus resultados para dar el siguiente paso.</p></div>
+        </header>
+        <div class="journey-content">
+        <nav class="journey-nav" aria-label="Elegir herramienta de PyLevel" hidden>
+          <p class="tools-caption">CUATRO FORMAS DE AVANZAR</p>
+          <div class="journey-options">{features.map(feature => <button type="button" class="journey-option" data-feature-target={feature.id} aria-label={feature.title} aria-controls={`feature-${feature.id}`} aria-expanded="false">
+            <span class="option-number" aria-hidden="true">{feature.number}</span>
+            <span class="option-copy"><span class="option-title">{feature.title}</span><span class="option-description" aria-hidden="true"><span>{feature.summary}</span></span></span>
+            <span class="option-arrow" aria-hidden="true">↗</span>
+            <span class="option-progress" aria-hidden="true"></span>
+          </button>)}</div>
+        </nav>
+
+        <div class="feature-panels">{features.map(feature => <article class="feature-panel" id={`feature-${feature.id}`} data-feature={feature.id} aria-labelledby={`feature-title-${feature.id}`} data-reveal>
+          <div class="panel-topline"><span class="feature-icon" aria-hidden="true"><svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d={feature.path} /></svg></span><span class="panel-number" aria-hidden="true">{feature.number} / 04</span></div>
+          <p class="panel-eyebrow">{feature.eyebrow}</p>
+          <h3 id={`feature-title-${feature.id}`}>{feature.title}</h3>
+          <p class="panel-description">{feature.description}</p>
+          <dl class="feature-details">{feature.details.map(([title, description]) => <div><dt>{title}</dt><dd>{description}</dd></div>)}</dl>
+        </article>)}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { initFeatureJourney } from './feature-journey';
+  initFeatureJourney();
+</script>
+
+<style>
+  .about-pylevel { min-height: calc(100svh - var(--nav-height, 68px)); border-top: 1px solid var(--color-border); background: var(--color-surface); scroll-margin-top: 0; scroll-snap-align: start; }
+  .about-container { width: min(1200px, calc(100% - 80px)); margin-inline: auto; }
+  .journey-stage { padding-block: 48px; }
+  .about-intro { display: grid; grid-template-columns: .9fr 1.1fr; gap: 64px; align-items: center; margin-bottom: 36px; }
+  .about-eyebrow { display: flex; align-items: center; gap: 13px; margin: 0 0 16px; color: var(--color-text-secondary); font: 600 10px var(--font-mono); letter-spacing: 1.4px; }
+  .about-eyebrow > span { color: var(--home-blue); letter-spacing: .5px; }
+  .about-intro h2 { margin: 0; color: var(--color-text-primary); font-size: clamp(30px, 3.1vw, 42px); font-weight: 600; line-height: 1.13; letter-spacing: -1.6px; text-wrap: balance; }
+  .about-intro h2 > span { color: var(--home-blue); }
+  .about-lead { margin: 0 0 8px; color: var(--color-text-primary); font-size: 15px; font-weight: 550; line-height: 1.6; }
+  .about-description { margin: 0; color: var(--color-text-secondary); font-size: 13px; line-height: 1.8; }
+  .feature-journey { --story-height: calc(100svh - var(--nav-height, 68px)); --story-top: var(--nav-height, 68px); position: relative; }
+  .journey-snap-points { display: none; }
+  .feature-journey:not(.is-scroll-story) .about-intro { position: sticky; top: var(--nav-height, 68px); z-index: 2; padding-block: 20px; background: var(--color-surface); }
+  .journey-nav[hidden] { display: none; }
+  .feature-panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .feature-panel { min-width: 0; display: flex; flex-direction: column; padding: 32px; border: 1px solid var(--color-border); border-radius: 14px; background: var(--color-bg); }
+  .panel-topline { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+  .feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid color-mix(in srgb, var(--home-blue) 15%, var(--color-border)); border-radius: 12px; background: color-mix(in srgb, var(--home-blue) 7%, var(--color-surface)); color: var(--home-blue); }
+  .panel-number { color: var(--color-text-secondary); font: 10px var(--font-mono); letter-spacing: 1px; }
+  .panel-eyebrow { margin: 28px 0 12px; color: var(--home-blue); font: 600 9px var(--font-mono); letter-spacing: 1.5px; }
+  .feature-panel h3 { margin: 0; color: var(--color-text-primary); font-size: clamp(28px, 3vw, 38px); font-weight: 600; letter-spacing: -1.2px; line-height: 1.15; }
+  .panel-description { max-width: 540px; margin: 18px 0 24px; color: var(--color-text-secondary); font-size: 14px; line-height: 1.8; }
+  .feature-details { display: grid; gap: 15px; margin: 0 0 26px; }
+  .feature-details > div { border-left: 2px solid color-mix(in srgb, var(--home-blue) 25%, var(--color-border)); padding-left: 15px; }
+  .feature-details dt { margin-bottom: 4px; color: var(--color-text-primary); font-size: 13px; font-weight: 600; line-height: 1.45; }
+  .feature-details dd { margin: 0; color: var(--color-text-secondary); font-size: 12px; line-height: 1.7; }
+  .journey-option:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 5px; }
+  .is-scroll-story { height: calc(var(--story-height) * 4); }
+  .is-scroll-story .journey-stage { position: sticky; top: var(--story-top); display: grid; grid-template-rows: auto minmax(0, 1fr); gap: clamp(20px, 3svh, 32px); height: var(--story-height); padding-block: clamp(20px, 3svh, 32px); }
+  .is-scroll-story .about-intro { margin-bottom: 0; }
+  .is-scroll-story .journey-content { display: grid; grid-template-columns: .7fr 1.3fr; gap: clamp(44px, 6vw, 88px); align-items: center; min-height: 0; }
+  .is-scroll-story .journey-snap-points { display: block; position: absolute; inset: 0; pointer-events: none; }
+  .journey-snap-points > span { position: absolute; top: calc(var(--page-step) * var(--story-height)); inset-inline: 0; height: 1px; scroll-snap-align: start; }
+  .tools-caption { margin: 0 0 25px; color: var(--color-text-secondary); font: 500 9px var(--font-mono); letter-spacing: 1.3px; }
+  .journey-options { border-top: 1px solid var(--color-border); }
+  .journey-option { position: relative; display: flex; align-items: baseline; gap: 15px; width: 100%; padding: 22px 2px; border: 0; border-bottom: 1px solid var(--color-border); background: transparent; color: var(--color-text-secondary); text-align: left; cursor: pointer; }
+  .option-number { padding-top: 4px; font: 10px var(--font-mono); color: var(--color-text-secondary); }
+  .option-copy { flex: 1; min-width: 0; }
+  .option-title { display: block; font: 500 20px var(--font-sans); letter-spacing: -.4px; line-height: 1.35; transition: color .25s ease; }
+  .option-description { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .35s ease, opacity .35s ease; }
+  .option-description > span { min-height: 0; overflow: hidden; color: var(--color-text-secondary); font: 12px/1.8 var(--font-sans); }
+  .option-arrow { color: var(--home-blue); font: 20px var(--font-sans); opacity: 0; transition: opacity .25s ease; }
+  .option-progress { position: absolute; bottom: -1px; inset-inline: 0; height: 2px; background: var(--home-blue); transform: scaleX(0); transform-origin: left; }
+  .journey-option:hover .option-title { color: var(--home-blue); }
+  .journey-option[aria-expanded='true'] .option-title { color: var(--color-text-primary); font-weight: 600; }
+  .journey-option[aria-expanded='true'] .option-number { color: var(--home-blue); }
+  .journey-option[aria-expanded='true'] .option-description { grid-template-rows: 1fr; opacity: 1; margin-top: 9px; }
+  .journey-option[aria-expanded='true'] .option-arrow { opacity: 1; }
+  .journey-option[aria-expanded='true'] .option-progress { transform: scaleX(var(--step-progress, 0)); }
+  .is-scroll-story .feature-panels { position: relative; display: block; height: 100%; min-width: 0; }
+  .is-scroll-story .feature-panel { position: absolute; inset: 0; padding: 28px 32px; visibility: hidden; opacity: 0; transform: translateY(32px) scale(.98); transition: opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1), visibility .4s; }
+  .is-scroll-story .feature-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .is-scroll-story .panel-eyebrow { margin-top: 20px; }
+  .is-scroll-story .feature-panel h3 { font-size: 34px; }
+  .is-scroll-story .panel-description { margin-block: 15px 20px; font-size: 13px; }
+  .is-scroll-story .feature-details { margin-bottom: 0; }
+  .is-scroll-story .feature-panel.is-current { visibility: visible; opacity: 1; transform: none; }
+  :global(.home-motion) .feature-journey:not(.is-scroll-story) .feature-panel[data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+  :global(.home-motion) .feature-journey:not(.is-scroll-story) .feature-panel[data-reveal].is-visible { opacity: 1; transform: none; }
+  @media (max-width: 1050px) {
+    .about-container { width: calc(100% - 64px); }
+    .about-intro { gap: 40px; }
+    .is-scroll-story .journey-content { grid-template-columns: .75fr 1.25fr; gap: 36px; }
+    .is-scroll-story .feature-panel { padding: 26px; }
+    .option-title { font-size: 18px; }
+  }
+  @media (max-width: 760px) {
+    .about-container { width: calc(100% - 40px); }
+    .journey-stage { padding-block: 0 36px; }
+    .feature-journey:not(.is-scroll-story) .about-intro { display: contents; }
+    .about-heading { position: sticky; top: var(--nav-height, 68px); z-index: 2; margin-inline: -20px; padding: 18px 20px; border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+    .about-intro-copy { padding-block: 24px 32px; }
+    .about-intro h2 { font-size: 30px; }
+    .about-eyebrow { font-size: 8px; letter-spacing: 1px; margin-bottom: 10px; }
+    .about-description { font-size: 13px; }
+    .feature-panels { grid-template-columns: 1fr; gap: 20px; }
+    .feature-panel { padding: 25px; min-height: calc(100svh - var(--nav-height, 68px) - 100px); }
+    .feature-panel h3 { font-size: 30px; }
+    .panel-description { font-size: 13px; }
+  }
+  @media (max-height: 800px) and (min-width: 761px) {
+    .is-scroll-story .feature-panel { padding: 20px 24px; }
+    .is-scroll-story .feature-icon { width: 32px; height: 32px; border-radius: 8px; }
+    .is-scroll-story .panel-eyebrow { margin-block: 14px 10px; }
+    .is-scroll-story .feature-panel h3 { font-size: 28px; }
+    .is-scroll-story .panel-description { margin-block: 12px 16px; font-size: 13px; line-height: 1.7; }
+    .is-scroll-story .feature-details { gap: 9px; }
+    .is-scroll-story .feature-details dt { margin-bottom: 2px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.home-motion) [data-reveal] { transition: none; transform: none; opacity: 1; }
+  }
+</style>
