@@ -1,0 +1,59 @@
+---
+import type { AdminExercise } from './types';
+interface Props { exercise?: AdminExercise }
+const {exercise}=Astro.props;
+const ex=exercise ?? {id:'',title:'',description:'',difficulty:'Fácil',topics:[],mode:'classic',is_active:false};
+const isClassic=ex.mode==='classic';
+const diffClass=ex.difficulty==='Fácil'?'diff-easy':ex.difficulty==='Medio'?'diff-medium':'diff-hard';
+---
+                <tr class="exercise-row" data-id={ex.id} data-mode={ex.mode} data-status={ex.is_active ? 'active' : 'inactive'} data-title={ex.title.toLowerCase()} data-topics={ex.topics.join(' ').toLowerCase()}>
+                  <td class="col-title">
+                    <div class="ex-title-wrap">
+                      <strong class="ex-title-text">{ex.title}</strong>
+                      <span class="ex-id-code">ID: {ex.id}</span>
+                      <p class="ex-desc-excerpt">{ex.description}</p>
+                    </div>
+                  </td>
+                  <td class="col-mode">
+                    <span class={`badge-mode ${isClassic ? 'badge-classic' : 'badge-contextual'}`}>
+                      {isClassic ? 'Clásico' : 'Proyecto'}
+                    </span>
+                  </td>
+                  <td class="col-diff">
+                    <span class={`pill-diff ${diffClass}`}>{ex.difficulty}</span>
+                  </td>
+                  <td class="col-topics">
+                    <div class="topics-wrap">
+                      {ex.topics.map(t => (
+                        <span class="topic-chip">#{t}</span>
+                      ))}
+                    </div>
+                  </td>
+                  <td class="col-status">
+                    <button
+                      type="button"
+                      class={`btn-toggle-status ${ex.is_active ? 'status-active' : 'status-inactive'}`}
+                      data-id={ex.id}
+                      title={ex.is_active ? 'Clic para desactivar' : 'Clic para activar'}
+                    >
+                      <span class="status-indicator"></span>
+                      <span class="status-text">{ex.is_active ? 'Activo' : 'Desactivado'}</span>
+                    </button>
+                  </td>
+                  <td class="col-actions text-right">
+                    <div class="actions-group">
+                      <button type="button" class="btn-action btn-view" data-id={ex.id} title="Vista previa del ejercicio">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                        <span>Ver</span>
+                      </button>
+                      <button type="button" class="btn-action btn-edit" data-id={ex.id} title="Editar contenido y pruebas">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        <span>Editar</span>
+                      </button>
+                      <button type="button" class="btn-action btn-delete" data-id={ex.id} data-title={ex.title} title="Eliminar ejercicio">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <span>Borrar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>

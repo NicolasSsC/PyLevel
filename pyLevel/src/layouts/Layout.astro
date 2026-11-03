@@ -7,12 +7,14 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   hideNavbar?: boolean;
+  hidePyBot?: boolean;
   description?: string;
 }
 
 const {
   title = 'Ejercicios · PyLevel',
   hideNavbar = false,
+  hidePyBot = false,
   description = 'Explora proyectos Python, corrige errores y comprueba tus soluciones con pruebas.',
 } = Astro.props;
 ---
@@ -46,7 +48,7 @@ const {
 	<body>
 		{!hideNavbar && <Navbar />}
 		<slot />
-		<PyBotWidget />
+		{!hidePyBot && <PyBotWidget />}
 	</body>
 </html>
 

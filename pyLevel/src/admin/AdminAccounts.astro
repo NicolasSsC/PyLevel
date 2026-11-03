@@ -1,0 +1,11 @@
+---
+import type { AdminAccount } from './types';
+interface Props { admins: AdminAccount[]; actorId: string }
+const {admins,actorId}=Astro.props;
+const date=(value: string)=>new Intl.DateTimeFormat('es-CO',{dateStyle:'medium',timeZone:'America/Bogota'}).format(new Date(value));
+---
+<div class="account-table-wrap" tabindex="0" role="region" aria-label="Administradores habilitados">
+  <table class="account-table"><thead><tr><th>NOMBRE</th><th>CORREO ELECTRÓNICO</th><th>REGISTRO</th><th>ESTADO</th><th>ACCESO</th></tr></thead><tbody id="admins-table-rows">
+    {admins.map(admin=><tr><td><strong>{admin.displayName}</strong></td><td><code>{admin.email}</code></td><td>{date(admin.createdAt)}</td><td><span class="account-status green">Habilitado</span></td><td><button type="button" class="account-button secondary" data-revoke={admin.id} disabled={admin.id===actorId}>{admin.id===actorId?'Tu cuenta':'Retirar acceso'}</button></td></tr>)}
+  </tbody></table>
+</div>

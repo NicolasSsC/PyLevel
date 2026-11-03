@@ -1,0 +1,30 @@
+---
+export const prerender = false;
+import AdminShell from '../../admin/AdminShell.astro';
+import AdminAccounts from '../../admin/AdminAccounts.astro';
+import { scriptData } from '../../admin/script-data';
+import { getDbPool } from '../../lib/db';
+import { accessStore } from '../../admin/access-store';
+const admins=await accessStore(getDbPool()).list();
+const user=Astro.locals.adminUser!;
+---
+<AdminShell active="accesos" title="Administración de Accesos" description="Gestión de cuentas y habilitación de administradores en PyLevel.">
+  <div class="admin-view-wrap">
+    <section class="account-card" aria-labelledby="add-admin-title">
+      <span class="account-label">CONTROL DE ACCESOS</span><h2 id="add-admin-title">Habilitar Nuevo Administrador</h2>
+      <p class="account-muted">Introduce el correo de una cuenta activa que ya esté registrada. Su nombre y contraseña se conservan.</p>
+      <form id="add-admin-form" class="add-admin-form">
+        <div class="form-group"><label for="admin-email">Correo de la cuenta existente</label><input type="email" id="admin-email" name="email" class="admin-input" autocomplete="off" maxlength="254" required /></div>
+        <div class="admin-form-actions"><button type="submit" id="btn-submit-admin" class="account-button primary">Habilitar administrador →</button><span id="add-admin-feedback" class="admin-feedback" role="status" aria-live="polite"></span></div>
+      </form>
+    </section>
+    <section class="account-card" aria-labelledby="admins-table-title">
+      <div class="section-top"><div><h2 id="admins-table-title">Administradores Habilitados</h2><p class="account-muted">Cuentas con acceso para gestionar ejercicios, revisar métricas y administrar permisos.</p></div><span class="section-count" id="admin-count-pill">{admins.length} administradores</span></div>
+      <AdminAccounts admins={admins} actorId={user.id} />
+    </section>
+    <aside class="account-card admin-session-card"><div><span class="account-label">SESIÓN ACTIVA</span><h3>{user.displayName}</h3><p class="account-muted">{user.email} · Administrador</p></div><a class="account-button secondary" href="/admin/metricas/">Ver métricas de estudiantes →</a></aside>
+  </div>
+  <dialog id="revoke-admin-modal" class="admin-modal confirm-modal" aria-labelledby="revoke-admin-title"><div class="modal-content"><h3 id="revoke-admin-title">¿Retirar el acceso administrativo?</h3><p>La cuenta conservará sus datos y podrá continuar como estudiante.</p><div class="confirm-actions"><button id="revoke-admin-cancel" type="button" class="btn-secondary">Cancelar</button><button id="revoke-admin-confirm" type="button" class="btn-danger">Retirar acceso</button></div></div></dialog>
+  <script id="admin-access-data" type="application/json" set:html={scriptData({admins,actorId:user.id})} />
+</AdminShell>
+<script>import '../../admin/accounts-client';</script>

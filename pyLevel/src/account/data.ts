@@ -1,13 +1,15 @@
-import { catalogs, modePaths } from '../core/catalog';
+import { modePaths } from '../core/catalog';
+import { exerciseStore } from '../admin/exercise-store';
 import { exam } from '../exam/definition';
 import { getDbPool } from '../lib/db';
 import { activityStore, type Mode } from './activity';
 import { buildProgress, type CatalogEntry } from './progress';
 
-export const progressCatalog: CatalogEntry[] = (['classic', 'contextual'] as Mode[]).flatMap(mode => catalogs[mode].map(e => ({
-  id: e.id, title: e.title, difficulty: e.difficulty, topics: e.topics, mode, href: `/ejercicios/${modePaths[mode]}/${e.id}/`,
-})));
-export async function loadProgress(userId: string) { return buildProgress(await activityStore(getDbPool()).read(userId), progressCatalog); }
+export async function loadProgress(userId: string) {
+  const catalog=await exerciseStore(getDbPool()).list({includeArchived:true});
+  const progressCatalog: CatalogEntry[]=catalog.map(e=>({id:e.id,title:e.title,difficulty:e.difficulty,topics:e.topics,mode:e.mode,href:`/ejercicios/${modePaths[e.mode]}/${e.id}/`}));
+  return buildProgress(await activityStore(getDbPool()).read(userId),progressCatalog);
+}
 export async function loadExamHistory(userId: string) {
   const db = getDbPool();
   await db.query(`UPDATE exam_attempts SET status = 'expired', submitted_at = expires_at

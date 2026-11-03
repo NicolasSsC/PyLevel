@@ -52,6 +52,7 @@ export interface UserProfile {
   occupation: string | null;
   birthday: string | null;
   isActive: boolean;
+  role: 'admin' | 'user';
   createdAt: string;
 }
 
@@ -123,6 +124,7 @@ export async function registerUser(params: {
       occupation: null,
       birthday: null,
       isActive: createdUser.is_active,
+      role: 'user',
       createdAt: createdUser.created_at.toISOString(),
     };
   } catch (err) {
@@ -149,7 +151,7 @@ export async function loginUser(params: {
   const db = getDbPool();
 
   const res = await db.query(
-    `SELECT u.id, u.email, u.password_hash, u.is_active, u.created_at,
+    `SELECT u.id, u.email, u.password_hash, u.is_active, u.created_at, COALESCE(to_jsonb(u)->>'role','user') AS role,
             p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
@@ -181,6 +183,7 @@ export async function loginUser(params: {
     occupation: row.occupation,
     birthday: row.birthday,
     isActive: row.is_active,
+    role: row.role === 'admin' ? 'admin' : 'user',
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };
 }
@@ -191,7 +194,7 @@ export async function loginUser(params: {
 export async function getUserById(userId: string): Promise<UserProfile | null> {
   const db = getDbPool();
   const res = await db.query(
-    `SELECT u.id, u.email, u.is_active, u.created_at,
+    `SELECT u.id, u.email, u.is_active, u.created_at, COALESCE(to_jsonb(u)->>'role','user') AS role,
             p.display_name, p.avatar_url, p.bio, p.occupation, to_char(p.birthday, 'YYYY-MM-DD') AS birthday
      FROM users u
      LEFT JOIN profiles p ON u.id = p.user_id
@@ -210,6 +213,7 @@ export async function getUserById(userId: string): Promise<UserProfile | null> {
     occupation: row.occupation,
     birthday: row.birthday,
     isActive: row.is_active,
+    role: row.role === 'admin' ? 'admin' : 'user',
     createdAt: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
   };
 }

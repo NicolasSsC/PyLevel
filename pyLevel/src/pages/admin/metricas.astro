@@ -1,0 +1,245 @@
+---
+export const prerender = false;
+import AdminShell from '../../admin/AdminShell.astro';
+import { getDbPool } from '../../lib/db';
+import { exerciseStore } from '../../admin/exercise-store';
+import { loadAdminAnalytics } from '../../admin/analytics-store';
+const initial = await exerciseStore(getDbPool()).list({includeArchived:true});
+const adminAnalytics = await loadAdminAnalytics(getDbPool(), initial);
+const maxAdminDay = Math.max(1, ...adminAnalytics.days.map(d => d.attempts));
+const date = (value: string) => new Intl.DateTimeFormat('es-CO', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Bogota' }).format(new Date(value));
+const resultLabels: Record<string, string> = { passed: 'Superado', failed: 'Por revisar', technical_error: 'Error técnico', cancelled: 'Cancelado' };
+---
+<AdminShell active="metricas" title="Analítica y Métricas de Estudiantes" description="Actividad del grupo, rendimiento por ejercicio y alertas académicas en un solo lugar.">
+  <a slot="actions" class="btn-outline-manual" href="/progreso/">Mi práctica personal →</a>
+        <div id="analytics-view" class="analytics-container">
+          <!-- KPIs Globales -->
+          <section class="metric-cards" aria-label="Métricas globales del curso">
+            <article class="account-card metric-card">
+              <span>Estudiantes Registrados</span>
+              <strong id="metric-students">{adminAnalytics.totalStudents}</strong>
+              <small>Alumnos con cuenta en PyLevel</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Intentos de Práctica</span>
+              <strong id="metric-attempts">{adminAnalytics.totalAttempts}</strong>
+              <small>{adminAnalytics.totalTests} pruebas · {adminAnalytics.totalAttempts - adminAnalytics.totalTests} ejecuciones</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Tasa de Aprobación Global</span>
+              <strong id="metric-pass-rate">{adminAnalytics.globalPassRate}%</strong>
+              <small>{adminAnalytics.totalPassed} pruebas superadas</small>
+            </article>
+            <article class="account-card metric-card">
+              <span>Ejercicios Activos</span>
+              <strong id="metric-active">{adminAnalytics.activeExercises}</strong>
+              <small>Retos visibles para los alumnos</small>
+            </article>
+          </section>
+
+          <!-- Alertas Tempranas Académicas -->
+          <section class="account-card account-section" style="margin-bottom: 24px;">
+            <div class="section-top">
+              <div>
+                <span class="account-label">ALERTAS ACADÉMICAS TEMPRANAS</span>
+                <h2 style="font-size: 18px; margin: 6px 0 4px;">Diagnóstico del Catálogo de Ejercicios</h2>
+                <p class="account-muted">Detección automática de retos con baja tasa de éxito o retos sin interacción.</p>
+              </div>
+            </div>
+
+            <div id="metrics-alerts" class="alerts-grid">
+              {adminAnalytics.unattempted.length > 0 ? (
+                <div class="alert-box alert-amber">
+                  <div class="alert-title" id="unattempted-title">Retos sin interacción aún ({adminAnalytics.unattempted.length})</div>
+                  <p class="alert-text">
+                    Hay <span id="unattempted-count">{adminAnalytics.unattempted.length}</span> ejercicios en el catálogo que los estudiantes aún no han ejecutado.
+                  </p>
+                  <div id="unattempted-chips" class="alert-chips">
+                    {adminAnalytics.unattempted.slice(0, 4).map(e => (
+                      <a href={`/admin/?exercise=${encodeURIComponent(e.id)}`} class="alert-chip-link">{e.title}</a>
+                    ))}
+                    {adminAnalytics.unattempted.length > 4 && <span class="alert-chip-more">+{adminAnalytics.unattempted.length - 4} más</span>}
+                  </div>
+                </div>
+              ) : (
+                <div class="alert-box alert-green">
+                  <div class="alert-title">Catálogo con cobertura completa</div>
+                  <p class="alert-text">Todos los retos del catálogo tienen al menos un intento registrado por estudiantes.</p>
+                </div>
+              )}
+
+              <div class="alert-box alert-blue">
+                <div class="alert-title">Gestión del catálogo</div>
+                <p class="alert-text">
+                  Administra el contenido y las pruebas de los ejercicios. Los cambios guardados se reflejan en el catálogo de estudiantes.
+                </p>
+                <a href="/admin/" class="account-button secondary" style="font-size: 12px; margin-top: 8px;">Ir al Panel de Ejercicios →</a>
+              </div>
+            </div>
+          </section>
+
+          <!-- Columnas de Rendimiento y Ritmo Global -->
+          <div class="metric-columns">
+            <!-- Columna 1: Retos con Mayor Dificultad -->
+            <section class="account-card" aria-labelledby="hard-exercises-title">
+              <span class="account-label">ANÁLISIS DE DIFICULTAD</span>
+              <h2 id="hard-exercises-title" style="margin-top:12px">Retos con Menor Tasa de Éxito</h2>
+              <p class="account-muted">Ejercicios donde los estudiantes cometen más errores en las pruebas unitarias.</p>
+
+              {adminAnalytics.mostDifficult.length > 0 ? (
+                <div id="difficult-exercises" class="topic-list" style="margin-top: 16px;">
+                  {adminAnalytics.mostDifficult.map(ex => (
+                    <div class="topic-row">
+                      <div>
+                        <span>{ex.title}</span>
+                        <small>{ex.passed} de {ex.passed + ex.failed} pruebas evaluadas superadas ({ex.passRate ?? 0}%)</small>
+                      </div>
+                      <div class="account-progress" aria-hidden="true">
+                        <span style={`width:${ex.passRate ?? 0}%; background: ${(ex.passRate ?? 0) < 50 ? '#F43F5E' : '#38BDF8'}`}></span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p class="account-muted" style="padding: 24px 0; text-align: center;">
+                  Aún no hay suficientes intentos para calcular los retos más complejos. A medida que los alumnos practiquen, verás el ranking aquí.
+                </p>
+              )}
+            </section>
+
+            <!-- Columna 2: Ritmo de Actividad Global -->
+            <section class="account-card" aria-labelledby="global-activity-title">
+              <span class="account-label">ACTIVIDAD GLOBAL · 7 DÍAS</span>
+              <h2 id="global-activity-title" style="margin-top:12px">Ritmo de Práctica del Grupo</h2>
+              <p class="account-muted">Total de ejecuciones y pruebas realizadas por todos los estudiantes.</p>
+
+              <div id="activity-chart" class="activity-chart" role="img" aria-label={adminAnalytics.days.map(day => `${day.label}: ${day.attempts} intentos`).join(', ')}>
+                {adminAnalytics.days.map(day => (
+                  <div class="activity-day" aria-hidden="true">
+                    <div class="activity-bar">
+                      <small>{day.attempts}</small>
+                      <span style={`height:${day.attempts / maxAdminDay * 100}%; background: #38BDF8;`}></span>
+                    </div>
+                    <span>{day.label}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div class="profile-session">
+                <h3>Resumen semanal de participación</h3>
+                <p class="account-muted">
+                  Los picos de actividad suelen correlacionarse con fechas de talleres o entregas de proyectos.
+                </p>
+                <a class="account-button secondary" href="/admin/manual/">Consultar guía de admin →</a>
+              </div>
+            </section>
+          </div>
+
+          <!-- Tabla Completa de Ejercicios y Rendimiento Estudiantil -->
+          <section class="account-card account-section" style="margin-top: 24px;">
+            <div class="section-top">
+              <div>
+                <span class="account-label">CATÁLOGO COMPLETO</span>
+                <h2>Rendimiento por Ejercicio</h2>
+                <p class="account-muted">Métricas detalladas de intentos, alumnos únicos y porcentaje de éxito por reto.</p>
+              </div>
+              <span id="metrics-exercise-count" class="section-count">{adminAnalytics.exercises.length} ejercicios</span>
+            </div>
+
+            <div class="account-table-wrap">
+              <table class="account-table">
+                <thead>
+                  <tr>
+                    <th>EJERCICIO</th>
+                    <th>MODALIDAD</th>
+                    <th>DIFICULTAD</th>
+                    <th>ALUMNOS</th>
+                    <th>INTENTOS</th>
+                    <th>TASA DE ÉXITO</th>
+                    <th>ACCIÓN</th>
+                  </tr>
+                </thead>
+                <tbody id="metrics-exercises-body">
+                  {adminAnalytics.exercises.map(ex => (
+                    <tr>
+                      <td>
+                        <strong>{ex.title}</strong>
+                        <small>ID: {ex.id}</small>
+                      </td>
+                      <td>
+                        <span class="account-status muted">{ex.mode === 'classic' ? 'Clásico' : 'Proyecto'}</span>
+                      </td>
+                      <td>
+                        <span class="account-status muted">{ex.difficulty}</span>
+                      </td>
+                      <td>{ex.uniqueStudents} alumnos</td>
+                      <td>{ex.attempts} intentos · {ex.tests} pruebas</td>
+                      <td>
+                        {ex.passRate !== null ? (
+                          <span class:list={['account-status', ex.passRate >= 70 ? 'green' : ex.passRate >= 40 ? 'gold' : 'muted']}>
+                            {ex.passRate}%
+                          </span>
+                        ) : (
+                          <span class="account-status muted">Sin pruebas evaluadas</span>
+                        )}
+                      </td>
+                      <td>
+                        <a href={`/admin/?exercise=${encodeURIComponent(ex.id)}`} class="account-button secondary" style="font-size: 11px; padding: 4px 8px;">Gestionar →</a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- Actividad Reciente de Estudiantes -->
+          {adminAnalytics.recentActivity.length > 0 && (
+            <section class="account-card account-section" style="margin-top: 24px;">
+              <div class="section-top">
+                <div>
+                  <span class="account-label">ACTIVIDAD DEL CURSO</span>
+                  <h2>Últimos Intentos de Estudiantes</h2>
+                  <p class="account-muted">Últimas ejecuciones y pruebas registradas por estudiantes.</p>
+                </div>
+              </div>
+
+              <div class="account-table-wrap">
+                <table class="account-table">
+                  <thead>
+                    <tr>
+                      <th>ESTUDIANTE</th>
+                      <th>EJERCICIO</th>
+                      <th>ACCIÓN</th>
+                      <th>RESULTADO</th>
+                      <th>FECHA</th>
+                    </tr>
+                  </thead>
+                  <tbody id="metrics-recent-body">
+                    {adminAnalytics.recentActivity.map(act => (
+                      <tr>
+                        <td>
+                          <strong>{act.studentName}</strong>
+                          <small>{act.studentEmail}</small>
+                        </td>
+                        <td>
+                          <strong>{act.title}</strong>
+                          <small>{act.mode === 'classic' ? 'Clásico' : 'Proyecto'}</small>
+                        </td>
+                        <td>{act.kind === 'test' ? 'Prueba unitaria' : 'Ejecución libre'}</td>
+                        <td>
+                          <span class:list={['account-status', act.result === 'passed' ? 'green' : act.result === 'failed' ? 'gold' : 'muted']}>
+                            {act.kind === 'run' && act.result === 'passed' ? 'Ejecutado' : act.result === 'passed' ? 'Superado' : resultLabels[act.result || ''] || act.result}
+                          </span>
+                        </td>
+                        <td>{date(act.createdAt)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          )}
+        </div>
+  <p class="account-footnote">La tasa de aprobación considera solo pruebas con resultado aprobado o fallido. Las aperturas, pistas, errores técnicos y actividad de administradores no reducen ese porcentaje.</p>
+</AdminShell>

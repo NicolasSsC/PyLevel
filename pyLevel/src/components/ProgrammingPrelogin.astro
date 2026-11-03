@@ -210,17 +210,18 @@ function tokenize(line: string) {
       error!.focus();
     }
 
-    function destination() {
+    function destination(isAdmin = false) {
+      const fallback = isAdmin ? '/admin/' : '/perfil';
       const next = new URLSearchParams(location.search).get('next');
-      if (!next?.startsWith('/')) return '/perfil';
+      if (!next?.startsWith('/')) return fallback;
       try {
         const url = new URL(next, location.origin);
         const path = url.pathname.replace(/\/$/, '');
-        if (url.origin === location.origin && ['/perfil', '/examen', '/progreso', '/ejercicios'].includes(path)) {
+        if (url.origin === location.origin && (['/perfil', '/examen', '/progreso', '/ejercicios'].includes(path) || (isAdmin && (path === '/admin' || path.startsWith('/admin/'))))) {
           return url.pathname + url.search + url.hash;
         }
       } catch { /* Invalid destinations return to the profile. */ }
-      return '/perfil';
+      return fallback;
     }
 
     form.addEventListener('submit', async event => {
@@ -251,7 +252,7 @@ function tokenize(line: string) {
         try { localStorage.removeItem('pylevel:current_user'); } catch { /* The server cookie owns the session. */ }
         password.value = '';
         if (announcement) announcement.textContent = 'Sesión iniciada. Abriendo tu espacio.';
-        window.location.assign(destination());
+        window.location.assign(destination(data.user?.role === 'admin'));
       } catch {
         setSubmitting(false);
         if (announcement) announcement.textContent = '';
