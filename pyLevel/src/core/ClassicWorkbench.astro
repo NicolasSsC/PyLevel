@@ -1,5 +1,6 @@
 ---
 import type { ClassicExercise } from './classic-exercises';
+import { scriptData } from '../admin/script-data';
 import BubbleSortAnimation from '../components/BubbleSortAnimation.astro';
 interface Props { exercise: ClassicExercise }
 const { exercise } = Astro.props;
@@ -25,15 +26,16 @@ const { exercise } = Astro.props;
   </div>
   <div class="sequence"><button type="button" disabled aria-describedby="sequence-note"><span aria-hidden="true">▷</span> Ver secuencia de ejecución</button><span id="sequence-note">Próximamente</span></div>
   <p class="practice-note" id="practice-progress" role="status">Inicia sesión para guardar tus resultados en Progreso y métricas. Las pruebas públicas no son una calificación de examen.</p>
+  <script id="classic-exercise-data" type="application/json" set:html={scriptData(exercise)} />
 </main>
 <script>
-  import { classic } from './classic-exercises';
+  import type { ClassicExercise } from './classic-exercises';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-  const exercise = classic.find(item => item.id === document.querySelector('main')?.dataset.exerciseId)!;
+  const exercise: ClassicExercise = JSON.parse(document.getElementById('classic-exercise-data')!.textContent!);
   void trackActivity(exercise.id, 'classic', 'opened').then(saved => {
     if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. Usa «Probar» para registrar ejercicios superados.';
   });

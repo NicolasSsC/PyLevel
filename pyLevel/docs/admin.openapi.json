@@ -1,0 +1,770 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Administración PyLevel",
+    "version": "1.0.0",
+    "description": "API privada. Cada solicitud consulta la sesión y el rol actual en PostgreSQL. El registro público siempre crea estudiantes. Nunca se crean contraseñas desde esta API."
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:4321"
+    }
+  ],
+  "security": [
+    {
+      "session": []
+    }
+  ],
+  "paths": {
+    "/api/admin/exercises": {
+      "get": {
+        "operationId": "listExercises",
+        "summary": "Listar ejercicios no retirados, incluidos los desactivados",
+        "responses": {
+          "200": {
+            "description": "Catálogo actual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exercises": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Exercise"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createExercise",
+        "summary": "Crear ejercicio y primera versión",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Debe coincidir exactamente con el origen de la aplicación."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExercise"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ejercicio creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exercise": {
+                      "$ref": "#/components/schemas/Exercise"
+                    }
+                  },
+                  "required": [
+                    "exercise"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      }
+    },
+    "/api/admin/exercises/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getExercise",
+        "responses": {
+          "200": {
+            "description": "Última versión",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exercise": {
+                      "$ref": "#/components/schemas/Exercise"
+                    }
+                  },
+                  "required": [
+                    "exercise"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateExercise",
+        "summary": "Guardar nueva versión; los módulos omitidos se conservan",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Debe coincidir exactamente con el origen de la aplicación."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateExercise"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nueva versión guardada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exercise": {
+                      "$ref": "#/components/schemas/Exercise"
+                    }
+                  },
+                  "required": [
+                    "exercise"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "archiveExercise",
+        "summary": "Retirar del catálogo; conserva versiones e historial",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Debe coincidir exactamente con el origen de la aplicación."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retirado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "const": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      }
+    },
+    "/api/admin/admins": {
+      "get": {
+        "operationId": "listAdmins",
+        "responses": {
+          "200": {
+            "description": "Administradores activos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "admins": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Admin"
+                      }
+                    }
+                  },
+                  "required": [
+                    "admins"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      },
+      "post": {
+        "operationId": "grantAdmin",
+        "summary": "Habilitar una cuenta existente y activa sin cambiar su contraseña",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Debe coincidir exactamente con el origen de la aplicación."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "maxLength": 254
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Lista actualizada; repetir un permiso existente es seguro",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "admins": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Admin"
+                      }
+                    }
+                  },
+                  "required": [
+                    "admins"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      }
+    },
+    "/api/admin/admins/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "delete": {
+        "operationId": "revokeAdmin",
+        "summary": "Devolver otra cuenta al rol de estudiante; no permite retirar el propio acceso",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Debe coincidir exactamente con el origen de la aplicación."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista actualizada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "admins": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Admin"
+                      }
+                    }
+                  },
+                  "required": [
+                    "admins"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Solicitud inválida"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Cuenta sin permiso administrativo u Origin incorrecto"
+          },
+          "404": {
+            "description": "Cuenta o ejercicio inexistente"
+          },
+          "409": {
+            "description": "ID duplicado, versión obsoleta, cuenta inactiva o intento de retirar el propio acceso"
+          },
+          "413": {
+            "description": "Más de 400000 bytes en la solicitud"
+          },
+          "503": {
+            "description": "Operación no completada; comprobar el estado actual antes de reintentar una escritura"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "pylevel_session"
+      }
+    },
+    "schemas": {
+      "Exercise": {
+        "type": "object",
+        "required": [
+          "id",
+          "mode",
+          "title",
+          "description",
+          "statement",
+          "difficulty",
+          "files",
+          "version",
+          "is_active"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "maxLength": 120
+          },
+          "mode": {
+            "enum": [
+              "classic",
+              "contextual"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "difficulty": {
+            "enum": [
+              "Fácil",
+              "Medio",
+              "Difícil"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "expected": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "topics": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          "hints": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 5000
+            }
+          },
+          "solution": {
+            "type": "string",
+            "maxLength": 100000
+          },
+          "files": {
+            "type": "object",
+            "maxProperties": 64,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000
+            },
+            "description": "Rutas relativas Python; requiere main.py y un archivo tests/*.py. El conjunto no puede exceder 240000 bytes JSON."
+          },
+          "briefing": {
+            "type": "object",
+            "description": "Contexto opcional: situacion, pregunta, salidaResumen, queSeTiene (path/role) y queSeEspera (texto)."
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CreateExercise": {
+        "type": "object",
+        "required": [
+          "id",
+          "mode",
+          "title",
+          "description",
+          "statement",
+          "difficulty",
+          "files"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]+$",
+            "maxLength": 120
+          },
+          "mode": {
+            "enum": [
+              "classic",
+              "contextual"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 3000
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 30000
+          },
+          "difficulty": {
+            "enum": [
+              "Fácil",
+              "Medio",
+              "Difícil"
+            ]
+          },
+          "level": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "expected": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "topics": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            }
+          },
+          "hints": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 5000
+            }
+          },
+          "solution": {
+            "type": "string",
+            "maxLength": 100000
+          },
+          "files": {
+            "type": "object",
+            "maxProperties": 64,
+            "additionalProperties": {
+              "type": "string",
+              "maxLength": 100000
+            },
+            "description": "Rutas relativas Python; requiere main.py y un archivo tests/*.py. El conjunto no puede exceder 240000 bytes JSON."
+          },
+          "briefing": {
+            "type": "object",
+            "description": "Contexto opcional: situacion, pregunta, salidaResumen, queSeTiene (path/role) y queSeEspera (texto)."
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateExercise": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "difficulty": {
+            "enum": [
+              "Fácil",
+              "Medio",
+              "Difícil"
+            ]
+          },
+          "files": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "is_active": {
+            "type": "boolean"
+          }
+        },
+        "description": "Campos opcionales con las mismas restricciones que Exercise. El modo y el ID no cambian. Una versión obsoleta produce 409."
+      },
+      "Admin": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "displayName",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

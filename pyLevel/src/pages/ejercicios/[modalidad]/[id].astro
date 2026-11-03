@@ -1,43 +1,17 @@
 ---
 export const prerender = false;
-
-import { catalogs, type Exercise } from '../../../core/catalog';
 import Workbench from '../../../core/Workbench.astro';
 import ClassicWorkbench from '../../../core/ClassicWorkbench.astro';
-import { classic, type ClassicExercise } from '../../../core/classic-exercises';
 import Layout from '../../../layouts/Layout.astro';
-
-const { modalidad, id } = Astro.params;
-const mode = modalidad === 'clasicos' ? 'classic' : 'contextual';
-
-let exercise = catalogs[mode].find(e => e.id === id);
-
-if (!exercise) {
-  exercise = {
-    id: id || 'custom',
-    title: 'Desafío PyBot',
-    level: 'Inicial',
-    difficulty: 'Medio',
-    topics: ['Python', 'IA'],
-    description: 'Desafío generado con PyBot IA',
-    statement: '# Desafío generado con PyBot IA\n\nResuelve el ejercicio implementando la función o módulos requeridos.',
-    expected: '',
-    files: {
-      'main.py': '# Escribe tu solución aquí\n',
-      'tests/test_publico.py': 'import unittest\nfrom main import *\n',
-    },
-  };
-}
-
-const classicItem: ClassicExercise = mode === 'classic'
-  ? (classic.find(item => item.id === exercise!.id) || {
-      ...exercise!,
-      hints: ['Analiza la entrada y salida requerida por los casos de prueba.'],
-      solution: '# Consulta a PyBot para obtener la solución guiada\n',
-    })
-  : (null as any);
+import { getDbPool } from '../../../lib/db';
+import { exerciseStore } from '../../../admin/exercise-store';
+const {modalidad,id}=Astro.params;
+if(!['clasicos','contextualizados'].includes(modalidad || ''))return new Response('Ejercicio no encontrado.',{status:404});
+const mode=modalidad==='clasicos'?'classic':'contextual';
+const exercise=id?await exerciseStore(getDbPool()).find(id,mode,true):null;
+if(!exercise)return new Response('Ejercicio no disponible.',{status:404});
+const classicItem={...exercise,hints:exercise.hints.length?exercise.hints:['Analiza los casos de prueba.'],solution:exercise.solution || '# No hay una solución de referencia disponible.'};
 ---
-
 <Layout title={`${exercise.title} · PyLevel`}>
-  {mode === 'classic' ? <ClassicWorkbench exercise={classicItem} /> : <Workbench mode={mode} exerciseId={exercise.id} />}
+  {mode==='classic'?<ClassicWorkbench exercise={classicItem}/>:<Workbench mode={mode} exercise={exercise}/>}
 </Layout>

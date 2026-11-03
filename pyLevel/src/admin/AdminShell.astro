@@ -1,0 +1,43 @@
+---
+import Layout from '../layouts/Layout.astro';
+import '../account/account.css';
+import './admin.css';
+import './dashboard.css';
+
+interface Props {
+  active: 'ejercicios' | 'metricas' | 'accesos' | 'manual';
+  title: string;
+  description: string;
+  notice?: string;
+  noticeTitle?: string;
+}
+const { active, title, description, notice, noticeTitle = 'Administración' } = Astro.props;
+const sections = [
+  { id: 'ejercicios', label: 'Ejercicios y retos', href: '/admin/' },
+  { id: 'metricas', label: 'Métricas de estudiantes', href: '/admin/metricas/' },
+  { id: 'accesos', label: 'Administradores', href: '/admin/accesos/' },
+  { id: 'manual', label: 'Manual de administración', href: '/admin/manual/' },
+];
+---
+<Layout title={`${title} · Administración · PyLevel`} description={description} hidePyBot>
+  <main class="admin-page">
+    <header class="admin-header">
+      <div class="header-breadcrumb">
+        <a href="/" class="back-link">← Volver al inicio</a><span class="sep">/</span><a href="/admin/" class="back-link">Administración</a>
+      </div>
+      <div class="header-main-row">
+        <div>
+          <div class="admin-badge">PANEL DE CONTROL ADMINISTRATIVO</div>
+          <h1 class="admin-title">{title}</h1>
+          <p class="admin-subtitle">{description}</p>
+        </div>
+        {Astro.slots.has('actions') && <div class="header-actions"><slot name="actions" /></div>}
+      </div>
+    </header>
+    <nav class="admin-nav" aria-label="Panel administrativo">
+      {sections.map(section => <a href={section.href} aria-current={active === section.id ? 'page' : undefined}>{section.label}</a>)}
+    </nav>
+    {notice && <aside class="preview-notice" aria-label={noticeTitle}><div><strong>{noticeTitle}</strong><p>{notice}</p></div></aside>}
+    <div class="admin-content"><slot /></div>
+  </main>
+</Layout>

@@ -1,5 +1,7 @@
 ---
-import { catalogs, modePaths, type Exercise } from '../core/catalog';
+import { modePaths, type Exercise } from '../core/catalog';
+import { getDbPool } from '../lib/db';
+import { exerciseStore } from '../admin/exercise-store';
 
 interface Props {
   mode: 'classic' | 'contextual';
@@ -7,7 +9,7 @@ interface Props {
 
 const { mode } = Astro.props;
 const classic = mode === 'classic';
-const initialExercises = catalogs[mode];
+const initialExercises = await exerciseStore(getDbPool()).list({mode,publicOnly:true});
 
 // Dificultades ordenadas
 const difficulties = ['Fácil', 'Medio', 'Difícil'];

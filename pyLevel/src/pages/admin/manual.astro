@@ -1,0 +1,132 @@
+---
+export const prerender = false;
+import AdminShell from '../../admin/AdminShell.astro';
+---
+<AdminShell active="manual" title="Manual del Administrador" description="Guía de ejercicios, métricas de estudiantes y gestión de accesos del panel administrativo.">
+  <div class="manual-search"><label for="manual-search">Buscar en el manual</label><input id="manual-search" type="search" class="admin-input" placeholder="Ej. métricas, pruebas, administrador..." /></div>
+  <div class="admin-manual-layout">
+    <aside class="account-card manual-index" aria-label="Índice del manual"><h2>Manual del Administrador</h2><nav><a href="#admin-acceso">Acceso y navegación</a><a href="#admin-crear">Crear ejercicios</a><a href="#admin-editar">Editar contenido</a><a href="#admin-desactivar">Activar y desactivar</a><a href="#admin-borrar">Quitar ejercicios</a><a href="#admin-pruebas">Pruebas unitarias</a><a href="#admin-metricas">Métricas de estudiantes</a><a href="#admin-cuentas">Administradores</a></nav></aside>
+    <article class="account-card manual-content">
+        <section class="doc-chapter" id="capitulo-admin">
+          <div class="chapter-badge">GUÍA DEL PANEL</div>
+          <h2 class="chapter-title">Manual del Administrador</h2>
+          <p class="chapter-intro">
+            Guía completa para administradores de PyLevel sobre el nuevo <a href="/admin/">Panel Administrativo</a>: gestión de retos, métricas de estudiantes, accesos y diseño de pruebas.
+          </p>
+
+          <div class="doc-topic" id="admin-acceso">
+            <h3>2.1 Acceso al Panel Administrativo</h3>
+            <p>
+              El panel de administración se encuentra en la ruta <code>/admin/</code>. Solo una cuenta con permiso de administrador puede abrir el panel y utilizar sus operaciones. Inicia sesión con tu cuenta habitual.
+            </p>
+            <p>
+              Las pestañas del panel permiten abrir Ejercicios y retos, Métricas de estudiantes, Administradores y este manual.
+            </p>
+          </div>
+
+          <div class="doc-topic" id="admin-crear">
+            <h3>2.2 Crear Nuevos Ejercicios</h3>
+            <p>
+              Para publicar un nuevo reto:
+            </p>
+            <ol>
+              <li>Haz clic en el botón <strong>«Crear Nuevo Ejercicio»</strong> en el panel de administración.</li>
+              <li><strong>Modalidad:</strong> Selecciona si es un <em>Desafío Clásico</em> o un <em>Proyecto Multi-archivo</em>.</li>
+              <li><strong>Identificador (ID):</strong> Define un ID único en minúsculas y guiones bajos (ej. <code>clasico_fibonacci</code> o <code>10_sistema_clinica</code>).</li>
+              <li><strong>Datos descriptivos:</strong> Título, nivel académico (Inicial, Intermedio, Avanzado), dificultad (Fácil, Medio, Difícil), temas separados por coma y descripción breve.</li>
+              <li><strong>Enunciado:</strong> Redacta las instrucciones, requerimientos y casos de ejemplo del ejercicio.</li>
+              <li><strong>Archivos de Código:</strong>
+                <ul>
+                  <li><code>main.py</code>: La plantilla inicial con la firma de las funciones que el estudiante completará.</li>
+                  <li><code>tests/test_publico.py</code>: La suite de pruebas unitarias que evaluará la solución.</li>
+                </ul>
+              </li>
+              <li>Marca la casilla <strong>«Ejercicio activo»</strong> y pulsa «Guardar ejercicio». El ejercicio aparecerá en el catálogo de estudiantes si está activo.</li>
+            </ol>
+          </div>
+
+          <div class="doc-topic" id="admin-editar">
+            <h3>2.3 Editar y Corregir Ejercicios Existentes</h3>
+            <p>
+              Si necesitas mejorar la redacción de un enunciado, ajustar los casos de prueba o agregar nuevas pistas:
+            </p>
+            <ol>
+              <li>Ubica el ejercicio en la tabla del panel administrativo (puedes usar el buscador o el filtro de modalidad).</li>
+              <li>Haz clic en el botón <strong>«Editar»</strong>.</li>
+              <li>Modifica cualquier campo: enunciado, código inicial, pruebas unitarias o pistas pedagógicas.</li>
+              <li>Pulsa <strong>«Guardar ejercicio»</strong>. Los módulos adicionales y los metadatos del proyecto se conservan.</li>
+            </ol>
+          </div>
+
+          <div class="doc-topic" id="admin-desactivar">
+            <h3>2.4 Desactivar y Activar Retos en 1 Clic</h3>
+            <p>
+              Durante periodos de exámenes, talleres prácticos o cuando estés preparando nuevos ejercicios que aún no deban ver los estudiantes, puedes <strong>desactivar</strong> cualquier ejercicio:
+            </p>
+            <ul>
+              <li>En la columna <strong>Estado</strong> de la tabla, haz clic sobre el botón <strong>«Activo»</strong>.</li>
+              <li>El ejercicio cambiará automáticamente a <strong>«Desactivado»</strong>.</li>
+              <li><em>Efecto en los estudiantes:</em> El ejercicio deja de aparecer en el catálogo y no se puede abrir ni ejecutar hasta activarlo de nuevo.</li>
+              <li>Para volver a mostrarlo, simplemente haz clic de nuevo en <strong>«Desactivado»</strong> y volverá a estar activo al instante.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="admin-borrar">
+            <h3>2.5 Eliminar Ejercicios</h3>
+            <p>
+              Si un ejercicio fue creado por error o ya no forma parte del plan de estudios:
+            </p>
+            <ul>
+              <li>Haz clic en el botón <strong>«Borrar»</strong> en la fila del ejercicio.</li>
+              <li>Aparecerá un diálogo de confirmación para retirarlo del catálogo.</li>
+              <li>Al confirmar, se retirará del catálogo. Sus versiones y la actividad histórica se conservan.</li>
+            </ul>
+          </div>
+
+          <div class="doc-topic" id="admin-pruebas">
+            <h3>2.6 Diseño de Pruebas Unitarias Efectivas</h3>
+            <p>
+              Para comprobar el comportamiento de una solución, la suite de pruebas en <code>tests/test_publico.py</code> debe estructurarse usando el módulo nativo <code>unittest</code> de Python:
+            </p>
+            <div class="code-block-wrap">
+              <div class="code-block-header">
+                <span>tests/test_publico.py</span>
+                <button type="button" class="copy-btn">Copiar</button>
+              </div>
+              <pre class="code-pre"><code>import unittest
+from main import sumar_pares
+
+class TestSumarPares(unittest.TestCase):
+    def test_lista_mixta(self):
+        """Valida suma correcta de enteros pares y omisión de impares."""
+        self.assertEqual(sumar_pares([1, 2, 3, 4, 5, 6]), 12)
+
+    def test_lista_sin_pares(self):
+        """Valida que retorne 0 cuando no hay números pares."""
+        self.assertEqual(sumar_pares([1, 3, 5, 7]), 0)
+
+    def test_lista_vacia(self):
+        """Valida caso de borde con lista vacía."""
+        self.assertEqual(sumar_pares([]), 0)
+
+if __name__ == '__main__':
+    unittest.main()</code></pre>
+            </div>
+            <div class="doc-callout callout-warning">
+              <div class="callout-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <div class="callout-body">
+                <strong>Regla de Acreditación de PyLevel:</strong> Para que el ejecutor declare un ejercicio como <em>superado</em> en las métricas del estudiante, el proceso debe terminar con código de salida <code>0</code> y el reporte de <code>unittest</code> debe contener al menos una prueba exitosa con resultado <code>OK</code>.
+              </div>
+            </div>
+          </div>
+
+<section class="doc-topic" id="admin-metricas"><h3>2.7 Métricas de Estudiantes</h3><p>Abre <a href="/admin/metricas/">Métricas de estudiantes</a> para explorar el resumen del curso, las alertas, los retos con menor aprobación, el gráfico de siete días, el rendimiento por ejercicio y los últimos intentos.</p><ul><li>Las cifras proceden de las cuentas y la actividad de práctica registradas en PyLevel.</li><li>Los intentos incluyen ejecuciones y pruebas; abrir un reto o pedir una pista no cuenta como intento.</li><li>La tasa de aprobación divide las pruebas aprobadas entre las pruebas con resultado aprobado o fallido. Los errores técnicos y las ejecuciones libres no reducen esa tasa.</li><li>«Gestionar» abre el catálogo con el ejercicio correspondiente. Los títulos y estados reflejan los últimos cambios guardados.</li></ul></section>
+<section class="doc-topic" id="admin-cuentas"><h3>2.8 Gestión de Administradores</h3><p>En <a href="/admin/accesos/">Administradores</a>, introduce el correo de una cuenta activa y registrada para habilitarla como administrador. Su contraseña se conserva.</p><p>La tabla muestra los administradores reales. «Retirar acceso» devuelve una cuenta al rol de estudiante; no elimina sus datos. No puedes retirar tu propio acceso.</p></section>
+        </section>
+
+<p id="manual-empty" class="account-muted" role="status" hidden>No se encontraron secciones con esa búsqueda.</p></article></div>
+  <p id="manual-feedback" class="admin-feedback" role="status"></p>
+</AdminShell>
+<script>import '../../admin/manual-client';</script>

@@ -1,0 +1,246 @@
+---
+export const prerender = false;
+import AdminShell from '../../admin/AdminShell.astro';
+import ExerciseRow from '../../admin/ExerciseRow.astro';
+import { scriptData } from '../../admin/script-data';
+import { getDbPool } from '../../lib/db';
+import { exerciseStore } from '../../admin/exercise-store';
+
+const allExercises = await exerciseStore(getDbPool()).list();
+const classicCount = allExercises.filter(e => e.mode === 'classic').length;
+const contextualCount = allExercises.filter(e => e.mode === 'contextual').length;
+const activeCount = allExercises.filter(e => e.is_active).length;
+const inactiveCount = allExercises.length - activeCount;
+---
+
+<AdminShell active="ejercicios" title="Gestión de Ejercicios y Retos" description="Organiza los desafíos clásicos y proyectos multi-archivo de PyLevel.">
+  <Fragment slot="actions">
+    <button type="button" id="btn-create-exercise" class="btn-create"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Crear Nuevo Ejercicio</span></button>
+  </Fragment>
+      <p id="admin-feedback" class="admin-feedback" role="status" aria-live="polite"></p>
+      <!-- Métricas / Estadísticas rápidas -->
+      <section class="stats-grid" aria-label="Métricas del catálogo">
+        <div class="stat-card">
+          <div class="stat-number" id="stat-total">{allExercises.length}</div>
+          <div class="stat-label">Total Ejercicios</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-blue" id="stat-classic">{classicCount}</div>
+          <div class="stat-label">Desafíos Clásicos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-purple" id="stat-contextual">{contextualCount}</div>
+          <div class="stat-label">Proyectos Multi-archivo</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-green" id="stat-active">{activeCount}</div>
+          <div class="stat-label">Activos (Visibles)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number highlight-amber" id="stat-inactive">{inactiveCount}</div>
+          <div class="stat-label">Desactivados (Ocultos)</div>
+        </div>
+      </section>
+
+      <!-- Barra de Filtros y Búsqueda -->
+      <section class="toolbar-section">
+        <div class="filter-group">
+          <label for="filter-mode" class="filter-label">Modalidad:</label>
+          <select id="filter-mode" class="admin-select">
+            <option value="all">Todas las modalidades</option>
+            <option value="classic">Desafíos Clásicos</option>
+            <option value="contextual">Proyectos Multi-archivo</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="filter-status" class="filter-label">Estado:</label>
+          <select id="filter-status" class="admin-select">
+            <option value="all">Todos los estados</option>
+            <option value="active">Solo Activos</option>
+            <option value="inactive">Solo Desactivados</option>
+          </select>
+        </div>
+
+        <div class="filter-group search-group">
+          <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="text" id="search-input" class="admin-input-search" aria-label="Buscar ejercicios" placeholder="Buscar por título, ID o tema..." />
+        </div>
+      </section>
+
+      <!-- Tabla / Lista de Ejercicios -->
+      <section class="table-container" aria-label="Catálogo de ejercicios" tabindex="0">
+        <table class="admin-table" id="exercises-table">
+          <thead>
+            <tr>
+              <th>Ejercicio</th>
+              <th>Modalidad</th>
+              <th>Dificultad</th>
+              <th>Temas</th>
+              <th>Estado</th>
+              <th class="text-right">Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="exercises-tbody">
+            {allExercises.map(exercise => <ExerciseRow exercise={exercise} />)}
+          </tbody>
+        </table>
+        <div id="no-results-msg" class="no-results-box" style="display: none;">
+          <p>No se encontraron ejercicios con los filtros seleccionados.</p>
+        </div>
+      </section>
+
+      <template id="exercise-row-template"><ExerciseRow /></template>
+      <!-- Modal de Creación / Edición de Ejercicio -->
+      <dialog id="exercise-modal" class="admin-modal" aria-labelledby="modal-title">
+        <form id="exercise-form" class="modal-form">
+          <div class="modal-header">
+            <div>
+              <h2 id="modal-title">Crear Nuevo Ejercicio</h2>
+              <p class="modal-subtitle">El contenido guardado se publicará en el catálogo según su estado.</p>
+            </div>
+            <button type="button" id="modal-close-btn" class="modal-close-x" aria-label="Cerrar modal">&times;</button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Selector de Modalidad -->
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label for="form-mode">Modalidad del Ejercicio <span class="req">*</span></label>
+                <select id="form-mode" class="admin-input" required>
+                  <option value="classic">Desafío Clásico (Un archivo main.py + tests)</option>
+                  <option value="contextual">Proyecto Multi-archivo (Arquitectura modular)</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-id">Identificador único (ID) <span class="req">*</span></label>
+                <input type="text" id="form-id" class="admin-input" placeholder="ej. clasico_fibonacci o 10_tienda_poo" pattern="[a-z0-9_]+" required />
+                <small class="field-hint">Solo letras minúsculas, números y guiones bajos.</small>
+              </div>
+            </div>
+
+            <!-- Datos Generales -->
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="form-title">Título del Ejercicio <span class="req">*</span></label>
+                <input type="text" id="form-title" class="admin-input" placeholder="ej. Invertir una Cadena de Texto" required />
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-difficulty">Dificultad <span class="req">*</span></label>
+                <select id="form-difficulty" class="admin-input" required>
+                  <option value="Fácil">Fácil</option>
+                  <option value="Medio">Medio</option>
+                  <option value="Difícil">Difícil</option>
+                </select>
+              </div>
+
+              <div class="form-group flex-1">
+                <label for="form-level">Nivel Académico</label>
+                <select id="form-level" class="admin-input">
+                  <option value="Inicial">Inicial</option>
+                  <option value="Intermedio">Intermedio</option>
+                  <option value="Avanzado">Avanzado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="form-topics">Temas o Etiquetas (separados por coma)</label>
+              <input type="text" id="form-topics" class="admin-input" placeholder="ej. bucles, cadenas, algoritmos, poo" />
+            </div>
+
+            <div class="form-group">
+              <label for="form-desc">Descripción Breve (se muestra en las tarjetas del catálogo) <span class="req">*</span></label>
+              <textarea id="form-desc" class="admin-input" rows="2" placeholder="Resumen conciso del objetivo del ejercicio..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-statement">Enunciado Detallado <span class="req">*</span></label>
+              <textarea id="form-statement" class="admin-input code-font" rows="5" placeholder="Instrucciones paso a paso, especificaciones y ejemplos..." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-expected">Salida Esperada (Texto o ejemplos de salida)</label>
+              <textarea id="form-expected" class="admin-input code-font" rows="2" placeholder="Ejemplo de salida esperada en consola..."></textarea>
+            </div>
+
+            <!-- Código Base y Pruebas Unitarias -->
+            <div class="form-subheading">
+              <h3>Archivos Python del Ejercicio</h3>
+              <p>Escribe el código inicial que verá el estudiante y las pruebas unitarias que evaluará el ejecutor.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="form-main-py">Código Inicial: <code>main.py</code> <span class="req">*</span></label>
+              <textarea id="form-main-py" class="admin-input code-font" rows="6" spellcheck="false" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="form-test-py">Pruebas Unitarias: <code>tests/test_publico.py</code> <span class="req">*</span></label>
+              <textarea id="form-test-py" class="admin-input code-font" rows="6" spellcheck="false" required></textarea>
+              <small class="field-hint">Debe importar unittest y los métodos de main. Al pulsar «Probar», el alumno debe superar estas pruebas.</small>
+            </div>
+
+            <p id="additional-files" class="field-hint"></p>
+            <!-- Opciones extra para Clásicos -->
+            <div id="classic-extras" class="extra-panel">
+              <h4>Ayudas Pedagógicas (Para Retos Clásicos)</h4>
+              <div class="form-group">
+                <label for="form-hint">Pista Pedagógica</label>
+                <input type="text" id="form-hint" class="admin-input" placeholder="Guía orientadora para destrabar al estudiante sin dar la solución..." />
+              </div>
+              <div class="form-group">
+                <label for="form-solution">Solución Oficial de Referencia</label>
+                <textarea id="form-solution" class="admin-input code-font" rows="4" placeholder="# Solución óptima comentada..." spellcheck="false"></textarea>
+              </div>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="form-is-active" checked />
+                <span>Ejercicio activo (visible para estudiantes)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <span id="form-error-msg" class="form-error" role="alert"></span>
+            <div class="footer-btn-row">
+              <button type="button" id="modal-cancel-btn" class="btn-secondary">Cancelar</button>
+              <button type="submit" id="modal-save-btn" class="btn-primary">Guardar ejercicio</button>
+            </div>
+          </div>
+        </form>
+      </dialog>
+
+      <!-- Modal de Confirmación de Eliminación -->
+      <dialog id="delete-modal" class="admin-modal confirm-modal" aria-labelledby="delete-modal-title" aria-describedby="delete-target-text">
+        <div class="modal-content">
+          <div class="confirm-icon">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <h3 id="delete-modal-title">¿Retirar este ejercicio del catálogo?</h3>
+          <p id="delete-target-text">El ejercicio dejará de estar disponible. Se conservarán sus versiones y la actividad registrada.</p>
+          <div class="confirm-actions">
+            <button type="button" id="btn-cancel-delete" class="btn-secondary">Cancelar</button>
+            <button type="button" id="btn-confirm-delete" class="btn-danger">Retirar del catálogo</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="view-modal" class="admin-modal" aria-labelledby="view-title">
+        <div class="modal-header"><div><span class="admin-badge">VISTA DEL EJERCICIO</span><h2 id="view-title"></h2></div><button type="button" id="view-close" class="modal-close-x" aria-label="Cerrar vista previa">&times;</button></div>
+        <div class="modal-body"><p id="view-meta" class="admin-subtitle"></p><p id="view-description"></p><h3>Enunciado</h3><pre id="view-statement" class="preview-statement"></pre><h3>Salida esperada</h3><pre id="view-expected" class="preview-code"></pre><h3>Archivos del proyecto</h3><div id="view-files"></div></div>
+      </dialog>
+      <script id="admin-exercise-data" type="application/json" set:html={scriptData(allExercises)} />
+</AdminShell>
+
+<script>
+  import '../../admin/exercise-client';
+</script>

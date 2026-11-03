@@ -1,9 +1,9 @@
 ---
-import { catalogs, modePaths } from './catalog';
-interface Props { mode?: 'classic' | 'contextual'; exerciseId: string }
-const { mode = 'contextual', exerciseId } = Astro.props;
-const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
-const exercise = exercises[0];
+import { modePaths, type Exercise } from './catalog';
+import { scriptData } from '../admin/script-data';
+interface Props { mode?: 'classic' | 'contextual'; exercise: Exercise }
+const {mode='contextual',exercise}=Astro.props;
+const exerciseId=exercise.id;
 const classic = mode === 'classic';
 const briefing = exercise?.briefing;
 ---
@@ -186,10 +186,11 @@ const briefing = exercise?.briefing;
     </dialog>
   )}
   <p id="practice-progress" role="status">Inicia sesión para guardar tu actividad en Progreso y métricas. Al pulsar «Probar» se usan las pruebas públicas originales, aunque hayas editado tests/.</p>
+  <script id="workbench-exercise-data" type="application/json" set:html={scriptData(exercise)} />
 </main>
 
 <script>
-  import { catalogs } from './catalog';
+  import type { Exercise } from './catalog';
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
@@ -197,8 +198,7 @@ const briefing = exercise?.briefing;
   const editor = el<HTMLTextAreaElement>('code');
   const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
   const exerciseId = document.querySelector('main')?.dataset.exerciseId;
-  const exercises = catalogs[mode].filter(exercise => exercise.id === exerciseId);
-  let exercise = exercises[0];
+  let exercise: Exercise = JSON.parse(document.getElementById('workbench-exercise-data')!.textContent!);
   void trackActivity(exercise.id, mode, 'opened').then(saved => {
     if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. «Probar» utiliza las pruebas públicas originales, aunque hayas editado tests/.';
   });
