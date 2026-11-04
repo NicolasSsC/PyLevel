@@ -27,6 +27,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     try {
       const user = context.locals.adminUser ?? await currentUser(context.cookies);
       if (!user) return json({ error: 'Debes iniciar sesión para usar PyBot.' }, 401);
+      context.locals.sessionUser = user;
       if (!await consumeAiAllowance(getDbPool(), user.id)) {
         const response = json({ error: 'Alcanzaste el límite de consultas de PyBot. Intenta más tarde.' }, 429);
         response.headers.set('Retry-After', '60');

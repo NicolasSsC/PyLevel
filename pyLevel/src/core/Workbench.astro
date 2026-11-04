@@ -194,6 +194,7 @@ const briefing = exercise?.briefing;
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
+  import { registerPracticeContext } from '../ai/page-context';
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const editor = el<HTMLTextAreaElement>('code');
   const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
@@ -206,6 +207,8 @@ const briefing = exercise?.briefing;
   let selected = 'main.py';
   let controller: AbortController | null = null;
   let online = false;
+  const pybot = registerPracticeContext({ id: exercise.id, mode, title: exercise.title,
+    getFiles: () => ({ ...files, [selected]: editor.value }), getSelectedFile: () => selected });
 
   // Briefing Dialog Interaction
   const briefingDialog = el<HTMLDialogElement>('briefing-dialog');
@@ -247,12 +250,14 @@ const briefing = exercise?.briefing;
 
   function persist() {
     el('saved').textContent = save(exercise.id, files) ? 'Guardado en este navegador' : 'No se pudo guardar; copia tus cambios';
+    pybot.changed();
   }
   function showFile(path: string) {
     selected = path; editor.value = files[path];
     editor.readOnly = mode === 'classic' && path.startsWith('tests/');
     el('filename').textContent = path + (editor.readOnly ? ' · solo lectura' : '');
     for (const button of el('files').querySelectorAll('button')) button.setAttribute('aria-current', String(button.dataset.path === path));
+    pybot.changed();
   }
   function load() {
     files = restore(exercise.id, exercise.files);
@@ -276,11 +281,15 @@ const briefing = exercise?.briefing;
     el<HTMLButtonElement>('reset').disabled = busy;
   }
   async function run(action: Action) {
+    if (controller || !online) return;
     controller = new AbortController(); controls(true);
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando programa…';
     el('output').textContent = '';
+    const submittedFiles = { ...files, [selected]: editor.value };
+    pybot.start(action, submittedFiles);
     try {
-      const result = await execute({ ...files }, action, controller.signal, { exerciseId: exercise.id, mode });
+      const result = await execute(submittedFiles, action, controller.signal, { exerciseId: exercise.id, mode });
+      pybot.finish(result);
       el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
       const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
@@ -288,6 +297,7 @@ const briefing = exercise?.briefing;
         ? (result.exit_code === 0 ? 'Finalizado · código 0' : `Finalizado con errores · código ${result.exit_code}`)
         : labels[result.status] || result.status;
     } catch (error) {
+      pybot.fail(error instanceof Error ? error.message : String(error), controller.signal.aborted);
       el('result').textContent = controller.signal.aborted ? 'Ejecución cancelada' : 'No se pudo ejecutar';
       el('output').textContent = controller.signal.aborted ? 'Se solicitó detener el entorno de ejecución.' : error instanceof Error ? error.message : String(error);
     } finally { controller = null; controls(false); }
@@ -304,6 +314,7 @@ const briefing = exercise?.briefing;
   el('reset').addEventListener('click', () => {
     if (confirm('¿Restablecer los archivos de este ejercicio? Se perderán tus cambios.')) {
       files = { ...exercise.files }; persist(); load();
+      pybot.reset();
     }
   });
   load(); controls(false);

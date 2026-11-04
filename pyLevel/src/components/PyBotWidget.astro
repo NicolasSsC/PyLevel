@@ -4,7 +4,7 @@ const authenticated = !!Astro.locals.sessionUser;
 ---
 
 <!-- Contenedor global del widget flotante -->
-<aside id="pybot-widget" class="pybot-widget-container" aria-label="Asistente virtual PyBot" hidden={!authenticated}>
+<aside id="pybot-widget" class="pybot-widget-container" aria-label="Asistente virtual PyBot" data-account={Astro.locals.sessionUser?.id} hidden={!authenticated}>
   <!-- Botón circular flotante -->
   <button
     type="button"
@@ -87,7 +87,7 @@ const authenticated = !!Astro.locals.sessionUser;
 
     <!-- Contexto activo opcional (detecta si está en un ejercicio) -->
     <div id="pybot-context-banner" class="context-banner" hidden>
-      <span class="context-tag">Contexto activo:</span>
+      <span class="context-tag">Contexto:</span>
       <span id="pybot-context-title" class="context-name">Ejercicio</span>
     </div>
 
@@ -112,11 +112,11 @@ const authenticated = !!Astro.locals.sessionUser;
 
       <!-- Sugerencias rápidas -->
       <div id="pybot-chips-wrap" class="quick-chips">
-        <button type="button" class="quick-chip" data-prompt="¿Cuál es la diferencia entre is y == en Python?">
-          is vs ==
+        <button type="button" class="quick-chip" data-prompt="¿Qué ejercicio me recomiendas según mi progreso?">
+          Recomiéndame un ejercicio
         </button>
-        <button type="button" class="quick-chip" data-prompt="Explícame cómo funcionan las List Comprehensions">
-          List Comprehensions
+        <button type="button" class="quick-chip" data-prompt="Ayúdame a entender el último error o resultado de mi ejercicio.">
+          Revisar mi último resultado
         </button>
         <button type="button" class="quick-chip" data-prompt="¿Qué es una función generadora y cómo se usa yield?">
           Generadores con yield
@@ -155,6 +155,7 @@ const authenticated = !!Astro.locals.sessionUser;
 </aside>
 
 <script>
+  import { readPageContext, contextLabel, clipText } from '../ai/page-context';
   // Lógica interactiva del widget flotante de PyBot
   const widget = document.getElementById('pybot-widget');
   const triggerBtn = document.getElementById('pybot-trigger-btn') as HTMLButtonElement;
@@ -177,7 +178,7 @@ const authenticated = !!Astro.locals.sessionUser;
     hora?: string;
   }
 
-  const STORAGE_KEY = 'pylevel_pybot_history';
+  const STORAGE_KEY = `pylevel_pybot_history:${widget?.dataset.account ?? 'guest'}`;
   let history: ChatMessage[] = [];
 
   // Helper de hora en formato WhatsApp (ej: "11:24 p. m.")
@@ -220,24 +221,14 @@ const authenticated = !!Astro.locals.sessionUser;
 
   // Detectar si el usuario está en una página de ejercicio para capturar contexto
   function detectPageContext() {
-    const editor = document.getElementById('python-code') as HTMLTextAreaElement | null;
-    const titleEl = document.querySelector('h1#exercise-title, .title-row h1, .catalog-header h1');
-    const title = titleEl ? titleEl.textContent?.trim() : '';
-
-    if (editor && title) {
-      contextBanner.removeAttribute('hidden');
-      contextBanner.classList.add('is-active');
-      contextTitle.textContent = title;
-      return {
-        tema: title,
-        codigo_actual: editor.value.slice(0, 800),
-      };
-    } else {
-      contextBanner.setAttribute('hidden', '');
-      contextBanner.classList.remove('is-active');
-      return null;
-    }
+    const context = readPageContext();
+    contextBanner.removeAttribute('hidden');
+    contextBanner.classList.add('is-active');
+    contextTitle.textContent = contextLabel(context);
+    contextTitle.title = contextTitle.textContent;
+    return context;
   }
+  window.addEventListener('pylevel:context-change', detectPageContext);
 
   // Control estricto del estado de escritura (pensando)
   function setTyping(active: boolean) {
@@ -393,7 +384,7 @@ const authenticated = !!Astro.locals.sessionUser;
         },
         body: JSON.stringify({
           mensaje: texto,
-          historial: history.slice(-6).map(h => ({ rol: h.rol, contenido: h.contenido })),
+          historial: history.slice(0, -1).slice(-4).map(h => ({ rol: h.rol, contenido: clipText(h.contenido, 1000) })),
           contexto: contexto || {},
           stream: true,
         }),
@@ -501,9 +492,10 @@ const authenticated = !!Astro.locals.sessionUser;
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/```(?:python)?\s*([\s\S]*?)```/g, '<pre class="chat-code-block"><code>$1</code></pre>')
+      .replace(/```(?:python|text)?\s*([\s\S]*?)```/g, '<pre class="chat-code-block"><code>$1</code></pre>')
       .replace(/`([^`]+)`/g, '<code class="chat-inline-code">$1</code>')
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/\[([^\]\n]+)\]\((\/(?:ejercicios\/(?:clasicos|contextualizados)\/(?:[a-z0-9_]+\/?)?|progreso\/?|examen\/?|perfil\/?))\)/g, '<a href="$2">$1</a>')
       .replace(/\n\n/g, '</p><p>')
       .replace(/\n/g, '<br />');
 
@@ -803,6 +795,8 @@ const authenticated = !!Astro.locals.sessionUser;
 </style>
 
 <style>
+  :global(#pybot-widget .bubble-content a) { color: var(--color-primary, #65b7ee); text-decoration: underline; text-underline-offset: 3px; }
+  :global(#pybot-widget .bubble-content a:focus-visible) { outline: 2px solid currentColor; outline-offset: 3px; }
   /* =========================================================================
      ESTILOS DEL BOTÓN FLOTANTE Y PANEL DE CHAT PYBOT (ESTILO MODERNO WHATSAPP)
      ========================================================================= */

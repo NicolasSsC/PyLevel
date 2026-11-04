@@ -10,7 +10,26 @@ La generación administrativa conserva además la comprobación de rol `admin`.
 
 El chat acepta `mensaje` (1–4000 caracteres), `historial` (hasta seis mensajes
 con `rol` user/bot/assistant y `contenido` de hasta 4000 caracteres), `contexto`
-con tema/codigo_actual de hasta 10000 caracteres cada uno, y `stream` opcional.
+y `stream` opcional. `contexto.page` es una ruta local sin parámetros. En una
+práctica incluye `exerciseId`, `mode` (classic/contextual), `selectedFile`,
+`files` (hasta seis archivos Python), `truncated`, `running` y opcionalmente
+`execution`: action, status, exitCode, output, files, createdAt, truncated,
+changedSinceExecution. Los archivos del editor y de la última ejecución son
+copias separadas; el navegador limita cada copia a 6000 bytes de código y la
+terminal a los últimos 3000 bytes. Se omiten tests/ en estas copias porque
+«Probar» usa los originales del servidor. El contexto se renueva por mensaje
+y se descarta al cambiar de página. No se capturan formularios ni exámenes.
+
+Railway verifica que los archivos correspondan a un ejercicio publicado y añade
+su enunciado, un resumen del progreso de la sesión autenticada y hasta tres
+recomendaciones del catálogo activo. Ignora identidades, progreso, recomendaciones
+y campos del servidor enviados por el cliente. No adjunta soluciones de referencia,
+datos personales ni credenciales. El historial del navegador se separa por cuenta.
+Las respuestas JSON y SSE recorren el mismo proveedor y usan el mismo contexto.
+`PYBOT_LOCAL_ONLY=true` fuerza las respuestas locales sin consultar Gemini;
+se utiliza en las pruebas. El modo local recomienda y describe el resultado
+capturado, pero no sustituye el razonamiento de Gemini para depurar código.
+
 Con streaming conserva `text/event-stream`, eventos `data: {"token":"..."}`
 y final `data: [DONE]`. Sin streaming conserva la respuesta JSON existente.
 
