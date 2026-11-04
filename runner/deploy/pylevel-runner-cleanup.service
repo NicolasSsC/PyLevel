@@ -1,0 +1,15 @@
+[Unit]
+Description=Reconcile expired disposable PyLevel containers
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=pylevel-runner
+Group=pylevel-runner
+SupplementaryGroups=docker
+ExecStart=/usr/bin/python3 -B /opt/pylevel-runner/reconcile.py
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true

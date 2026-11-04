@@ -2,6 +2,10 @@ import { expect, test } from '@playwright/test';
 import { registerStudent } from './helpers';
 
 const headers = { Origin: 'http://127.0.0.1:4341' };
+test('code execution requires a real session and rejects cross-origin requests', async ({ request }) => {
+  expect((await request.post('/api/practice/execute', { headers, data: {} })).status()).toBe(401);
+  expect((await request.post('/api/practice/execute', { headers: { Origin: 'https://other.invalid' }, data: {} })).status()).toBe(403);
+});
 test('readiness checks the real database without exposing configuration', async ({ request }) => {
   const response = await request.get('/api/ready');
   expect(response.status()).toBe(200);

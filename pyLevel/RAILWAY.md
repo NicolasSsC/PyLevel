@@ -16,6 +16,7 @@ Configurar estas variables en el servicio web de PyLevel, no en el ejecutor:
 | `HOST` | `0.0.0.0` |
 | `APP_ORIGIN` | URL HTTPS pública exacta de PyLevel, disponible al compilar |
 | `PYLEVEL_RUNNER_URL` | URL HTTPS del ejecutor de Azure cuando esté preparado |
+| `PYLEVEL_RUNNER_TOKEN` | Credencial privada compartida exclusivamente con el gateway de Azure |
 | `GEMINI_API_KEY` | Clave privada del proveedor, guardada únicamente en el servicio web |
 | `PYBOT_REQUESTS_PER_MINUTE` | `10` inicialmente |
 | `PYBOT_REQUESTS_PER_DAY` | `100` inicialmente, por día UTC |
@@ -98,7 +99,7 @@ dominio `https://pylevel.site`. Al configurar el servicio:
 
 - Directorio raíz: `/pyLevel`.
 - Construcción: `Dockerfile` en ese directorio; incluye Node 24 y Python 3.
-- Paso previo al despliegue: `npm run db:migrate && npm run db:seed:catalog`.
+- Paso previo al despliegue: `npm run db:migrate`.
 - Inicio: `npm start`.
 - Puerto: `8080`, con `HOST=0.0.0.0`.
 - Comprobación de salud: `/api/ready`, tiempo máximo 120 segundos.
@@ -113,6 +114,23 @@ Las migraciones se ejecutan en el paso previo, con variables y red privada
 disponibles. Un fallo impide activar la nueva versión. El catálogo fue autorizado
 por el usuario: 11 ejercicios clásicos y 9 contextualizados. La carga solo añade
 identificadores ausentes; no sobrescribe ni reactiva ejercicios editados o retirados.
+
+La carga inicial del catálogo se completó y verificó el 4 de noviembre de 2026:
+el despliegue `99392bb1-ac81-45c2-94bc-e076ece94765` registró 20 ejercicios
+añadidos, y los listados HTTPS mostraron 11 clásicos y 9 contextualizados.
+Se ejecutó una única orden previa, `node --experimental-strip-types
+scripts/seed-catalog.mjs`; después se restauró `npm run db:migrate` para las
+versiones siguientes. No combinar ambos comandos mediante `&&` en ese campo:
+en este despliegue Railway ejecutó únicamente el primero.
+
+Para aplicar cambios de configuración del servicio se preparó un cambio
+acotado a `production` y se activó su despliegue. Reutilizar un despliegue anterior
+mediante redeploy mantuvo su configuración previa en las verificaciones realizadas.
+
+La publicación inicial está fijada al commit aprobado
+`79a8700af141854f8ba326a1caaf1d33afa58557` de `main`. Los siguientes cambios
+de código requieren publicar explícitamente el nuevo commit aprobado; los pushes
+a la rama no actualizan esa versión fijada de forma automática.
 
 `APP_ORIGIN=https://pylevel.site` se inyecta como argumento de construcción y como
 variable de ejecución para permitir el dominio público en las comprobaciones
@@ -149,8 +167,11 @@ ejecutor ni al código de los estudiantes. La preparación del servicio de Azure
 incluye HTTPS y autenticación entre servidores: el puente actual se documenta
 como desarrollo local en [runner/README.md](../runner/README.md).
 
-El despliegue del ejecutor de Azure y su autenticación no se incluyen en esta
-preparación de base de datos. Las pruebas de navegador tampoco ejecutan Python real.
+La API de Azure y su integración se documentan en
+[runner/production.md](../runner/production.md). La conexión usa HTTPS y un
+token privado; las ejecuciones requieren una cuenta autenticada y cuotas SQL.
+Las pruebas de navegador aisladas no ejecutan Python real; las verificaciones
+operativas del ejecutor sí utilizan Docker y gVisor.
 
 ## Verificación
 
