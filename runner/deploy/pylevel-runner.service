@@ -1,0 +1,28 @@
+[Unit]
+Description=PyLevel authenticated Python executor
+After=network.target docker.service
+Requires=docker.service
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Service]
+Type=simple
+User=pylevel-runner
+Group=pylevel-runner
+SupplementaryGroups=docker
+WorkingDirectory=/opt/pylevel-runner
+EnvironmentFile=/etc/pylevel-runner/runner.env
+ExecStart=/opt/pylevel-runner/venv/bin/python -B /opt/pylevel-runner/api.py
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=40
+KillSignal=SIGINT
+KillMode=mixed
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

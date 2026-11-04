@@ -37,7 +37,7 @@ def execute(payload):
         raise ValueError('Project too large')
     name = 'pylevel-' + uuid.uuid4().hex
     command = [
-        'docker', 'run', '--rm', '-i', '--name', name, '--runtime=runsc',
+        'docker', 'run', '--rm', '--pull=never', '-i', '--name', name, '--runtime=runsc',
         '--label', 'pylevel.execution=true', '--network=none', '--read-only',
         '--user=65534:65534', '--cap-drop=ALL', '--security-opt=no-new-privileges',
         '--memory=128m', '--memory-swap=128m', '--cpus=0.5', '--pids-limit=32',

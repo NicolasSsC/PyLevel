@@ -28,3 +28,12 @@ Al superar un límite devuelve `429` con `Retry-After: 60`; si el límite es dia
 volver a intentar después de ese tiempo puede seguir devolviendo `429` hasta el
 siguiente día UTC. Los errores del proveedor devuelven `503` sin sus detalles.
 Los límites del proveedor y sus facturas se gestionan también en Google AI Studio.
+
+`POST /api/practice/execute` exige sesión y origen válido. Devuelve `401` para
+invitados y `429` al superar la cuota de 20 solicitudes/minuto o 200/día UTC por
+cuenta, configurable con `RUNNER_REQUESTS_PER_MINUTE`/`RUNNER_REQUESTS_PER_DAY`.
+La credencial y el UUID para Azure se añaden únicamente en Railway. El plazo
+de la solicitud es de 45 segundos y una desconexión cancela la petición al ejecutor.
+Una respuesta técnica o cancelada no acredita progreso superado.
+`GET /api/practice/health` publica solo `online`/`offline`, sin la credencial ni
+las métricas internas de Azure. Más detalles en [el ejecutor](../../runner/production.md).

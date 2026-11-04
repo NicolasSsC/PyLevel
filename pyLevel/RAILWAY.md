@@ -16,6 +16,7 @@ Configurar estas variables en el servicio web de PyLevel, no en el ejecutor:
 | `HOST` | `0.0.0.0` |
 | `APP_ORIGIN` | URL HTTPS pública exacta de PyLevel, disponible al compilar |
 | `PYLEVEL_RUNNER_URL` | URL HTTPS del ejecutor de Azure cuando esté preparado |
+| `PYLEVEL_RUNNER_TOKEN` | Credencial privada compartida exclusivamente con el gateway de Azure |
 | `GEMINI_API_KEY` | Clave privada del proveedor, guardada únicamente en el servicio web |
 | `PYBOT_REQUESTS_PER_MINUTE` | `10` inicialmente |
 | `PYBOT_REQUESTS_PER_DAY` | `100` inicialmente, por día UTC |
@@ -166,8 +167,11 @@ ejecutor ni al código de los estudiantes. La preparación del servicio de Azure
 incluye HTTPS y autenticación entre servidores: el puente actual se documenta
 como desarrollo local en [runner/README.md](../runner/README.md).
 
-El despliegue del ejecutor de Azure y su autenticación no se incluyen en esta
-preparación de base de datos. Las pruebas de navegador tampoco ejecutan Python real.
+La API de Azure y su integración se documentan en
+[runner/production.md](../runner/production.md). La conexión usa HTTPS y un
+token privado; las ejecuciones requieren una cuenta autenticada y cuotas SQL.
+Las pruebas de navegador aisladas no ejecutan Python real; las verificaciones
+operativas del ejecutor sí utilizan Docker y gVisor.
 
 ## Verificación
 

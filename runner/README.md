@@ -1,10 +1,11 @@
 # Ejecutor Python con gVisor
 
-Prototipo local de ejecución: un contenedor desechable por envío, runtime
+Supervisor de ejecución: un contenedor desechable por envío, runtime
 `runsc` obligatorio, sin fallback a `runc`. Este directorio contiene el supervisor
 Python y la imagen de ejecución. El [núcleo](../pyLevel/src/core/README.md) aporta
-un puente HTTP de desarrollo con cancelación desde la interfaz. No hay API de
-producción autenticada, cola, cuotas por usuario ni pool de contenedores.
+un puente HTTP de desarrollo. La API autenticada de Azure está en `api.py` y se
+documenta en [Producción](production.md): HTTPS, capacidad acotada, cancelación
+y limpieza de contenedores caducados. Las cuotas por cuenta se aplican en Railway.
 
 ## Preparación
 
@@ -146,11 +147,12 @@ Detener desde la web aborta la solicitud y el puente envía SIGINT al supervisor
 Consultar el [README del núcleo](../pyLevel/src/core/README.md#desarrollo) para el
 arranque y la verificación de esa integración.
 
-Antes de exposición pública implementar: API autenticada, cola con concurrencia
-acotada, cuotas por usuario, cancelación gestionada por el servicio de producción
-y un reconciliador externo que elimine contenedores
-huérfanos etiquetados `pylevel.execution=true` tras una caída del supervisor.
-No ejecutar múltiples supervisores sin limitar la capacidad total del host.
+La API de producción implementa autenticación, concurrencia y espera acotadas,
+cancelación al desconectarse el cliente y un reconciliador para contenedores
+caducados etiquetados `pylevel.execution=true`. No ejecutar varias instancias de
+la API en esta VM: el límite global depende de su único proceso. La capacidad
+se debe medir antes de aumentarla; las pruebas funcionales no acreditan una
+carga de 50 estudiantes simultáneos.
 Los resultados de código no confiable no acreditan calificaciones; una evaluación
 oficial requiere su propio diseño de pruebas y validación.
 

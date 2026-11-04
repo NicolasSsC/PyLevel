@@ -44,11 +44,11 @@ test('the standalone Railway task migrates over the PostgreSQL protocol and refu
     assert.equal(first.code, 0, first.output);
     const report = JSON.parse(first.output.trim());
     assert.equal(report.event, 'pylevel.database.ready');
-    assert.equal(report.applied.length, 6);
+    assert.equal(report.applied.length, 7);
     assert.equal(report.accounts, 0);
     assert.equal(report.exercises, 0);
-    assert.equal(report.tables.length, 10);
-    assert.equal(report.migrations.length, 6);
+    assert.equal(report.tables.length, 11);
+    assert.equal(report.migrations.length, 7);
     assert.ok(!first.output.includes('test-only-password'));
     const second = await run(code, url);
     assert.equal(second.code, 0, second.output);

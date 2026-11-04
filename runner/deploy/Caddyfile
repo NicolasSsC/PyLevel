@@ -1,0 +1,24 @@
+{
+    auto_https disable_redirects
+    servers {
+        protocols h1 h2
+    }
+}
+
+runner.pylevel.site {
+    tls {
+        issuer acme {
+            disable_http_challenge
+        }
+    }
+    request_body {
+        max_size 262144
+    }
+    header Cache-Control "no-store"
+    reverse_proxy 127.0.0.1:8787 {
+        transport http {
+            dial_timeout 3s
+            response_header_timeout 45s
+        }
+    }
+}
