@@ -20,6 +20,7 @@ Object.assign(process.env, {
   LOCAL_TEST_DB_PORT: '55441',
   // No real Python runner is used by this initial browser suite.
   PYLEVEL_RUNNER_URL: 'http://127.0.0.1:1',
+  PYBOT_LOCAL_ONLY: 'true', // Browser checks must never spend real Gemini credits.
 });
 
 function run(script, args = []) {

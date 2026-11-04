@@ -2,6 +2,9 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import fs from 'node:fs';
+import type { TutorContext } from './tutor-context';
+import { localContextReply } from './tutor-context.ts';
+import guide from './tutor-guide.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,6 +44,7 @@ function getPythonCommand(): string {
 }
 
 export function getGeminiApiKey(): string | null {
+  if (process.env.PYBOT_LOCAL_ONLY === 'true') return null;
   if (process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.length > 10) {
     return process.env.GEMINI_API_KEY;
   }
@@ -249,19 +253,14 @@ export function invokeAIOneShot<T = any>(payload: AIActionPayload): Promise<T> {
 export async function streamChat(options: {
   mensaje: string;
   historial?: Array<{ rol: string; contenido: string }>;
-  contexto?: { tema?: string; codigo_actual?: string };
-}): Promise<ReadableStream<Uint8Array>> {
+  contexto?: TutorContext;
+  onSource?: (source: { fuente: string; modelo: string }) => void;
+}, provider = { apiKey: getGeminiApiKey(), fetch: globalThis.fetch }): Promise<ReadableStream<Uint8Array>> {
   const encoder = new TextEncoder();
-  const apiKey = getGeminiApiKey();
+  const apiKey = provider.apiKey;
 
   if (apiKey) {
-    let ctxTexto = '';
-    if (options.contexto?.tema) {
-      ctxTexto += `Tema actual de trabajo: ${options.contexto.tema}.\n`;
-    }
-    if (options.contexto?.codigo_actual) {
-      ctxTexto += `Código que el estudiante tiene en pantalla:\n\`\`\`python\n${options.contexto.codigo_actual.slice(0, 600)}\n\`\`\`\n`;
-    }
+    const ctxTexto = JSON.stringify(options.contexto ?? {});
 
     let historialTexto = '';
     if (options.historial) {
@@ -294,7 +293,7 @@ MISIÓN Y LÍMITES ESTRICTOS (GUARDRAILS INVIOLABLES):
 
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
-      systemInstruction: { parts: [{ text: systemInstruction }] },
+      systemInstruction: { parts: [{ text: `${systemInstruction}\n\n${guide.rules}` }] },
       generationConfig: {
         temperature: 0.4,
         maxOutputTokens: 1200,
@@ -311,13 +310,15 @@ MISIÓN Y LÍMITES ESTRICTOS (GUARDRAILS INVIOLABLES):
     for (const model of models) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${apiKey}`;
-        const resp = await fetch(url, {
+        const resp = await provider.fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(20000),
         });
 
         if (resp.ok && resp.body) {
+          options.onSource?.({ fuente: 'gemini', modelo: model });
           return new ReadableStream({
             async start(controller) {
               const reader = resp.body!.getReader();
@@ -364,7 +365,8 @@ MISIÓN Y LÍMITES ESTRICTOS (GUARDRAILS INVIOLABLES):
   }
 
   // Fallback garantizado: Motor pedagógico local
-  const localRes = await invokeAI({
+  const contextual = options.contexto ? localContextReply(options.mensaje, options.contexto) : null;
+  const localRes = contextual ? { respuesta: contextual } : await invokeAI({
     action: 'chat',
     data: {
       mensaje: options.mensaje,
@@ -374,6 +376,7 @@ MISIÓN Y LÍMITES ESTRICTOS (GUARDRAILS INVIOLABLES):
   });
 
   const textoFinal = localRes.respuesta || 'Hola, estoy analizando tu consulta de Python.';
+  options.onSource?.({ fuente: 'motor_local', modelo: 'Base de Conocimientos PyBot' });
   return new ReadableStream({
     async start(controller) {
       const palabras = textoFinal.split(/(\s+)/);
@@ -385,4 +388,23 @@ MISIÓN Y LÍMITES ESTRICTOS (GUARDRAILS INVIOLABLES):
       controller.close();
     },
   });
+}
+
+// Use exactly the same context/provider path for JSON consumers and the widget.
+export async function chatAnswer(options: Parameters<typeof streamChat>[0], provider?: Parameters<typeof streamChat>[1]) {
+  let source = { fuente: 'motor_local', modelo: 'Base de Conocimientos PyBot' };
+  const reader = (await streamChat({ ...options, onSource: value => { source = value; } }, provider)).getReader();
+  const decoder = new TextDecoder();
+  let pending = '', answer = '';
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    pending += decoder.decode(value, { stream: true });
+    const lines = pending.split('\n');
+    pending = lines.pop() ?? '';
+    for (const line of lines) {
+      if (line.startsWith('data: ') && line.slice(6) !== '[DONE]') answer += JSON.parse(line.slice(6)).token ?? '';
+    }
+  }
+  return { success: true, respuesta: answer, ...source };
 }
