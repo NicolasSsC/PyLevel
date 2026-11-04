@@ -1,0 +1,17 @@
+node_modules
+dist
+.astro
+.git
+.env
+.env.*
+.gemini_key
+.pgdata
+coverage
+playwright-report
+test-results
+tests
+deploy
+public/vendor/mediapipe
+**/__pycache__
+**/*.pyc
+*.log

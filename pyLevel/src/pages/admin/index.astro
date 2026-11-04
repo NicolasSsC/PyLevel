@@ -102,7 +102,7 @@ const inactiveCount = allExercises.length - activeCount;
             <button type="button" id="modal-close-btn" class="modal-close-x" aria-label="Cerrar modal">&times;</button>
           </div>
 
-          <div class="modal-body">
+          <fieldset id="exercise-fields" class="modal-body exercise-fields" aria-label="Contenido del ejercicio">
             <!-- Selector de Modalidad -->
             <div class="form-row">
               <div class="form-group flex-1">
@@ -118,15 +118,6 @@ const inactiveCount = allExercises.length - activeCount;
                 <input type="text" id="form-id" class="admin-input" placeholder="ej. clasico_fibonacci o 10_tienda_poo" pattern="[a-z0-9_]+" required />
                 <small class="field-hint">Solo letras minúsculas, números y guiones bajos.</small>
               </div>
-            </div>
-
-            <!-- Datos Generales -->
-            <div class="form-row">
-              <div class="form-group flex-2">
-                <label for="form-title">Título del Ejercicio <span class="req">*</span></label>
-                <input type="text" id="form-title" class="admin-input" placeholder="ej. Invertir una Cadena de Texto" required />
-              </div>
-
               <div class="form-group flex-1">
                 <label for="form-difficulty">Dificultad <span class="req">*</span></label>
                 <select id="form-difficulty" class="admin-input" required>
@@ -134,6 +125,25 @@ const inactiveCount = allExercises.length - activeCount;
                   <option value="Medio">Medio</option>
                   <option value="Difícil">Difícil</option>
                 </select>
+              </div>
+            </div>
+
+            <section id="admin-ai-panel" class="admin-ai-panel" aria-labelledby="ai-draft-title">
+              <div class="ai-draft-heading"><h3 id="ai-draft-title">Prepara un borrador con IA</h3><span>Opcional</span></div>
+              <p>Indica el tema. PyBot completará el formulario según la modalidad y dificultad elegidas. Revísalo antes de guardar.</p>
+              <label for="ai-draft-topic">Tema del ejercicio</label>
+              <div class="ai-draft-controls">
+                <input type="text" id="ai-draft-topic" class="admin-input" maxlength="500" placeholder="Ej. listas y bucles o reservas de una biblioteca" />
+                <button type="button" id="ai-generate-btn" class="btn-secondary">Generar borrador con IA</button>
+              </div>
+              <p id="ai-draft-status" class="ai-draft-status" role="status" aria-live="polite"></p>
+            </section>
+
+            <!-- Datos Generales -->
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label for="form-title">Título del Ejercicio <span class="req">*</span></label>
+                <input type="text" id="form-title" class="admin-input" placeholder="ej. Invertir una Cadena de Texto" required />
               </div>
 
               <div class="form-group flex-1">
@@ -184,6 +194,7 @@ const inactiveCount = allExercises.length - activeCount;
             </div>
 
             <p id="additional-files" class="field-hint"></p>
+            <div id="additional-file-editors" class="additional-file-editors"></div>
             <!-- Opciones extra para Clásicos -->
             <div id="classic-extras" class="extra-panel">
               <h4>Ayudas Pedagógicas (Para Retos Clásicos)</h4>
@@ -203,7 +214,7 @@ const inactiveCount = allExercises.length - activeCount;
                 <span>Ejercicio activo (visible para estudiantes)</span>
               </label>
             </div>
-          </div>
+          </fieldset>
 
           <div class="modal-footer">
             <span id="form-error-msg" class="form-error" role="alert"></span>

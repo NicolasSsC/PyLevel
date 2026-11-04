@@ -2,11 +2,14 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { invokeAI, streamChat } from '../../../ai/client';
+import { aiBody, chatInput, AiRequestError } from '../../../ai/access';
+import { json } from '../../../lib/http';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
-    const body = await request.json().catch(() => ({}));
-    const { mensaje, historial = [], contexto = {}, stream = false } = body;
+    const body = await aiBody(request);
+    const { mensaje, historial, contexto } = chatInput(body);
+    const stream = body.stream === true;
 
     const wantsStream = stream === true || request.headers.get('accept')?.includes('text/event-stream');
 
@@ -37,10 +40,7 @@ export const POST: APIRoute = async ({ request }) => {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err: any) {
-    return new Response(JSON.stringify({ success: false, error: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+  } catch (error) {
+    return json({ success: false, error: error instanceof AiRequestError ? error.message : 'PyBot no pudo responder. Intenta nuevamente.' }, error instanceof AiRequestError ? error.status : 503);
   }
 };

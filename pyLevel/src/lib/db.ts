@@ -4,11 +4,12 @@ import crypto from 'node:crypto';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { databaseConfig } from './db-config.ts';
 
 // Asegurar carga de variables de entorno en cualquier contexto de ejecución
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-dotenv.config({ path: join(__dirname, '../../.env') });
+dotenv.config({ path: join(__dirname, '../../.env'), quiet: true });
 
 const { Pool } = pg;
 
@@ -17,27 +18,9 @@ let pool: pg.Pool | null = null;
 export function getDbPool(): pg.Pool {
   if (pool) return pool;
 
-  const rawHost = process.env.PGHOST || process.env.DB_HOST || 'dpg-db8p7oivcj2c73ano9e0-a.ohio-postgres.render.com';
-  const host = rawHost.trim();
-  const port = Number.parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
-  const user = (process.env.PGUSER || process.env.DB_USER || 'pylevel_user').trim();
-  const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
-  const database = (process.env.PGDATABASE || process.env.DB_NAME || 'pylevel').trim();
-  const poolSize = Number(process.env.DB_POOL_MAX || 5);
-  if (!Number.isInteger(poolSize) || poolSize < 1) throw new Error('DB_POOL_MAX debe ser un entero positivo.');
-
-  pool = new Pool({
-    host,
-    port,
-    user,
-    password,
-    database,
-    // Explicit opt-out is limited to local development/test databases.
-    ssl: process.env.DB_SSL === 'false' && ['127.0.0.1', 'localhost', '::1'].includes(host)
-      ? false : { rejectUnauthorized: false },
-    max: poolSize,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+  pool = new Pool(databaseConfig(process.env));
+  pool.on('error', () => {
+    console.error('Se perdió una conexión inactiva con PostgreSQL. El siguiente acceso intentará reconectar.');
   });
 
   return pool;
@@ -57,7 +40,7 @@ export interface UserProfile {
 }
 
 /**
- * Registra un nuevo usuario en PostgreSQL Render
+ * Registra un nuevo usuario en PostgreSQL.
  * Inserta en tabla `users` (con hash bcrypt) y tabla `profiles`.
  */
 export async function registerUser(params: {
@@ -65,10 +48,12 @@ export async function registerUser(params: {
   password: string;
   displayName: string;
   bio?: string;
+  occupation?: string;
 }): Promise<UserProfile> {
   const email = params.email.trim().toLowerCase();
   const displayName = params.displayName.trim();
-  const bio = params.bio?.trim() || 'Estudiante de Ingeniería de Software en PyLevel';
+  const bio = params.bio?.trim() || 'Aprendiendo Python en PyLevel';
+  const occupation = params.occupation?.trim() || null;
 
   if (!email || !email.includes('@')) {
     throw new Error('El correo electrónico no es válido.');
@@ -107,9 +92,9 @@ export async function registerUser(params: {
     );
 
     await client.query(
-      `INSERT INTO profiles (user_id, display_name, avatar_url, bio, updated_at)
-       VALUES ($1, $2, NULL, $3, $4)`,
-      [userId, displayName, bio, now]
+      `INSERT INTO profiles (user_id, display_name, avatar_url, bio, occupation, updated_at)
+       VALUES ($1, $2, NULL, $3, $4, $5)`,
+      [userId, displayName, bio, occupation, now]
     );
 
     await client.query('COMMIT');
@@ -121,7 +106,7 @@ export async function registerUser(params: {
       displayName,
       avatarUrl: null,
       bio,
-      occupation: null,
+      occupation,
       birthday: null,
       isActive: createdUser.is_active,
       role: 'user',
