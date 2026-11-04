@@ -7,7 +7,7 @@ declare const PYLEVEL_BOOTSTRAP_MIGRATIONS: { name: string; checksum: string; sq
 declare const PYLEVEL_BOOTSTRAP_TARGET: { projectId: string; environmentId: string };
 
 const expectedTables = ['users', 'profiles', 'auth_sessions', 'exam_attempts', 'exam_events',
-  'practice_activity', 'exercises', 'exercise_versions', 'pylevel_schema_migrations', 'ai_request_usage'];
+  'practice_activity', 'exercises', 'exercise_versions', 'pylevel_schema_migrations', 'ai_request_usage', 'runner_request_usage'];
 let pool: pg.Pool | undefined;
 let client: pg.PoolClient | undefined;
 try {

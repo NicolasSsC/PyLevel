@@ -1,0 +1,10 @@
+[Unit]
+Description=Check expired disposable PyLevel containers
+
+[Timer]
+OnBootSec=30
+OnUnitActiveSec=30
+Unit=pylevel-runner-cleanup.service
+
+[Install]
+WantedBy=timers.target
