@@ -2,9 +2,9 @@ name: Playwright E2E
 
 on:
   push:
-    branches: [main]
+    branches: [main, feat/pre-main]
   pull_request:
-    branches: [main]
+    branches: [main, feat/pre-main]
   workflow_dispatch:
 
 permissions:
@@ -28,6 +28,10 @@ jobs:
         run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
+      - name: Check types
+        run: npm run check -- --minimumSeverity error
+      - name: Run unit tests
+        run: npm test
       - name: Run browser tests
         run: npm run test:e2e
       - name: Save report and failure artifacts

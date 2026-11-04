@@ -8,10 +8,11 @@ export async function registerStudent(page: Page) {
     password: 'PruebaNavegador2026!',
   };
   await page.goto('/registro');
-  await page.getByLabel('Nombre y Apellido').fill(student.name);
-  await page.getByLabel('Correo Institucional / Personal').fill(student.email);
-  await page.getByLabel('Contraseña (mínimo 6 caracteres)').fill(student.password);
-  await page.getByRole('button', { name: 'Crear Cuenta de Estudiante' }).click();
+  await expect(page.getByRole('button', { name: 'Crear cuenta', exact: true })).toBeEnabled();
+  await page.getByLabel('Nombre completo', { exact: true }).fill(student.name);
+  await page.getByLabel('Correo', { exact: true }).fill(student.email);
+  await page.getByLabel('Clave', { exact: true }).fill(student.password);
+  await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await expect(page).toHaveURL(/\/perfil\/?$/);
   await expect(page.getByLabel('Nombre completo')).toHaveValue(student.name);
   return student;

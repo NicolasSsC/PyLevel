@@ -81,3 +81,58 @@ test('los accesos también permanecen ocultos sin JavaScript', async ({ browser 
     await expect(page.locator('#pybot-widget')).toBeHidden();
   } finally { await context.close(); }
 });
+
+test('el HTML ya incluye el perfil y PyBot al navegar, sin esperar al cliente', async ({ page, browser }) => {
+  const student = await registerStudent(page);
+  const context = await browser.newContext({
+    javaScriptEnabled: false,
+    storageState: await page.context().storageState(),
+  });
+  try {
+    const document = await context.newPage();
+    for (const path of ['/', '/ejercicios/', '/ejercicios/clasicos/', '/examen/', '/perfil', '/progreso/']) {
+      const response = await document.goto(`http://127.0.0.1:4341${path}`);
+      expect(response?.status()).toBe(200);
+      expect(response?.headers()['cache-control']).toContain('no-store');
+      expect(response?.headers()['vary']).toMatch(/Cookie/i);
+      await expect(document.locator('#profile-wrapper')).toBeVisible();
+      await expect(document.locator('#user-profile-name')).toHaveText('Estudiante');
+      await expect(document.locator('#dropdown-email')).toHaveText(student.email);
+      await expect(document.locator('.nav-links')).toBeVisible();
+      await expect(document.locator('.nav-links [data-session-link="/ejercicios/"]')).toHaveAttribute('href', '/ejercicios/');
+      await expect(document.locator('#pybot-widget')).toBeVisible();
+      await expect(document.locator('#home-signin-link')).toBeHidden();
+      await expect(document.locator('#python-home [data-guest-only]').first()).toBeHidden();
+    }
+  } finally { await context.close(); }
+
+  const guest = await browser.newContext({ javaScriptEnabled: false });
+  try {
+    const document = await guest.newPage();
+    for (const path of ['/', '/ejercicios/']) {
+      const response = await document.goto(`http://127.0.0.1:4341${path}`);
+      expect(await response!.text()).not.toContain(student.email);
+      await expect(document.locator('#profile-wrapper')).toBeHidden();
+      await expect(document.locator('#pybot-widget')).toBeHidden();
+    }
+  } finally { await guest.close(); }
+});
+
+test('suaviza el contenido y conserva los controles al navegar con movimiento permitido', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await registerStudent(page);
+  await expect(page.locator('#top-navbar')).toHaveCSS('view-transition-name', 'pylevel-navbar');
+  await expect(page.locator('#pybot-widget')).toHaveCSS('view-transition-name', 'pylevel-pybot');
+  await page.locator('.nav-links').getByRole('link', { name: 'Ejercicios', exact: true }).click();
+  await expect(page).toHaveURL(/\/ejercicios\/?$/);
+  await expect(page.locator('#user-profile-name')).toHaveText('Estudiante');
+  await page.getByRole('button', { name: 'Abrir asistente de Python PyBot' }).click();
+  await expect(page.locator('#pybot-chat-panel')).toBeVisible();
+  await page.locator('#pybot-close-btn').click();
+  await page.locator('.nav-links').getByRole('link', { name: 'Examen', exact: true }).click();
+  await expect(page).toHaveURL(/\/examen\/?$/);
+  await expect(page.locator('#profile-wrapper')).toBeVisible();
+  await expect(page.locator('#pybot-widget')).toBeVisible();
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('#top-navbar')).toHaveCSS('view-transition-name', 'none');
+});

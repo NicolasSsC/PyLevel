@@ -7,18 +7,19 @@ import { startSession } from '../../../lib/session';
 export const POST: APIRoute = async ({ request, cookies }) => {
   try {
     const body = await request.json();
-    const { email, password, displayName, bio } = body;
+    const { email, password, displayName, bio, occupation } = body;
 
     if (typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string' ||
         !email || !password || !displayName || email.length > 254 || password.length > 200 || displayName.length > 100 ||
-        (bio !== undefined && (typeof bio !== 'string' || bio.length > 500))) {
+        (bio !== undefined && (typeof bio !== 'string' || bio.length > 500)) ||
+        (occupation !== undefined && (typeof occupation !== 'string' || occupation.length > 100))) {
       return new Response(
         JSON.stringify({ error: 'Faltan campos obligatorios: correo, contraseña y nombre.' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
-    const user = await registerUser({ email, password, displayName, bio });
+    const user = await registerUser({ email, password, displayName, bio, occupation });
 
     await startSession(cookies, request, user.id);
 

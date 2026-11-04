@@ -13,6 +13,8 @@ if (appOrigin && !['http:', 'https:'].includes(appOrigin.protocol)) throw new Er
 export default defineConfig({
   output: 'static',
   adapter: node({ mode: 'standalone' }),
+  // Authentication is stored in PostgreSQL; no ephemeral filesystem sessions are used.
+  session: false,
   security: {
     // Astro validates Host before constructing Request.url used by CSRF checks.
     allowedDomains: [

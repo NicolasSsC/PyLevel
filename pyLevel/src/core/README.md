@@ -50,7 +50,7 @@ ejercicios superados y recomendaciones, sin métricas simuladas.
 - Python 3 disponible como `python3` para el puente de desarrollo.
 - Host Linux con Docker, runtime `runsc` registrado e imagen del ejecutor
   preparada según el [README del ejecutor](../../../runner/README.md).
-- PostgreSQL con las tablas de usuarios y perfiles para probar autenticación.
+- PostgreSQL inicializado con `pnpm db:migrate` para probar autenticación.
   Los editores guardan borradores en el navegador y no necesitan SQL para eso.
 
 Los comandos siguientes usan una terminal Bash en el host Linux de desarrollo.
@@ -68,23 +68,22 @@ pnpm install --frozen-lockfile
 test -f .env || cp .env.example .env
 ```
 
-Editar `.env` con los parámetros reales de la base de datos. Los clientes actuales
-usan `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` y `PGDATABASE`, o sus alternativas
-`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD` y `DB_NAME`. Las variables `PG*`
-tienen prioridad: si se conservan ambos grupos del ejemplo, mantenerlos coherentes.
-No publicar credenciales ni versionar `.env`.
+Editar `.env` con `DATABASE_URL`. También se aceptan `PGHOST`, `PGPORT`, `PGUSER`,
+`PGPASSWORD` y `PGDATABASE`, o sus alternativas `DB_HOST`, `DB_PORT`, `DB_USER`,
+`DB_PASSWORD` y `DB_NAME`. La prioridad es `DATABASE_URL` > `PG*` > `DB*`.
+La web, las migraciones y el puente usan el mismo cliente. No publicar credenciales
+ni versionar `.env`. No existe una conexión remota implícita.
 
-`DATABASE_URL` aparece en el ejemplo, pero los clientes actuales no la utilizan.
-El cliente web acepta `DB_SSL=false` para hosts loopback de desarrollo; para
-otros hosts mantiene SSL con `rejectUnauthorized: false`. El cliente legado del
-puente sigue habilitando SSL en el código.
+El cliente usa TLS con validación en hosts públicos y TLS `require` en la red
+privada de Railway, compatible con su certificado autofirmado. `DB_SSL_CA` permite
+validar un certificado propio. `DB_SSL=false` solo se admite en loopback y hosts
+`*.railway.internal`. El ejemplo local funciona sin TLS.
 
-La migración `pnpm db:migrate` crea las tablas de sesiones, exámenes y actividad,
-y agrega ocupación y cumpleaños a perfiles. El código
-de autenticación espera `users` con `id`, `email`, `password_hash`, `is_active`,
-`created_at` y `updated_at`, y `profiles` con `user_id`, `display_name`,
-`avatar_url`, `bio` y `updated_at`. Preparar y verificar esas tablas de usuarios
-y perfiles antes de probar registro o login; la migración no las crea.
+`pnpm db:migrate` inicializa una base vacía, incluidas las tablas `users` y
+`profiles`, sesiones, exámenes, actividad y catálogo administrable. Registra cada
+archivo y su checksum en `pylevel_schema_migrations`, dentro de una transacción
+con bloqueo para evitar migraciones simultáneas. No crea cuentas ni datos de
+demostración. Para producción consulta [Railway](../../RAILWAY.md).
 
 ### Arrancar los servicios
 

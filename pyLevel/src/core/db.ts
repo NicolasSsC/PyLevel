@@ -1,39 +1,5 @@
-import pg from 'pg';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-// Ensure .env is loaded
-dotenv.config();
-
-const { Pool } = pg;
-
-let pool: pg.Pool | null = null;
-
-export function getDbPool(): pg.Pool {
-  if (!pool) {
-    const host = (process.env.PGHOST || process.env.DB_HOST || '').trim();
-    const database = process.env.PGDATABASE || process.env.DB_NAME || 'pylevel';
-    const user = process.env.PGUSER || process.env.DB_USER || 'pylevel_user';
-    const password = process.env.PGPASSWORD || process.env.DB_PASSWORD || '';
-    const port = Number.parseInt(process.env.PGPORT || process.env.DB_PORT || '5432', 10);
-
-    pool = new Pool({
-      host,
-      port,
-      database,
-      user,
-      password,
-      ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 5000,
-    });
-
-    pool.on('error', (err) => {
-      console.error('Unexpected error on idle PostgreSQL client', err);
-    });
-  }
-  return pool;
-}
+import { getDbPool } from '../lib/db.ts';
+export { getDbPool };
 
 export interface UserProfile {
   id: string;
