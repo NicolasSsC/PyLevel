@@ -22,6 +22,11 @@ export function classifyResult(action: 'run' | 'test', result: { status: string;
 
 export function activityStore(db: Database) {
   return {
+    async completed(userId: string, mode: Mode): Promise<string[]> {
+      const result = await db.query(`SELECT DISTINCT exercise_id FROM practice_activity
+        WHERE user_id=$1 AND mode=$2 AND kind='test' AND result='passed' AND tests_run>0`, [userId, mode]);
+      return result.rows.map(row => row.exercise_id);
+    },
     async record(userId: string, exerciseId: string, mode: Mode, kind: ActivityKind, id = randomUUID(), result: PracticeResult | null = null) {
       await db.query(`INSERT INTO practice_activity (id, user_id, exercise_id, mode, kind, result)
         VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (id) DO NOTHING`, [id, userId, exerciseId, mode, kind, result]);

@@ -18,8 +18,10 @@ Object.assign(process.env, {
   DB_SSL: 'false',
   DB_POOL_MAX: '1', // PGlite has a single PostgreSQL session; avoid multiplexing transactions.
   LOCAL_TEST_DB_PORT: '55441',
-  // No real Python runner is used by this initial browser suite.
-  PYLEVEL_RUNNER_URL: 'http://127.0.0.1:1',
+  // Isolated HTTP fixture; never executes Python or contacts Azure.
+  PYLEVEL_RUNNER_URL: 'http://127.0.0.1:4342',
+  PYLEVEL_RUNNER_TOKEN: '',
+  LOCAL_RUNNER_PORT: '4342',
   PYBOT_LOCAL_ONLY: 'true', // Browser checks must never spend real Gemini credits.
 });
 
@@ -35,6 +37,7 @@ function run(script, args = []) {
 
 try {
   await import('../local-db.mjs');
+  await import('../local-runner.mjs');
   await run('scripts/prepare-camera.mjs');
   await run('node_modules/astro/bin/astro.mjs', ['build']);
   await import(new URL('../../dist/server/entry.mjs', import.meta.url).href);

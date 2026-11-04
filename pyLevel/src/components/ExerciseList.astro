@@ -2,6 +2,7 @@
 import { modePaths } from '../core/catalog';
 import { getDbPool } from '../lib/db';
 import { exerciseStore } from '../admin/exercise-store';
+import { activityStore } from '../account/activity';
 
 interface Props {
   mode: 'classic' | 'contextual';
@@ -10,6 +11,8 @@ interface Props {
 const { mode } = Astro.props;
 const classic = mode === 'classic';
 const initialExercises = await exerciseStore(getDbPool()).list({mode,publicOnly:true});
+const completedIds = new Set(Astro.locals.sessionUser
+  ? await activityStore(getDbPool()).completed(Astro.locals.sessionUser.id, mode) : []);
 
 // Dificultades ordenadas
 const difficulties = ['Fácil', 'Medio', 'Difícil'];
@@ -116,11 +119,13 @@ const topics = [...new Set(initialExercises.flatMap(e => e.topics))].sort();
         : `PROYECTO #${exercise.projectNumber || index + 1}`;
 
       const linkHref = `/ejercicios/${modePaths[mode]}/${exercise.id}/`;
+      const completed = completedIds.has(exercise.id);
 
       return (
         <article
-          class="card-item"
+          class:list={['card-item', { 'is-completed': completed }]}
           data-id={exercise.id}
+          data-completed={completed ? 'true' : 'false'}
           data-difficulty={exercise.difficulty}
           data-topics={JSON.stringify(exercise.topics || [])}
           data-title={exercise.title.toLowerCase()}
@@ -165,7 +170,8 @@ const topics = [...new Set(initialExercises.flatMap(e => e.topics))].sort();
             </div>
 
             <div class="footer-status" data-status-id={exercise.id}>
-              <span class="status-indicator pending">Pendiente</span>
+              {completed ? <span class="status-indicator completed"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6" /></svg> Completado</span>
+                : <span class="status-indicator pending">Pendiente</span>}
             </div>
           </div>
         </article>
@@ -264,25 +270,8 @@ const topics = [...new Set(initialExercises.flatMap(e => e.topics))].sort();
   if (clearBtn) clearBtn.addEventListener('click', resetFilters);
   if (resetBtn) resetBtn.addEventListener('click', resetFilters);
 
-  // Comprobar estado de completado en localStorage
-  function updateCompletionStatuses() {
-    try {
-      const progressRaw = localStorage.getItem('pylevel_progress') || '{}';
-      const progress = JSON.parse(progressRaw);
-      const statusEls = document.querySelectorAll<HTMLElement>('.footer-status');
-
-      statusEls.forEach(el => {
-        const id = el.dataset.statusId;
-        if (id && progress[id] && progress[id].completed) {
-          el.innerHTML = '<span class="status-indicator completed">Resuelto</span>';
-        }
-      });
-    } catch {
-      // Ignorar fallback
-    }
-  }
-
-  updateCompletionStatuses();
+  // A back navigation must reflect results saved after leaving this list.
+  window.addEventListener('pageshow', event => { if (event.persisted) location.reload(); });
 
 </script>
 
@@ -676,7 +665,18 @@ const topics = [...new Set(initialExercises.flatMap(e => e.topics))].sort();
   }
 
   .status-indicator.completed {
-    color: #10b981;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #6ee7b7;
+  }
+
+  .card-item.is-completed {
+    border-color: rgba(52, 211, 153, 0.4);
+  }
+
+  .card-item.is-completed:hover {
+    border-color: #34d399;
   }
 
   /* Estado vacío */

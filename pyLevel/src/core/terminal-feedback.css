@@ -1,0 +1,14 @@
+[data-practice-terminal] {
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+:root [data-practice-terminal][data-feedback="correct"] {
+  border: 1px solid #34d399;
+  box-shadow: 0 0 0 1px rgb(52 211 153 / 15%);
+}
+[data-practice-terminal][data-feedback="correct"] #result {
+  color: #6ee7b7;
+  font-weight: 650;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-practice-terminal] { transition: none; }
+}
