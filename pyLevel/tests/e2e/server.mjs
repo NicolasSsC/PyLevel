@@ -9,6 +9,7 @@ Object.assign(process.env, {
   HOST: '127.0.0.1',
   PORT: '4341',
   APP_ORIGIN: 'http://127.0.0.1:4341',
+  DATABASE_URL: 'postgresql://postgres:local-e2e-only@127.0.0.1:55441/pylevel_e2e',
   PGHOST: '127.0.0.1',
   PGPORT: '55441',
   PGUSER: 'postgres',

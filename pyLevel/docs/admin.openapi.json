@@ -502,6 +502,99 @@
           }
         }
       }
+    },
+    "/api/admin/exercises/generate": {
+      "post": {
+        "operationId": "generateExerciseDraft",
+        "summary": "Generar un borrador editable, sin publicarlo",
+        "description": "Solo administradores. Requiere Origin exacto. Utiliza el catálogo para evitar títulos repetidos y devuelve contenido que debe revisarse y guardarse con POST /api/admin/exercises.",
+        "parameters": [
+          {
+            "name": "Origin",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "mode",
+                  "tema",
+                  "difficulty"
+                ],
+                "properties": {
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "classic",
+                      "contextual"
+                    ]
+                  },
+                  "tema": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500
+                  },
+                  "difficulty": {
+                    "type": "string",
+                    "enum": [
+                      "Fácil",
+                      "Medio",
+                      "Difícil"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Borrador sin guardar. source identifica el motor utilizado; motor_local indica el respaldo local.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "exercise",
+                    "source"
+                  ],
+                  "properties": {
+                    "exercise": {
+                      "$ref": "#/components/schemas/Exercise"
+                    },
+                    "source": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Modalidad, dificultad o tema inválidos"
+          },
+          "401": {
+            "description": "Sesión ausente o caducada"
+          },
+          "403": {
+            "description": "Sin permiso administrativo u Origin incorrecto"
+          },
+          "502": {
+            "description": "Contenido del generador incompleto o inválido; puede intentarse de nuevo"
+          },
+          "503": {
+            "description": "Motor de generación no disponible"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -607,6 +700,24 @@
           },
           "is_active": {
             "type": "boolean"
+          },
+          "isAI": {
+            "type": "boolean"
+          },
+          "testCasesCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "filesCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "criteriaCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10000
           }
         }
       },

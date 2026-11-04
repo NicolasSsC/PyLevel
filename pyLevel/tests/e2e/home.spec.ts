@@ -33,7 +33,7 @@ test('mantiene la precarga de Inicio y abre el login animado solo al solicitarlo
   await expect(page.getByRole('heading', { level: 1, name: /Tu próxima/ })).toBeVisible();
 });
 
-test('saltar la precarga libera Inicio y conserva la navegación a ejercicios', async ({ page }) => {
+test('saltar la precarga libera Inicio y permite navegar al login desde el botón final', async ({ page }) => {
   await page.goto('/?intro=1');
   await page.getByRole('button', { name: 'Saltar precarga (Esc)' }).click();
   await expect(page.getByRole('heading', { level: 1, name: /Tu próxima/ })).toBeFocused();
@@ -41,7 +41,16 @@ test('saltar la precarga libera Inicio y conserva la navegación a ejercicios', 
   await page.getByRole('link', { name: /Descubre las posibilidades/ }).click();
   await expect(page.getByRole('heading', { name: /Una herramienta/ })).toBeInViewport();
   await page.getByRole('link', { name: /Dale forma a tu primera idea/ }).click();
-  await expect(page).toHaveURL(/\/ejercicios\/?$/);
+  await expect(page).toHaveURL(/\/login$/);
+});
+
+test('el botón de inicio "Empieza a crear" lleva al login', async ({ page }) => {
+  await page.goto('/?intro=1');
+  await page.getByRole('button', { name: 'Saltar precarga (Esc)' }).click();
+  const createButton = page.getByRole('link', { name: /Empieza a crear/ });
+  await expect(createButton).toHaveAttribute('href', '/login');
+  await createButton.click();
+  await expect(page).toHaveURL(/\/login$/);
 });
 
 test('Escape termina la precarga y recuerda la visita a Inicio', async ({ page }) => {
@@ -106,7 +115,7 @@ test('valida los campos, informa sobre recuperación y abre el registro existent
   await expect(page.getByRole('status').filter({ hasText: 'La recuperación de contraseña aún no está disponible.' })).toBeVisible();
   await page.getByRole('link', { name: 'Crear cuenta' }).click();
   await expect(page).toHaveURL(/\/registro$/);
-  await expect(page.getByRole('heading', { name: 'Registro de Estudiante' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Crear cuenta', exact: true })).toBeVisible();
 });
 
 for (const viewport of [{ width: 390, height: 844 }, { width: 320, height: 568 }]) {

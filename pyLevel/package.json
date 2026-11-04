@@ -8,6 +8,8 @@
   "scripts": {
     "db:dev": "node --experimental-strip-types scripts/dev-db.mjs",
     "db:migrate": "node --experimental-strip-types scripts/migrate.mjs",
+    "db:seed:catalog": "node --experimental-strip-types scripts/seed-catalog.mjs",
+    "db:railway:prepare": "node scripts/build-railway-bootstrap.mjs",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -16,6 +18,7 @@
     "check": "astro check",
     "dev": "node scripts/prepare-camera.mjs && astro dev",
     "build": "node scripts/prepare-camera.mjs && astro build",
+    "start": "node dist/server/entry.mjs",
     "preview": "astro preview",
     "astro": "node scripts/prepare-camera.mjs && astro"
   },

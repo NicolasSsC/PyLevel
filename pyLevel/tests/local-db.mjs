@@ -1,24 +1,13 @@
 // Isolated, disposable database for HTTP and browser verification. Never loads .env.
 import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
-import { readFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import bcrypt from 'bcryptjs';
 import { seedCatalog } from '../src/admin/catalog-seed.ts';
+import { readMigrations, applyMigrations } from '../scripts/migration-runner.mjs';
 
 const db = await PGlite.create();
-await db.exec(`CREATE TABLE users (
-  id uuid PRIMARY KEY, email text NOT NULL UNIQUE, password_hash text NOT NULL,
-  is_active boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL, updated_at timestamptz NOT NULL
-);
-CREATE TABLE profiles (
-  user_id uuid PRIMARY KEY REFERENCES users(id), display_name text NOT NULL,
-  avatar_url text, bio text, updated_at timestamptz NOT NULL
-);`);
-await db.exec(await readFile(new URL('../migrations/001_sessions_exams.sql', import.meta.url), 'utf8'));
-await db.exec(await readFile(new URL('../migrations/002_profile_progress.sql', import.meta.url), 'utf8'));
-await db.exec(await readFile(new URL('../migrations/003_exam_camera.sql', import.meta.url), 'utf8'));
-await db.exec(await readFile(new URL('../migrations/004_admin.sql', import.meta.url), 'utf8'));
+await applyMigrations({ query: async (sql, params) => params ? db.query(sql, params) : (await db.exec(sql)).at(-1) }, await readMigrations());
 await seedCatalog(db);
 const id = randomUUID();
 await db.query('INSERT INTO users (id,email,password_hash,is_active,created_at,updated_at) VALUES ($1, $2, $3, true, now(), now())', [id, 'demo@pylevel.test', await bcrypt.hash('PruebaLocal2026!', 10)]);

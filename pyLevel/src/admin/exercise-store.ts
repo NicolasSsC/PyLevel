@@ -39,9 +39,18 @@ export function validateExercise(body: any, current?: AdminExercise): AdminExerc
     return value;
   };
   if (body.is_active !== undefined && typeof body.is_active !== 'boolean') throw new AdminError('Estado inválido.');
+  if (body.isAI !== undefined && typeof body.isAI !== 'boolean') throw new AdminError('Origen del ejercicio inválido.');
+  const counts: Record<string, number> = {};
+  for (const field of ['testCasesCount', 'filesCount', 'criteriaCount'] as const) {
+    const value = body[field] ?? current?.[field];
+    if (value !== undefined) {
+      if (!Number.isInteger(value) || value < 0 || value > 10000) throw new AdminError('Cantidad de archivos o pruebas inválida.');
+      counts[field] = value;
+    }
+  }
   const briefing = body.briefing ?? current?.briefing;
   if (briefing && (typeof briefing.situacion !== 'string' || typeof briefing.pregunta !== 'string' || typeof briefing.salidaResumen !== 'string' || !Array.isArray(briefing.queSeTiene) || briefing.queSeTiene.some((f: any) => !f || typeof f.path !== 'string' || typeof f.role !== 'string') || !Array.isArray(briefing.queSeEspera) || briefing.queSeEspera.some((s: any) => typeof s !== 'string') || JSON.stringify(briefing).length > 20000)) throw new AdminError('Contexto del proyecto inválido.');
-  return { ...current, id, mode, difficulty,
+  return { ...current, ...counts, id, mode, difficulty, isAI: body.isAI ?? current?.isAI ?? false,
     title: required(body.title ?? current?.title, 'El título', 255),
     description: required(body.description ?? current?.description, 'La descripción', 3000),
     statement: required(body.statement ?? current?.statement, 'El enunciado', 30000),

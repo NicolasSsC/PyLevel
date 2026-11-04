@@ -35,3 +35,12 @@ en una migración ni en el código de la aplicación.
 
 Contrato HTTP: ../../docs/admin.openapi.json. Las mutaciones requieren Origin exacto.
 Pruebas: tests/admin.test.ts y tests/e2e/admin.spec.ts, con PostgreSQL desechable.
+
+La generación de ejercicios con IA está disponible exclusivamente en «Crear Nuevo
+Ejercicio». POST /api/admin/exercises/generate exige una sesión administrativa
+y devuelve un borrador, sin escribir en el catálogo. El formulario permite revisar
+el contenido y editar todos los módulos antes de guardar con el flujo habitual.
+Las antiguas rutas públicas /api/ai/generate-challenge y /api/ai/generate-project
+se han retirado. Los catálogos de estudiantes solo ofrecen búsqueda y filtros.
+El adaptador conserva la invocación Python de PyBot; PYTHON_BIN permite indicar
+un ejecutable diferente de python/python3. El motor local se identifica como tal.

@@ -19,6 +19,36 @@ const search = get<HTMLInputElement>('search-input');
 let exercises = initial;
 let editingExercise: AdminExercise | undefined;
 let pendingDeleteId: string | null = null;
+let draft: AdminExercise | undefined;
+let generation: AbortController | null = null;
+const aiPanel = get('admin-ai-panel');
+const aiStatus = get('ai-draft-status');
+const generateButton = get<HTMLButtonElement>('ai-generate-btn');
+const fields = get<HTMLFieldSetElement>('exercise-fields');
+
+function generationBusy(busy: boolean) {
+  fields.disabled = busy;
+  get<HTMLButtonElement>('modal-save-btn').disabled = busy;
+  generateButton.textContent = busy ? 'Generando borrador…' : 'Generar borrador con IA';
+  aiPanel.setAttribute('aria-busy', String(busy));
+}
+function cancelGeneration() {
+  generation?.abort();
+  generation = null;
+  generationBusy(false);
+}
+function additionalFiles(files: Record<string, string>) {
+  const entries = Object.entries(files).filter(([path]) => path !== 'main.py' && path !== 'tests/test_publico.py');
+  get('additional-files').textContent = entries.length ? 'Revisa también los módulos y archivos adicionales del proyecto.' : '';
+  get('additional-file-editors').replaceChildren(...entries.map(([path, code], index) => {
+    const group = document.createElement('div'); group.className = 'form-group';
+    const label = document.createElement('label'); label.textContent = path;
+    const area = document.createElement('textarea'); area.className = 'admin-input code-font';
+    area.id = `extra-file-${index}`;
+    label.htmlFor = area.id; area.dataset.extraFile = path; area.value = code; area.rows = 6; area.spellcheck = false;
+    group.append(label, area); return group;
+  }));
+}
 
 function text(root: HTMLElement, selector: string, value: string) {
   root.querySelector<HTMLElement>(selector)!.textContent = value;
@@ -93,6 +123,10 @@ function extras() {
 }
 
 function edit(exercise?: AdminExercise) {
+  cancelGeneration();
+  draft = undefined;
+  aiStatus.textContent = '';
+  aiPanel.hidden = !!exercise;
   editingExercise = exercise;
   form.reset();
   error.textContent = '';
@@ -113,8 +147,7 @@ function edit(exercise?: AdminExercise) {
   input('hint').value = exercise?.hints[0] ?? '';
   input('solution').value = exercise?.solution ?? '';
   input('is-active').checked = exercise?.is_active ?? true;
-  const additional = Object.keys(exercise?.files ?? {}).filter(p => p !== 'main.py' && p !== 'tests/test_publico.py');
-  get('additional-files').textContent = additional.length ? `También se conservarán: ${additional.join(', ')}.` : '';
+  additionalFiles(exercise?.files ?? {});
   extras();
   modal.showModal();
 }
@@ -139,6 +172,47 @@ function view(ex: AdminExercise) {
 }
 
 get('btn-create-exercise').addEventListener('click', () => edit());
+modal.addEventListener('close', cancelGeneration);
+generateButton.addEventListener('click', async () => {
+  if (editingExercise || generation) return;
+  const topic = get<HTMLInputElement>('ai-draft-topic');
+  const tema = topic.value.trim();
+  if (!tema) { aiStatus.textContent = 'Escribe el tema del ejercicio que quieres generar.'; topic.focus(); return; }
+  const controller = new AbortController();
+  generation = controller;
+  generationBusy(true);
+  error.textContent = '';
+  aiStatus.textContent = 'PyBot está preparando el borrador. Puedes cancelar cerrando este formulario.';
+  const timer = window.setTimeout(() => controller.abort(), 45000);
+  let prepared = false;
+  try {
+    const data = await adminRequest('/api/admin/exercises/generate', 'POST', {
+      mode: modeInput.value, tema, difficulty: input('difficulty').value,
+    }, controller.signal);
+    if (generation !== controller || !modal.open) return;
+    const exercise = data.exercise as AdminExercise;
+    draft = exercise;
+    input('id').value = exercise.id;
+    input('title').value = exercise.title;
+    input('desc').value = exercise.description;
+    input('statement').value = exercise.statement;
+    input('expected').value = exercise.expected || '';
+    input('level').value = exercise.level;
+    input('topics').value = exercise.topics.join(', ');
+    input('main-py').value = exercise.files['main.py'];
+    input('test-py').value = exercise.files['tests/test_publico.py'];
+    input('hint').value = exercise.hints[0] || '';
+    input('solution').value = exercise.solution || '';
+    additionalFiles(exercise.files);
+    aiStatus.textContent = (data.source === 'motor_local' ? 'Borrador preparado con el motor local de PyBot.' : 'Borrador preparado.') + ' Revisa el contenido y las pruebas; se publicará solo al guardar según el estado elegido.';
+    prepared = true;
+  } catch (problem) {
+    if (generation === controller && modal.open) aiStatus.textContent = controller.signal.aborted ? 'Se agotó el tiempo de espera. Puedes volver a intentarlo.' : (problem as Error).message;
+  } finally {
+    window.clearTimeout(timer);
+    if (generation === controller) { generation = null; generationBusy(false); if (prepared) input('title').focus(); }
+  }
+});
 get('modal-close-btn').addEventListener('click', () => modal.close());
 get('modal-cancel-btn').addEventListener('click', () => modal.close());
 get('view-close').addEventListener('click', () => viewModal.close());
@@ -172,6 +246,7 @@ tbody.addEventListener('click', async event => {
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
+  if (generation) return;
   const existing = editingExercise;
   const id = existing?.id ?? input('id').value.trim();
   const title = input('title').value.trim();
@@ -187,6 +262,7 @@ form.addEventListener('submit', async event => {
   }
   const hint = input('hint').value.trim();
   const updated: AdminExercise = {
+    ...draft,
     ...existing,
     id, title, description, statement, version: existing?.version ?? 0,
     mode: modeInput.value as AdminExercise['mode'],
@@ -194,8 +270,8 @@ form.addEventListener('submit', async event => {
     level: input('level').value,
     topics: input('topics').value.split(',').map(t => t.trim()).filter(Boolean),
     expected: input('expected').value,
-    files: { ...existing?.files, 'main.py': input('main-py').value, 'tests/test_publico.py': input('test-py').value },
-    hints: [...(hint ? [hint] : []), ...(existing?.hints.slice(1) ?? [])],
+    files: { ...(existing?.files ?? draft?.files), ...Object.fromEntries([...document.querySelectorAll<HTMLTextAreaElement>('[data-extra-file]')].map(area => [area.dataset.extraFile!, area.value])), 'main.py': input('main-py').value, 'tests/test_publico.py': input('test-py').value },
+    hints: [...(hint ? [hint] : []), ...((existing ?? draft)?.hints.slice(1) ?? [])],
     solution: input('solution').value,
     is_active: input('is-active').checked,
   };

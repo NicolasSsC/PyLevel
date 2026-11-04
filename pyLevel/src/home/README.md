@@ -7,6 +7,19 @@ Los accesos Ejercicios y Examen, junto al asistente flotante PyBot, permanecen
 ocultos hasta confirmar una sesión activa. Incluye las modalidades del submenú y los accesos del menú
 móvil. Se vuelve a comprobar la sesión al recuperar el foco o volver a una página
 desde la caché del navegador para mantener el estado tras cerrar sesión.
+Los botones «Empieza a crear» y «Dale forma a tu primera idea», que llevan al login,
+se ocultan al confirmar una sesión activa y vuelven a mostrarse al cerrarla.
+Inicio y el catálogo se renderizan por solicitud. El middleware verifica la cookie
+y comparte el usuario con la barra superior, el menú móvil, PyBot y los botones
+de acceso. El HTML ya incluye el nombre y la visibilidad correctos, sin esperar
+a `/api/auth/me` ni guardar identidades en el navegador. Las respuestas personalizadas
+llevan `Cache-Control: no-store` y `Vary: Cookie`. La comprobación del cliente
+sigue actualizando la sesión al recuperar el foco o volver atrás, sin ocultar
+primero la barra ni PyBot. Al salir, los controles se ocultan antes de redirigir.
+`navigation.css` añade un fundido de 160 ms entre documentos del mismo origen,
+manteniendo la barra y PyBot fuera del fundido. Se respeta movimiento reducido;
+los navegadores sin esta función mantienen la navegación normal. Los scripts de
+cada página siguen inicializándose con cada navegación completa.
 
 `AboutPyLevel.astro` aparece inmediatamente después del hero. Explica qué es la
 plataforma y desarrolla cuatro conceptos: Ejercicios, Asistente PyBot, Exámenes
@@ -39,7 +52,14 @@ El acceso no muestra la barra superior y sustituye el formulario anterior.
 El formulario envía correo y clave a `POST /api/auth/login`, utiliza la cookie
 de sesión existente y muestra los estados de espera y error. Tras entrar, abre
 el destino interno pendiente (Perfil, Ejercicios, Examen o Progreso) o Perfil.
-Crear cuenta lleva al registro existente. La recuperación informa de que aún
+Crear cuenta abre `/registro`, que comparte la consola y los controles del login
+con el modo `register` de `ProgrammingPrelogin.astro`. `registro.py` construye
+Nombre completo, Correo, Clave y el selector opcional «¿Cuál es tu perfil?».
+La selección (Estudiante, Docente, Programador/a, Investigador/a u Otro) se envía
+como `occupation` al registro y se guarda en los datos personales. No cambia
+los permisos de la cuenta. El registro inicia la sesión y abre Mi perfil.
+Su animación se recuerda por separado con `pylevel_register_built`.
+La recuperación informa de que aún
 no está disponible; no existe un servicio de recuperación conectado.
 Saltar animación o Escape completa el formulario. `sessionStorage` recuerda por
 separado la precarga de Inicio y el formulario terminado durante la sesión

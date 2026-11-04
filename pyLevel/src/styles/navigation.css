@@ -1,0 +1,24 @@
+/* Keep the shared chrome steady while the page content changes. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  #top-navbar { view-transition-name: pylevel-navbar; }
+  #pybot-widget { view-transition-name: pylevel-pybot; }
+
+  ::view-transition-group(*) {
+    animation-duration: 160ms;
+    animation-timing-function: ease-out;
+  }
+
+  ::view-transition-old(pylevel-navbar),
+  ::view-transition-old(pylevel-pybot) {
+    display: none;
+  }
+
+  ::view-transition-new(pylevel-navbar),
+  ::view-transition-new(pylevel-pybot) {
+    animation: none;
+  }
+}

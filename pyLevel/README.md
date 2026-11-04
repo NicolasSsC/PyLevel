@@ -3,6 +3,9 @@
 Para las pruebas de navegador con Playwright, consulta [TESTING.md](./TESTING.md).
 Incluye instalación, comandos, casos cubiertos, reportes y ejecución en GitHub Actions.
 
+La configuración de PostgreSQL y del servidor en Railway está en
+[RAILWAY.md](./RAILWAY.md). El ejecutor de Python se aloja por separado en Azure.
+
 ```sh
 pnpm create astro@latest -- --template basics
 ```

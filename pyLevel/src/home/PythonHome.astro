@@ -1,6 +1,7 @@
 ---
 import UseCaseVisual from './UseCaseVisual.astro';
 import AboutPyLevel from './AboutPyLevel.astro';
+const authenticated = !!Astro.locals.sessionUser;
 
 const uses = [
   { id: 'inteligencia-artificial', kind: 'ai' as const, number: '01', nav: 'Inteligencia artificial', heading: 'Enséñale al código a', accent: 'ver posibilidades.', description: 'Reconocer una imagen, encontrar patrones o construir un asistente. Con Python puedes explorar el aprendizaje automático y dar forma a sistemas que aprenden de los datos.', tags: ['Modelos de IA', 'Visión por computador', 'Asistentes'], note: 'De los datos a nuevas ideas.', source: 'https://pytorch.org/', library: 'Explora PyTorch' },
@@ -24,7 +25,7 @@ const reasons = [
         <h1 id="home-title">Tu próxima<br/>gran idea empieza<br/>con <span class="python-word">Python<span class="gold-period">.</span></span></h1>
         <p class="hero-description">De tu primera línea de código a eso que todavía estás imaginando. Descubre un lenguaje para aprender, experimentar y crear.</p>
         <div class="hero-actions">
-          <a href="/ejercicios/" class="home-button primary">Empieza a crear <span aria-hidden="true">↗</span></a>
+          <a href="/login" class="home-button primary" data-guest-only hidden={authenticated}>Empieza a crear <span aria-hidden="true">↗</span></a>
           <a href="#posibilidades" class="hero-discover">Descubre las posibilidades <span aria-hidden="true">↓</span></a>
         </div>
         <div class="hero-footnote"><span class="mini-line" aria-hidden="true"></span><span>No necesitas tenerlo todo claro.<br/>Solo curiosidad y una primera idea.</span></div>
@@ -79,9 +80,9 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
 
   <section class="home-finale" aria-labelledby="finale-title" data-page-panel>
     <div class="finale-grid" aria-hidden="true"></div><div class="finale-glow" aria-hidden="true"></div>
-    <div class="home-container finale-content" data-reveal><span class="finale-star" aria-hidden="true">✳</span><p class="home-eyebrow">EL SIGUIENTE PASO ES TUYO</p><h2 id="finale-title">Con Python, construye<br/>lo que <span>te imagines.</span></h2><p>Un robot. Una aplicación. Una idea que todavía no tiene nombre.<br/>Todo puede empezar con una primera línea.</p><a href="/ejercicios/" class="home-button yellow">Dale forma a tu primera idea <span aria-hidden="true">↗</span></a><span class="finale-signature" aria-hidden="true">tu_idea + Python = posibilidades</span></div>
+    <div class="home-container finale-content" data-reveal><span class="finale-star" aria-hidden="true">✳</span><p class="home-eyebrow">EL SIGUIENTE PASO ES TUYO</p><h2 id="finale-title">Con Python, construye<br/>lo que <span>te imagines.</span></h2><p>Un robot. Una aplicación. Una idea que todavía no tiene nombre.<br/>Todo puede empezar con una primera línea.</p><a href="/login" class="home-button yellow" data-guest-only hidden={authenticated}>Dale forma a tu primera idea <span aria-hidden="true">↗</span></a><span class="finale-signature" aria-hidden="true">tu_idea + Python = posibilidades</span></div>
   </section>
-  <footer class="home-footer home-container"><a href="/" class="footer-brand" aria-label="PyLevel, inicio">Py<span>Level.</span></a><p>Aprende. Practica. Construye.</p><div><a href="/ejercicios/">Ejercicios</a><a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a></div><small>Python y su logo son marcas de la Python Software Foundation.</small></footer>
+  <footer class="home-footer home-container"><a href="/" class="footer-brand" aria-label="PyLevel, inicio">Py<span>Level.</span></a><p>Aprende. Practica. Construye.</p><div><a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a></div><small>Python y su logo son marcas de la Python Software Foundation.</small></footer>
 </main>
 
 <script>
@@ -128,6 +129,7 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   .hero-description { max-width: 430px; font-size: 15px; line-height: 1.85; color: var(--color-text-secondary); margin: 25px 0 28px; }.hero-actions { display: flex; align-items: center; gap: 26px; flex-wrap: wrap; }
   .home-button { display: inline-flex; align-items: center; justify-content: center; gap: 30px; padding: 16px 21px; font: 600 12px var(--font-sans); border-radius: 7px; transition: transform .2s ease, box-shadow .2s ease; }.home-button:hover { transform: translateY(-3px); box-shadow: 0 8px 24px #285d8e25; }.home-button.primary { color: white; background: #3776ab; border: 1px solid #568cb857; }.home-button > span { font-size: 18px; font-weight: 400; }.home-button.yellow { background: #ffd343; color: #172c40; border: 1px solid #ffe78a; }
   .hero-discover { color: var(--color-text-secondary); font-size: 11px; display: flex; gap: 12px; align-items: center; }.hero-discover:hover { color: var(--color-text-primary); }.hero-discover > span { color: var(--home-blue); font-size: 17px; }
+  .home-button[hidden] { display: none; }
   .hero-footnote { margin-top: 42px; display: flex; align-items: flex-start; gap: 11px; color: var(--color-text-secondary); font-size: 10px; line-height: 1.8; }.mini-line { display: block; width: 23px; height: 1px; background: var(--home-yellow); margin-top: 9px; }
   .hero-art { position: relative; height: 470px; display: grid; place-items: center; transform: translateY(calc(var(--hero-drift) * -.45)); }.hero-halo { position: absolute; width: 300px; height: 300px; pointer-events: none; filter: blur(55px); border-radius: 50%; opacity: .12; }.halo-blue { background: #1f8cd8; left: 5%; top: 0; }.halo-yellow { background: #ffd343; right: 0; bottom: 45px; opacity: .09; }
   .orbit-stage { position: absolute; inset: 20px -20px 20px; }.orbit { position: absolute; border: 1px solid color-mix(in srgb, var(--home-blue) 16%, transparent); border-radius: 50%; aspect-ratio: 1; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); }.orbit-outer { width: 96%; border-style: dashed; }.orbit-inner { width: 72%; border-color: color-mix(in srgb, var(--home-blue) 12%, transparent); }.orbit-axis { position: absolute; width: 108%; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--home-blue) 20%, transparent), transparent); left: -4%; top: 51%; transform: rotate(-28deg); }.orbit-dot { width: 7px; height: 7px; border-radius: 50%; position: absolute; }.dot-blue { background: #6caee0; left: 12%; top: 20%; box-shadow: 0 0 16px #6caee040; }.dot-yellow { background: #ffd343; bottom: 21%; right: 12%; box-shadow: 0 0 16px #ffd34340; }.orbit-cross { position: absolute; font: 18px var(--font-mono); color: var(--home-soft); opacity: .45; }.cross-top { right: 21%; top: 8%; }.cross-bottom { left: 16%; bottom: 12%; }
