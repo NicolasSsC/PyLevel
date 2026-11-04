@@ -33,6 +33,7 @@ const { exercise } = Astro.props;
   import { execute, type Action } from './client';
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
+  import { registerPracticeContext } from '../ai/page-context';
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
   const exercise: ClassicExercise = JSON.parse(document.getElementById('classic-exercise-data')!.textContent!);
@@ -44,6 +45,8 @@ const { exercise } = Astro.props;
   // Practice tests come from the catalogue, never from an old browser draft.
   files['tests/test_publico.py'] = exercise.files['tests/test_publico.py'];
   editor.value = files['main.py'];
+  const pybot = registerPracticeContext({ id: exercise.id, mode: 'classic', title: exercise.title,
+    getFiles: () => ({ ...files, 'main.py': editor.value }), getSelectedFile: () => 'main.py' });
   let controller: AbortController | null = null;
   let online = false;
 
@@ -55,6 +58,7 @@ const { exercise } = Astro.props;
     files['main.py'] = editor.value;
     el('saved').textContent = save(exercise.id, files) ? 'Guardado en este navegador' : 'No se pudo guardar; copia tu código';
     lineNumbers();
+    pybot.changed();
   }
   editor.addEventListener('input', persist);
   editor.addEventListener('scroll', () => { el('line-numbers').scrollTop = editor.scrollTop; });
@@ -108,8 +112,11 @@ const { exercise } = Astro.props;
     controls();
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando…';
     el('output').textContent = '';
+    const submittedFiles = { ...files, 'main.py': editor.value };
+    pybot.start(action, submittedFiles);
     try {
-      const result = await execute({ ...files, 'main.py': editor.value }, action, current.signal, { exerciseId: exercise.id, mode: 'classic' });
+      const result = await execute(submittedFiles, action, current.signal, { exerciseId: exercise.id, mode: 'classic' });
+      pybot.finish(result);
       el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
       const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
@@ -117,6 +124,7 @@ const { exercise } = Astro.props;
         ? `Finalizado${result.exit_code === 0 ? '' : ' con errores'} · código ${result.exit_code}`
         : labels[result.status] || result.status;
     } catch (error) {
+      pybot.fail(error instanceof Error ? error.message : String(error), current.signal.aborted);
       el('result').textContent = current.signal.aborted ? 'Ejecución cancelada' : 'No se pudo ejecutar';
       el('output').textContent = current.signal.aborted ? 'Se solicitó detener la ejecución.' : error instanceof Error ? error.message : String(error);
     } finally { controller = null; controls(); }
