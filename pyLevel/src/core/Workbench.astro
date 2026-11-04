@@ -1,6 +1,7 @@
 ---
 import { modePaths, type Exercise } from './catalog';
 import { scriptData } from '../admin/script-data';
+import './terminal-feedback.css';
 interface Props { mode?: 'classic' | 'contextual'; exercise: Exercise }
 const {mode='contextual',exercise}=Astro.props;
 const exerciseId=exercise.id;
@@ -75,7 +76,7 @@ const briefing = exercise?.briefing;
         <pre id="expected"></pre>
       </details>
     </aside>
-    <section class="console">
+    <section class="console" data-practice-terminal>
       <div>
         <h2>CONSOLA</h2>
         <span id="result" role="status">Listo para ejecutar</span>
@@ -195,7 +196,9 @@ const briefing = exercise?.briefing;
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
   import { registerPracticeContext } from '../ai/page-context';
+  import { showTerminalResult, resetTerminalFeedback } from './terminal-feedback';
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const terminal = document.querySelector<HTMLElement>('[data-practice-terminal]')!;
   const editor = el<HTMLTextAreaElement>('code');
   const mode = document.querySelector('main')?.dataset.mode === 'classic' ? 'classic' : 'contextual';
   const exerciseId = document.querySelector('main')?.dataset.exerciseId;
@@ -249,6 +252,7 @@ const briefing = exercise?.briefing;
   }
 
   function persist() {
+    resetTerminalFeedback(terminal, el('result'), true);
     el('saved').textContent = save(exercise.id, files) ? 'Guardado en este navegador' : 'No se pudo guardar; copia tus cambios';
     pybot.changed();
   }
@@ -283,6 +287,7 @@ const briefing = exercise?.briefing;
   async function run(action: Action) {
     if (controller || !online) return;
     controller = new AbortController(); controls(true);
+    resetTerminalFeedback(terminal, el('result'));
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando programa…';
     el('output').textContent = '';
     const submittedFiles = { ...files, [selected]: editor.value };
@@ -292,10 +297,7 @@ const briefing = exercise?.briefing;
       pybot.finish(result);
       el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
-      const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
-      el('result').textContent = result.status === 'completed'
-        ? (result.exit_code === 0 ? 'Finalizado · código 0' : `Finalizado con errores · código ${result.exit_code}`)
-        : labels[result.status] || result.status;
+      showTerminalResult(terminal, el('result'), result, action);
     } catch (error) {
       pybot.fail(error instanceof Error ? error.message : String(error), controller.signal.aborted);
       el('result').textContent = controller.signal.aborted ? 'Ejecución cancelada' : 'No se pudo ejecutar';

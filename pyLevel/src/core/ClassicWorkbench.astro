@@ -2,6 +2,7 @@
 import type { ClassicExercise } from './classic-exercises';
 import { scriptData } from '../admin/script-data';
 import BubbleSortAnimation from '../components/BubbleSortAnimation.astro';
+import './terminal-feedback.css';
 interface Props { exercise: ClassicExercise }
 const { exercise } = Astro.props;
 ---
@@ -22,7 +23,7 @@ const { exercise } = Astro.props;
     <div class="editor-body"><pre id="line-numbers" aria-hidden="true"></pre><label class="sr-only" for="python-code">Código Python</label><textarea id="python-code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-describedby="editor-help">{exercise.files['main.py']}</textarea></div>
     <div class="editor-toolbar"><span id="editor-help">Tab para indentar · 4 espacios</span><div><button id="stop" class="secondary" disabled>Detener</button><button id="test" class="secondary" disabled>Probar</button><button id="run" class="primary" disabled>▶ Ejecutar</button></div></div>
   </section>
-  <section class="terminal" aria-label="Salida del programa"><div class="terminal-heading"><h2>TERMINAL <span>· SALIDA</span></h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Ejecuta tu código para ver el resultado aquí.</pre></section>
+  <section class="terminal" data-practice-terminal aria-label="Salida del programa"><div class="terminal-heading"><h2>TERMINAL <span>· SALIDA</span></h2><span id="result" role="status">Listo para ejecutar</span></div><pre id="output" tabindex="0">Ejecuta tu código para ver el resultado aquí.</pre></section>
   </div>
   <div class="sequence"><button type="button" disabled aria-describedby="sequence-note"><span aria-hidden="true">▷</span> Ver secuencia de ejecución</button><span id="sequence-note">Próximamente</span></div>
   <p class="practice-note" id="practice-progress" role="status">Inicia sesión para guardar tus resultados en Progreso y métricas. Las pruebas públicas no son una calificación de examen.</p>
@@ -34,8 +35,10 @@ const { exercise } = Astro.props;
   import { restore, save } from './workspace';
   import { trackActivity, practiceMessage } from './activity-client';
   import { registerPracticeContext } from '../ai/page-context';
+  import { showTerminalResult, resetTerminalFeedback } from './terminal-feedback';
 
   const el = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+  const terminal = document.querySelector<HTMLElement>('[data-practice-terminal]')!;
   const exercise: ClassicExercise = JSON.parse(document.getElementById('classic-exercise-data')!.textContent!);
   void trackActivity(exercise.id, 'classic', 'opened').then(saved => {
     if (saved) el('practice-progress').textContent = 'Tu actividad se guarda en Progreso y métricas. Usa «Probar» para registrar ejercicios superados.';
@@ -55,6 +58,7 @@ const { exercise } = Astro.props;
     el('line-numbers').scrollTop = editor.scrollTop;
   }
   function persist() {
+    resetTerminalFeedback(terminal, el('result'), true);
     files['main.py'] = editor.value;
     el('saved').textContent = save(exercise.id, files) ? 'Guardado en este navegador' : 'No se pudo guardar; copia tu código';
     lineNumbers();
@@ -110,6 +114,7 @@ const { exercise } = Astro.props;
     const current = new AbortController();
     controller = current;
     controls();
+    resetTerminalFeedback(terminal, el('result'));
     el('result').textContent = action === 'test' ? 'Ejecutando pruebas…' : 'Ejecutando…';
     el('output').textContent = '';
     const submittedFiles = { ...files, 'main.py': editor.value };
@@ -119,10 +124,7 @@ const { exercise } = Astro.props;
       pybot.finish(result);
       el('practice-progress').textContent = practiceMessage(result, action);
       el('output').textContent = result.output || '(Sin salida)';
-      const labels: Record<string, string> = { timeout: 'Tiempo máximo excedido', output_limit: 'Límite de salida excedido', cleanup_failed: 'Error de limpieza del ejecutor' };
-      el('result').textContent = result.status === 'completed'
-        ? `Finalizado${result.exit_code === 0 ? '' : ' con errores'} · código ${result.exit_code}`
-        : labels[result.status] || result.status;
+      showTerminalResult(terminal, el('result'), result, action);
     } catch (error) {
       pybot.fail(error instanceof Error ? error.message : String(error), current.signal.aborted);
       el('result').textContent = current.signal.aborted ? 'Ejecución cancelada' : 'No se pudo ejecutar';

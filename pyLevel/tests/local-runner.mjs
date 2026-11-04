@@ -13,5 +13,6 @@ const server = createServer(async (req, res) => {
   res.end(JSON.stringify({ status: 'completed', exit_code: failed ? 1 : 0,
     output: action === 'run' ? '42\n' : main.includes('NO_TESTS_FIXTURE') ? 'Ran 0 tests in 0.001s\n\nOK\n' : failed ? 'Ran 2 tests in 0.001s\n\nFAILED (failures=1)\n' : 'Ran 2 tests in 0.001s\n\nOK\n' }));
 });
-server.listen(8788, '127.0.0.1', () => console.log('Ejecutor HTTP simulado en 127.0.0.1:8788. Solo pruebas; no ejecuta código.'));
+const port = Number(process.env.LOCAL_RUNNER_PORT || 8788);
+server.listen(port, '127.0.0.1', () => console.log(`Ejecutor HTTP simulado en 127.0.0.1:${port}. Solo pruebas; no ejecuta código.`));
 for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close(() => process.exit(0)));

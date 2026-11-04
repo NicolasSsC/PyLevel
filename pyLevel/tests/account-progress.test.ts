@@ -93,6 +93,9 @@ test('progress records actual runner results, deduplicates events and preserves 
   const progress = buildProgress(await activity.read(alice), catalog);
   assert.equal(progress.completed.length, 1);
   assert.equal(progress.attempts, 5);
+  assert.deepEqual(await activity.completed(alice, 'classic'), ['first']);
+  assert.deepEqual(await activity.completed(alice, 'contextual'), []);
+  assert.deepEqual(await activity.completed(bob, 'classic'), []);
   assert.equal(progress.hints, 1);
   assert.equal(progress.percentage, 50);
   assert.equal(progress.inProgress, 0);
