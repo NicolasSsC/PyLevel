@@ -1,4 +1,4 @@
-// Original Python logo animation. The entry controller owns background focus and scroll.
+// PyLevel logo animation. The entry controller owns background focus and scroll.
 export function playLogoPreload(onComplete: () => void) {
   const overlay = document.getElementById('pylevel-preload');
   const canvas = document.getElementById('preload-canvas') as HTMLCanvasElement | null;
@@ -59,29 +59,82 @@ export function playLogoPreload(onComplete: () => void) {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  // Muestreo denso de puntos de la silueta oficial de Python (coordenadas viewBox 0..111)
-  // 36 puntos para la serpiente azul (mitad superior-izquierda)
-  const BLUE_SNAKE_POINTS: [number, number][] = [
-    [54.9, 0.0], [48.0, 0.2], [42.1, 1.1], [35.0, 3.5], [30.0, 8.0],
-    [28.7, 15.0], [28.7, 20.0], [28.7, 25.2], [38.0, 25.2], [48.0, 25.2],
-    [55.5, 25.2], [55.5, 28.6], [42.0, 28.6], [28.7, 28.6], [18.6, 28.6],
-    [10.0, 32.0], [4.0, 37.0], [1.5, 43.0], [0.0, 52.0], [0.0, 62.0],
-    [2.0, 69.2], [6.5, 76.0], [14.2, 82.8], [20.0, 82.8], [26.7, 82.8],
-    [26.7, 76.0], [26.7, 70.6], [32.0, 64.0], [38.0, 58.0], [43.5, 53.9],
-    [55.0, 53.9], [65.0, 53.9], [70.3, 53.9], [78.0, 48.0], [83.7, 40.3],
-    [40.4, 13.3] // Ojo azul
+  // Points sampled from the supplied PyLevel emblem, normalized to a 111-unit canvas.
+  const LOGO_BLUE_POINTS: [number, number][] = [
+    [20.2, 19],
+    [13.8, 26.2],
+    [8.3, 34.2],
+    [5.2, 43.4],
+    [2.3, 52.8],
+    [6.7, 60.9],
+    [9.7, 70.2],
+    [7.7, 79.7],
+    [8.1, 89.4],
+    [12.1, 98.1],
+    [21.1, 101.4],
+    [30.5, 104.3],
+    [40, 106.4],
+    [49.9, 106.6],
+    [59.6, 105.3],
+    [69.2, 103.7],
+    [78.9, 101.9],
+    [88.7, 101.2],
+    [98.1, 98.8],
+    [105.4, 92.6],
+    [107.1, 83.2],
+    [104.3, 73.9],
+    [103.2, 64.2],
+    [105.9, 55],
+    [108.1, 45.5],
+    [108, 35.8],
+    [102, 28.7],
+    [98.1, 21.9],
+    [92.3, 15.4],
+    [83.6, 11.2],
+    [74.8, 6.9],
+    [65.3, 4.4],
+    [55.5, 4.4],
+    [45.7, 4.9],
+    [36.5, 8.3],
+    [27.9, 12.9]
   ];
-
-  // 36 puntos para la serpiente amarilla (mitad inferior-derecha)
-  const YELLOW_SNAKE_POINTS: [number, number][] = [
-    [85.6, 28.7], [85.6, 35.0], [85.6, 40.6], [78.0, 48.0], [70.0, 55.0],
-    [68.9, 57.6], [58.0, 57.6], [48.0, 57.6], [42.1, 57.6], [35.0, 62.0],
-    [28.7, 71.2], [28.7, 80.0], [28.7, 90.0], [28.7, 96.7], [35.0, 104.0],
-    [42.1, 110.3], [52.0, 110.3], [62.0, 110.3], [68.9, 110.3], [76.0, 105.0],
-    [82.3, 96.7], [82.3, 90.0], [82.3, 86.5], [68.0, 86.5], [55.5, 86.5],
-    [55.5, 83.1], [70.0, 83.1], [82.3, 83.1], [92.0, 83.1], [95.7, 83.1],
-    [103.0, 78.0], [109.1, 69.5], [111.0, 58.0], [109.1, 42.3], [102.0, 33.0],
-    [70.6, 97.9] // Ojo amarillo
+  const LOGO_GOLD_POINTS: [number, number][] = [
+    [17.1, 22.7],
+    [11.1, 30.3],
+    [6.9, 38.8],
+    [3.5, 48],
+    [3.3, 57.5],
+    [8.5, 65.5],
+    [9, 75],
+    [7.2, 84.6],
+    [9.1, 94.2],
+    [16.2, 100.6],
+    [25.8, 102.8],
+    [35.2, 105.7],
+    [45, 106.6],
+    [54.8, 106.5],
+    [64.4, 104.3],
+    [74, 102.6],
+    [83.8, 101.4],
+    [93.5, 100.5],
+    [102.5, 96.5],
+    [107.1, 88.1],
+    [105.1, 78.7],
+    [103.4, 69.1],
+    [103.9, 59.3],
+    [107.2, 50.3],
+    [108.9, 40.6],
+    [105.3, 31.9],
+    [98.4, 26],
+    [96.6, 17.6],
+    [87.7, 13.8],
+    [79.2, 8.9],
+    [70.2, 5.1],
+    [60.4, 4.4],
+    [50.6, 4.5],
+    [41.2, 6.8],
+    [32, 10.3],
+    [23.9, 15.8]
   ];
 
   interface IntroParticle {
@@ -101,7 +154,7 @@ export function playLogoPreload(onComplete: () => void) {
     initialDistance: number;
   }
 
-  const PARTICLES_PER_SNAKE = 130;
+  const PARTICLES_PER_SWARM = 130;
 
   function createParticles(
     points: [number, number][],
@@ -111,7 +164,7 @@ export function playLogoPreload(onComplete: () => void) {
     spawnOriginY: number
   ): IntroParticle[] {
     const list: IntroParticle[] = [];
-    for (let i = 0; i < PARTICLES_PER_SNAKE; i++) {
+    for (let i = 0; i < PARTICLES_PER_SWARM; i++) {
       const pt = points[i % points.length];
       const dist = Math.random() * 260 + 120;
       const angle = Math.random() * Math.PI * 2;
@@ -143,9 +196,9 @@ export function playLogoPreload(onComplete: () => void) {
     const w = canvas.width;
     const h = canvas.height;
     // Enjambre azul: nace hacia arriba a la izquierda
-    blueSwarm = createParticles(BLUE_SNAKE_POINTS, '#3776ab', '#60a5fa', w * 0.22, h * 0.26);
+    blueSwarm = createParticles(LOGO_BLUE_POINTS, '#3776ab', '#60a5fa', w * 0.22, h * 0.26);
     // Enjambre amarillo: nace hacia abajo a la derecha
-    yellowSwarm = createParticles(YELLOW_SNAKE_POINTS, '#ffd43b', '#fde047', w * 0.78, h * 0.74);
+    yellowSwarm = createParticles(LOGO_GOLD_POINTS, '#ffd43b', '#fde047', w * 0.78, h * 0.74);
   }
   setupSwarms();
   window.addEventListener('resize', setupSwarms);
