@@ -25,9 +25,7 @@ const sessionLink = (path: string) => ({
     <div class="nav-left">
       <a href="/" class="brand-link" aria-label="PyLevel - Inicio">
         <div class="brand-badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" class="python-svg" width="20" height="20">
-            <path fill="currentColor" d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm1 3.5h-2c-1.93 0-3.5 1.57-3.5 3.5v2h5.5V12h-7v2c0 1.93 1.57 3.5 3.5 3.5h2c1.93 0 3.5-1.57 3.5-3.5v-2H9V11h7V9c0-1.93-1.57-3.5-3.5-3.5z"/>
-          </svg>
+          <img src="/pylevel-logo.svg" alt="" width="44" height="44" decoding="async" />
         </div>
         <span class="brand-name">
           Py<span class="highlight">Level</span><b class="brand-dot">.</b>
@@ -336,13 +334,12 @@ const sessionLink = (path: string) => ({
   .brand-badge {
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, #3776ab 0%, #224a6e 100%);
-    color: #ffd343;
-    box-shadow: 0 2px 8px rgba(55, 118, 171, 0.25);
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
   }
+
+  .brand-badge img { display: block; width: 100%; height: 100%; object-fit: contain; }
 
   .brand-name .highlight {
     color: var(--color-primary);

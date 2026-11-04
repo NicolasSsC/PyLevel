@@ -1,5 +1,5 @@
 ---
-// Original logo and particle animation, used only for the preload phase.
+// PyLevel brand and particle animation, used only for the preload phase.
 ---
 
 <div id="pylevel-preload" class="pylevel-preload-overlay" hidden role="dialog" aria-modal="true" aria-label="Precarga de PyLevel">
@@ -12,65 +12,20 @@
   <!-- Contenedor del logotipo oficial + marca + subtitulo -->
   <div id="preload-stage" class="preload-stage">
     <div class="logo-wrapper">
-      <svg
+      <img
         id="preload-svg-logo"
         class="preload-svg-logo"
-        viewBox="0 0 111 112"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
+        src="/pylevel-logo.svg"
+        alt=""
+        width="1000"
+        height="1000"
+        decoding="async"
         aria-hidden="true"
-      >
-        <defs>
-          <linearGradient id="preload-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#5a9fd4" />
-            <stop offset="60%" stop-color="#3776ab" />
-            <stop offset="100%" stop-color="#1f4b70" />
-          </linearGradient>
-          <linearGradient id="preload-yellow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#ffe873" />
-            <stop offset="50%" stop-color="#ffd43b" />
-            <stop offset="100%" stop-color="#d4a317" />
-          </linearGradient>
-
-          <!-- Filtro de destello luminoso controlado -->
-          <filter id="preload-glow" x="-40%" y="-40%" width="180%" height="180%">
-            <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <!-- Serpiente Azul (Superior-Izquierda) - Geometria Oficial PSF -->
-        <path
-          id="preload-snake-blue"
-          class="snake-path snake-blue"
-          fill="url(#preload-blue-grad)"
-          stroke="#60a5fa"
-          stroke-width="0.8"
-          filter="url(#preload-glow)"
-          d="M 54.918785,0.000919 C 50.335132,0.022217 45.957846,0.413137 42.106285,1.094669 C 30.760069,3.099173 28.700036,7.294771 28.700035,15.032169 v 10.21875 h 26.8125 v 3.40625 h -26.8125 -10.0625 c -7.792459,0 -14.6157588,4.683717 -16.7499998,13.59375 c -2.46181998,10.212966 -2.57101508,16.586023 0,27.25 c 1.9059283,7.937852 6.4575432,13.593748 14.2499998,13.59375 h 9.21875 v -12.25 c 0,-8.849902 7.657144,-16.656248 16.75,-16.65625 h 26.78125 c 7.454951,0 13.406253,-6.138164 13.40625,-13.625 v -25.53125 c 0,-7.2663386 -6.12998,-12.7247771 -13.40625,-13.9374997 C 64.281548,0.327944 59.502438,-0.020379 54.918785,0.000919 Z m -14.5,8.21875 c 2.769547,0 5.03125,2.298646 5.03125,5.124999 c -2e-6,2.816336 -2.261703,5.09375 -5.03125,5.09375 c -2.779476,-1e-6 -5.03125,-2.277415 -5.03125,-5.09375 c -10e-7,-2.826353 2.251774,-5.124999 5.03125,-5.124999 Z"
-        />
-
-        <!-- Serpiente Amarilla (Inferior-Derecha) - Geometria Oficial PSF -->
-        <path
-          id="preload-snake-yellow"
-          class="snake-path snake-yellow"
-          fill="url(#preload-yellow-grad)"
-          stroke="#ffd43b"
-          stroke-width="0.8"
-          filter="url(#preload-glow)"
-          d="M 85.637535,28.657169 v 11.90625 c 0,9.230755 -7.825895,16.999999 -16.75,17 h -26.78125 c -7.335833,0 -13.406249,6.278483 -13.40625,13.625 v 25.531247 c 0,7.266344 6.318588,11.540324 13.40625,13.625004 c 8.487331,2.49561 16.626237,2.94663 26.78125,0 c 6.750155,-1.95439 13.406253,-5.88761 13.40625,-13.625004 V 86.500919 h -26.78125 v -3.40625 h 26.78125 13.406254 c 7.792461,0 10.696251,-5.435408 13.406241,-13.59375 c 2.79933,-8.398886 2.68022,-16.475776 0,-27.25 c -1.92578,-7.757441 -5.60387,-13.59375 -13.406241,-13.59375 Z m -15.0625,64.65625 c 2.779478,3e-6 5.03125,2.277417 5.03125,5.093747 c -2e-6,2.826354 -2.251775,5.125004 -5.03125,5.125004 c -2.76955,0 -5.03125,-2.29865 -5.03125,-5.125004 c 2e-6,-2.81633 2.261697,-5.093747 5.03125,-5.093747 Z"
-        />
-      </svg>
+      />
     </div>
 
     <!-- Marca y Subtitulo tecnico de la plataforma -->
     <div id="preload-brand-group" class="preload-brand-group">
-      <h2 class="preload-title">
-        <span class="brand-py">Py</span><span class="brand-level">Level</span>
-      </h2>
       <p class="preload-subtitle">
         Evaluaci&oacute;n de Competencias en Ingenier&iacute;a de Software &middot; Python
       </p>
@@ -175,7 +130,7 @@
   }
 
   .preload-svg-logo {
-    width: clamp(100px, 16vw, 150px);
+    width: clamp(180px, 24vw, 240px);
     height: auto;
     opacity: 0;
     transform: scale(0.88);
@@ -206,20 +161,6 @@
     }
   }
 
-  .snake-path {
-    stroke-dasharray: 450;
-    stroke-dashoffset: 450;
-    transition: stroke-dashoffset 1.8s ease-out;
-  }
-
-  .preload-svg-logo.materialized .snake-path {
-    stroke-dashoffset: 0;
-  }
-
-  .preload-svg-logo.materialized .snake-yellow {
-    transition-delay: 0.35s;
-  }
-
   .preload-brand-group {
     display: flex;
     flex-direction: column;
@@ -233,25 +174,6 @@
   .preload-brand-group.revealed {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  .preload-title {
-    margin: 0;
-    font-family: 'Fira Code', 'JetBrains Mono', monospace;
-    font-size: clamp(2.2rem, 5.5vw, 3.8rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  .brand-py {
-    color: #5a9fd4;
-    text-shadow: 0 0 24px rgba(90, 159, 212, 0.5);
-  }
-
-  .brand-level {
-    color: #ffd43b;
-    text-shadow: 0 0 24px rgba(255, 212, 59, 0.45);
   }
 
   .preload-subtitle {

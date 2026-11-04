@@ -39,7 +39,7 @@ de PyLevel también permanece visible mientras se leen los cuatro artículos.
 
 La portada se recorre por desplazamiento y anclajes, sin menú lateral ni enlace
 «Ver intro». En la primera entrada, `PythonIntroAnimation.astro` conserva la
-precarga original de partículas y logo de Python, controlada por `preload.ts`.
+precarga de partículas con el logo de PyLevel, controlada por `preload.ts`.
 Al terminar (o saltarla), `entry.ts` libera la portada y su barra superior.
 La animación del login no se incluye en Inicio: se abre únicamente desde
 «Iniciar sesión», en `/login`, con opción de volver a la portada.
@@ -78,7 +78,14 @@ y el movimiento leve del hero. El contenido es visible sin JavaScript. La prefer
 `prefers-reduced-motion` desactiva las animaciones y el scroll suave. Los anclajes
 mantienen el foco de teclado en la sección alcanzada y respetan la barra superior.
 
-El logo oficial se sirve localmente desde `public/python-logo.svg`, sin modificar
+La marca de PyLevel usa el SVG aportado por el usuario en `public/pylevel-logo.svg`,
+compartido por el encabezado, el pie y la precarga, y por el botón flotante y el
+avatar del panel de PyBot. Se ajustó únicamente el lienzo
+transparente y la escritura de coordenadas, conservando las formas y los colores.
+`favicon.svg` usa la misma marca; `favicon.ico` contiene tamaños de 16 a 256 px.
+Las partículas de la precarga siguen el contorno del emblema de PyLevel.
+
+El logo oficial de Python de la ilustración se sirve desde `public/python-logo.svg`, sin modificar
 sus formas ni colores. Fuente de la Python Software Foundation:
 https://www.python.org/community/logos/
 Archivo original:
