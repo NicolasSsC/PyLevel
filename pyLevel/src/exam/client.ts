@@ -1,6 +1,7 @@
 import { exam, validateAnswers, validateEvents, validateMonitoring, type Answers, type Attempt, type ExamEvent, type Monitoring } from './definition';
 import { createPresenceTracker } from './presence';
 import { createExamCamera } from './camera';
+import { setupExamCodeTesting } from './code-client';
 
 export function initExam() {
   const root = document.getElementById('exam-app');
@@ -15,6 +16,8 @@ export function initExam() {
   let attempt: Attempt | null = null;
   let conflict: Attempt | null = null;
   let busy = false;
+  let submittingAttempt = false;
+  let cameraSettingsOpen = false;
   const presence = createPresenceTracker(record);
   let dirty = false;
   let selected = 0;
@@ -59,6 +62,7 @@ export function initExam() {
   }
   function showQuestion(index: number) {
     selected = Math.min(Math.max(index, 0), exam.questions.length - 1);
+    codeTesting.select(exam.questions[selected].id);
     root!.querySelectorAll<HTMLElement>('[data-question-panel]').forEach(panel => { panel.hidden = Number(panel.dataset.questionPanel) !== selected; });
     root!.querySelectorAll<HTMLButtonElement>('[data-question]').forEach(button => {
       if (Number(button.dataset.question) === selected) button.setAttribute('aria-current', 'step');
@@ -90,6 +94,19 @@ export function initExam() {
     }
   }
   camera = createExamCamera(recordCamera, cameraChanged);
+  const codeTesting = setupExamCodeTesting(root, () => attempt);
+  function renderCameraSettings() {
+    el('exam-camera').hidden = active() ? !cameraSettingsOpen : false;
+    el('camera-close').hidden = !active();
+    el('camera-settings').setAttribute('aria-expanded', String(cameraSettingsOpen));
+  }
+  el('camera-settings').addEventListener('click', () => {
+    cameraSettingsOpen = !cameraSettingsOpen; renderCameraSettings();
+    if (cameraSettingsOpen) el('camera-title').focus();
+  });
+  el('camera-close').addEventListener('click', () => {
+    cameraSettingsOpen = false; renderCameraSettings(); el('camera-settings').focus();
+  });
   function leave(source: ExamEvent['source']) {
     if (active() && presence.leave(source)) beacon();
   }
@@ -109,6 +126,8 @@ export function initExam() {
   }
   function finish() {
     if (!attempt) return;
+    codeTesting.update(false);
+    cameraSettingsOpen = false;
     camera.stop();
     el('exam-workspace').hidden = true;
     el('exam-intro').hidden = true;
@@ -155,7 +174,8 @@ export function initExam() {
     timer.textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
     timer.dataset.urgent = String(seconds <= 300);
     if (seconds === 0) camera.stop();
-    editors.forEach(e => { e.disabled = seconds === 0; });
+    editors.forEach(e => { e.disabled = seconds === 0 || submittingAttempt; });
+    codeTesting.update(seconds > 0 && !submittingAttempt && !conflict && !!attempt.cameraConsentAt);
     submit.disabled = seconds === 0 || busy || conflict !== null;
     if (seconds === 0 && !expirationChecked && Date.now() >= retryAt) {
       expirationChecked = true;
@@ -164,9 +184,14 @@ export function initExam() {
     }
   }
   function setAttempt(next: Attempt, replaceAnswers = false) {
+    const wasActive = active();
     attempt = next;
     if (!active()) { finish(); return; }
-    el('exam-camera').hidden = false;
+    if (!wasActive && next.cameraConsentAt) {
+      const cameraConsent = el<HTMLInputElement>('camera-consent');
+      if (!cameraConsent.checked) { cameraConsent.checked = true; cameraConsent.dispatchEvent(new Event('change')); }
+    }
+    renderCameraSettings();
     camera.setActive(true, next.cameraMode === 'unavailable');
     el('exam-intro').hidden = true;
     el('exam-result').hidden = true;
@@ -181,6 +206,8 @@ export function initExam() {
     if (!attempt || !active() || busy || conflict) return;
     busy = true;
     submit.disabled = true;
+    submittingAttempt = submitting;
+    if (submitting) codeTesting.update(false);
     if (submitting) editors.forEach(e => { e.disabled = true; });
     if (submitting) camera.flush();
     const answers = collect();
@@ -242,6 +269,7 @@ export function initExam() {
       expirationChecked = false;
     } finally {
       busy = false;
+      submittingAttempt = false;
       updateTime();
       if (active() && !conflict && (dirty || queue.length) && Date.now() >= retryAt) {
         clearTimeout(pendingSave);

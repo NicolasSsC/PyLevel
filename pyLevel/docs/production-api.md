@@ -1,5 +1,20 @@
 # Contratos de producción
 
+`POST /api/exam/execute` prueba el código de una pregunta de un examen en curso.
+Requiere sesión, Origin del mismo sitio e intento propio activo con consentimiento
+de cámara registrado. Acepta `{attemptId, questionId, code}` (máximo 12000
+caracteres de código y 48000 bytes de cuerpo). Usa el reloj de PostgreSQL para
+rechazar intentos vencidos, además de intentos entregados o ajenos. La prueba
+comparte la cuota del ejecutor y se cancela al desconectar o agotar el tiempo.
+
+El servidor construye main.py y las pruebas correspondientes únicamente a los
+ejemplos visibles de esa pregunta. No acepta archivos de prueba del cliente.
+Devuelve status, exit_code, output, testsRun y passed. Estos resultados no
+guardan respuestas, cambian la revisión, entregan el intento, asignan una nota
+ni completan ejercicios del catálogo. El guardado automático del examen sigue
+siendo independiente. Invitados: 401; otro origen: 403; intento ajeno: 404;
+intento cerrado o sin consentimiento: 409; cuota agotada: 429; ejecutor caído: 503.
+
 `GET /api/ready` comprueba PostgreSQL con una consulta `SELECT 1`. Devuelve
 `200 {"status":"ok"}` o `503 {"status":"unavailable"}` sin detalles internos.
 Railway consulta esta ruta antes de activar la nueva versión.

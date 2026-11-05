@@ -16,11 +16,20 @@ test('exige consentimiento, guarda una respuesta y entrega el examen sin cámara
   await expect(start).toBeDisabled();
   await page.getByLabel(/Entiendo que se registran las salidas/).check();
   await start.click();
+  await expect(page.locator('#exam-camera')).toBeHidden();
+  await expect(page.getByText('Las incidencias se revisan por separado de tus respuestas.', { exact: true })).toHaveCount(0);
   const editor = page.getByRole('textbox', { name: 'Tu solución · main.py' });
   await expect(editor).toBeEditable();
   const answer = 'def puede_acceder(tiene_entrada, es_invitado, esta_bloqueado):\n    return (tiene_entrada or es_invitado) and not esta_bloqueado\n';
   await editor.fill(answer);
   await expect(page.locator('#save-state')).toContainText('Guardado ·');
+  const before = (await (await page.request.get('/api/exam/attempt')).json()).attempt;
+  await page.getByRole('button', { name: 'Probar código', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Resultado de prueba · Control de acceso' })).toContainText('Ejemplos superados');
+  const after = (await (await page.request.get('/api/exam/attempt')).json()).attempt;
+  expect(after.answers).toEqual(before.answers);
+  expect(after.revision).toBe(before.revision);
+  expect(after.expiresAt).toBe(before.expiresAt);
 
   // Clear drafts on the next document, after beforeunload/pagehide cache them.
   // This ensures recovery uses the server rather than the browser's local copy.
@@ -32,11 +41,18 @@ test('exige consentimiento, guarda una respuesta y entrega el examen sin cámara
   page.once('dialog', dialog => dialog.accept());
   await page.reload();
   await expect(editor).toHaveValue(answer);
+  await expect(page.locator('#exam-camera')).toBeHidden();
+  await page.getByRole('button', { name: 'Revisar cámara', exact: true }).click();
+  await expect(page.locator('#exam-camera')).toBeVisible();
+  await page.getByRole('button', { name: 'Volver al examen', exact: true }).click();
+  await expect(page.locator('#exam-camera')).toBeHidden();
   await page.getByRole('button', { name: /Revisar y entregar/ }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Entregar examen', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Examen entregado', exact: true })).toBeVisible();
   await expect(page.locator('#result-answers')).toHaveText('1 de 3');
   await expect(page.locator('#result-camera-mode')).toContainText('cámara no disponible');
+  const ended = await page.request.post('/api/exam/execute', { headers: { Origin: 'http://127.0.0.1:4341' }, data: { attemptId: after.id, questionId: 'acceso', code: answer } });
+  expect(ended.status()).toBe(409);
   await page.goto('/progreso/');
   const exams = page.getByRole('region', { name: 'Mis exámenes', exact: true });
   await expect(exams.getByText('1 finalizado', { exact: true })).toBeVisible();
