@@ -890,6 +890,19 @@ const sessionLink = (path: string) => ({
   }
 
   /* Responsive Rules */
+  @media (max-width: 480px) {
+    .nav-container { padding-inline: 12px; gap: 8px; }
+    .nav-left { min-width: 0; }
+    .nav-right { gap: 4px; flex-shrink: 0; }
+    .brand-link { gap: 6px; font-size: 20px; }
+    .brand-badge { width: 32px; height: 32px; }
+  }
+  @media (max-width: 360px) {
+    .nav-container { padding-inline: 8px; gap: 4px; }
+    .nav-right { gap: 0; }
+    .brand-link { font-size: 18px; }
+  }
+
   @media (max-width: 768px) {
     .nav-links {
       display: none;
