@@ -2,6 +2,7 @@
 import Navbar from '../components/Navbar.astro';
 import PyBotWidget from '../components/PyBotWidget.astro';
 import CookieNotice from '../components/CookieNotice.astro';
+import CookieNoticeHead from '../components/CookieNoticeHead.astro';
 import '../styles/theme.css';
 import '../styles/global.css';
 import '../styles/navigation.css';
@@ -30,6 +31,7 @@ const {
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 		<meta name="description" content={description} />
+		<CookieNoticeHead />
 
 		<!-- Inline theme script to prevent Flash of Unstyled Content (FOUC) -->
 		<script is:inline>
