@@ -1,0 +1,991 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from './Footer.astro';
+import commonInfo from '../data/legal/common.json';
+import type { LegalDocument } from '../data/legal/legal-types';
+
+interface Props {
+  doc: LegalDocument;
+}
+
+const { doc } = Astro.props;
+
+const allLegalPages = [
+  {
+    slug: '/terminos-y-condiciones',
+    title: 'Términos y condiciones de uso',
+    shortTitle: 'Términos y condiciones',
+    desc: 'Condiciones generales de uso del servicio y la plataforma PyLevel.',
+  },
+  {
+    slug: '/politica-de-uso-aceptable',
+    title: 'Política de uso aceptable',
+    shortTitle: 'Uso aceptable',
+    desc: 'Reglas para el uso seguro de la plataforma y el entorno de ejecución.',
+  },
+  {
+    slug: '/politica-de-privacidad',
+    title: 'Política de privacidad y tratamiento de datos personales',
+    shortTitle: 'Privacidad y datos',
+    desc: 'Tratamiento de datos personales de conformidad con la Ley 1581 de 2012.',
+  },
+  {
+    slug: '/politica-de-cookies',
+    title: 'Política de cookies y almacenamiento en el navegador',
+    shortTitle: 'Cookies y almacenamiento',
+    desc: 'Información sobre cookies técnicas esenciales y almacenamiento local.',
+  },
+];
+
+const otherPages = allLegalPages.filter(p => p.slug !== doc.slug);
+
+// Helper to tokenize text for bracketed pending markers like [correo de contacto...]
+function tokenizePendingText(text: string): Array<{ isPending: boolean; value: string }> {
+  const parts = text.split(/(\[[^\]]+\])/g);
+  return parts.filter(Boolean).map(part => ({
+    isPending: /^\[.+\]$/.test(part),
+    value: part,
+  }));
+}
+---
+
+<Layout
+  title={`${doc.title} · PyLevel`}
+  description={doc.subtitle}
+>
+  <a href="#main-legal-content" class="skip-link">Saltar al contenido principal</a>
+
+  <div class="legal-page-wrapper">
+    <!-- Header Hero -->
+    <header class="legal-hero">
+      <div class="legal-container">
+        <nav class="breadcrumb-nav" aria-label="Ruta de navegación">
+          <a href="/" class="crumb-link">Inicio</a>
+          <span class="crumb-sep" aria-hidden="true">/</span>
+          <span class="crumb-current" aria-current="page">Marco Legal</span>
+        </nav>
+
+        <div class="hero-badge-wrap">
+          <span class="hero-badge">DOCUMENTACIÓN LEGAL OFICIAL</span>
+          <span class="hero-version">{commonInfo.versionDateString}</span>
+        </div>
+
+        <h1 class="legal-main-title">{doc.title}</h1>
+        <p class="legal-version-lead">{commonInfo.versionDateString}</p>
+        <p class="legal-main-lead">{doc.subtitle}</p>
+      </div>
+    </header>
+
+    <!-- Layout Grid: TOC Sidebar + Main Content -->
+    <div class="legal-container legal-body-layout">
+      <!-- Mobile Collapsible TOC -->
+      <aside class="mobile-toc-aside" aria-label="Índice de contenido móvil">
+        <details class="mobile-toc-details">
+          <summary class="mobile-toc-summary">
+            <span class="summary-text">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+              Índice de este documento
+            </span>
+            <span class="summary-chevron" aria-hidden="true">▾</span>
+          </summary>
+          <nav class="mobile-toc-nav" aria-label="Índice de secciones móvil">
+            <ol class="toc-list">
+              <li class="toc-item">
+                <a href="#aviso-inicial" class="mobile-toc-link">
+                  <span class="toc-title">Aviso inicial y datos del responsable</span>
+                </a>
+              </li>
+              {doc.sections.map(sec => (
+                <li class="toc-item">
+                  <a href={`#${sec.id}`} class="mobile-toc-link">
+                    {sec.number && <span class="toc-num">{sec.number}.</span>}
+                    <span class="toc-title">{sec.title}</span>
+                  </a>
+                </li>
+              ))}
+              <li class="toc-item">
+                <a href="#otras-politicas" class="mobile-toc-link">
+                  <span class="toc-title">Otras políticas legales</span>
+                </a>
+              </li>
+            </ol>
+          </nav>
+        </details>
+      </aside>
+
+      <!-- Desktop Sticky Sidebar TOC -->
+      <aside class="desktop-toc-aside" aria-label="Tabla de contenidos lateral">
+        <div class="toc-sticky-box">
+          <h2 class="toc-heading">En este documento</h2>
+          <nav aria-label="Índice de secciones">
+            <ol class="toc-list" id="desktop-toc-list">
+              <li class="toc-item">
+                <a href="#aviso-inicial" class="toc-link" data-section-target="aviso-inicial">
+                  <span class="toc-title">Aviso inicial y responsable</span>
+                </a>
+              </li>
+              {doc.sections.map(sec => (
+                <li class="toc-item">
+                  <a href={`#${sec.id}`} class="toc-link" data-section-target={sec.id}>
+                    {sec.number && <span class="toc-num">{sec.number}.</span>}
+                    <span class="toc-title">{sec.title}</span>
+                  </a>
+                </li>
+              ))}
+              <li class="toc-item">
+                <a href="#otras-politicas" class="toc-link" data-section-target="otras-politicas">
+                  <span class="toc-title">Otras políticas</span>
+                </a>
+              </li>
+            </ol>
+          </nav>
+
+          <div class="toc-footer-quick">
+            <span class="toc-doc-badge">{doc.shortTitle}</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content Article -->
+      <main id="main-legal-content" class="legal-article" tabindex="-1">
+        <!-- Common Header Block: Sección 1 (Aviso inicial) -->
+        <section id="aviso-inicial" class="legal-section-block common-notice-card" aria-labelledby="title-aviso-inicial">
+          <div class="section-title-wrap">
+            <div class="notice-badge-row">
+              <span class="notice-badge">AVISO INICIAL E IDENTIFICACIÓN</span>
+            </div>
+            <div class="heading-anchor-row">
+              <h2 id="title-aviso-inicial" class="section-h2">Identificación y datos del responsable</h2>
+              <a href="#aviso-inicial" class="heading-permalink" aria-label="Enlace directo a aviso inicial"><span aria-hidden="true">#</span></a>
+            </div>
+          </div>
+
+          <p class="lead-text">{commonInfo.introNotice}</p>
+
+          <div class="table-scroll-container" tabindex="0" role="region" aria-label="Datos del responsable y de la plataforma">
+            <table class="legal-data-table">
+              <thead>
+                <tr>
+                  <th scope="col" style="width: 32%;">Dato</th>
+                  <th scope="col">Información</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Plataforma</th>
+                  <td>{commonInfo.platform}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Naturaleza</th>
+                  <td>{commonInfo.nature}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Responsables del proyecto</th>
+                  <td>{commonInfo.projectLeaders}</td>
+                </tr>
+                <tr>
+                  <th scope="row">Responsable del tratamiento de datos</th>
+                  <td>
+                    <mark class="pending-marker" title="Pendiente por completar">{commonInfo.dataController}</mark>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Correo para consultas y reclamos</th>
+                  <td>
+                    <mark class="pending-marker" title="Pendiente por completar">{commonInfo.contactEmail}</mark>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Domicilio</th>
+                  <td>
+                    <mark class="pending-marker" title="Pendiente por completar">{commonInfo.address}</mark>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Versión y fecha</th>
+                  <td>{commonInfo.versionDateString}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="organization-note">{commonInfo.organizationNote}</p>
+        </section>
+
+        <!-- Document Sections -->
+        {doc.sections.map(sec => (
+          <section id={sec.id} class="legal-section-block" aria-labelledby={`title-${sec.id}`}>
+            <div class="section-title-wrap">
+              <div class="heading-anchor-row">
+                <h2 id={`title-${sec.id}`} class="section-h2">
+                  {sec.number && <span class="num-prefix">{sec.number}.</span>} {sec.title}
+                </h2>
+                <a href={`#${sec.id}`} class="heading-permalink" aria-label={`Enlace directo a ${sec.number ? `sección ${sec.number}` : sec.title}`}><span aria-hidden="true">#</span></a>
+              </div>
+            </div>
+
+            {sec.lead && <p class="lead-text">{sec.lead}</p>}
+
+            {sec.paragraphs?.map(p => (
+              <p class="body-text">
+                {tokenizePendingText(p).map(part =>
+                  part.isPending ? (
+                    <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                  ) : (
+                    part.value
+                  )
+                )}
+              </p>
+            ))}
+
+            {sec.list && (
+              <ul class="body-list">
+                {sec.list.map(item => (
+                  <li>
+                    {tokenizePendingText(item).map(part =>
+                      part.isPending ? (
+                        <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                      ) : (
+                        part.value
+                      )
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {sec.table && (
+              <div class="table-scroll-container" tabindex="0" role="region" aria-label={sec.table.caption || `Tabla de ${sec.title}`}>
+                <table class="legal-data-table">
+                  {sec.table.caption && <caption>{sec.table.caption}</caption>}
+                  <thead>
+                    <tr>
+                      {sec.table.headers.map(h => (
+                        <th scope="col">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sec.table.rows.map(row => (
+                      <tr>
+                        {row.map((cell, cIdx) => (
+                          <td class:list={[{ 'font-medium text-primary': cIdx === 0 }]}>
+                            {tokenizePendingText(cell).map(part =>
+                              part.isPending ? (
+                                <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                              ) : (
+                                part.value
+                              )
+                            )}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {sec.subsections?.map(sub => (
+              <div id={sub.id} class="legal-subsection-block">
+                <div class="subheading-anchor-row">
+                  <h3 id={`title-${sub.id}`} class="section-h3">
+                    {sub.number && <span class="num-prefix">{sub.number}</span>} {sub.title}
+                  </h3>
+                  <a href={`#${sub.id}`} class="heading-permalink" aria-label={`Enlace directo a ${sub.number ? `subsección ${sub.number}` : sub.title}`}><span aria-hidden="true">#</span></a>
+                </div>
+
+                {sub.lead && <p class="lead-text">{sub.lead}</p>}
+
+                {sub.paragraphs?.map(p => (
+                  <p class="body-text">
+                    {tokenizePendingText(p).map(part =>
+                      part.isPending ? (
+                        <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                      ) : (
+                        part.value
+                      )
+                    )}
+                  </p>
+                ))}
+
+                {sub.list && (
+                  <ul class="body-list">
+                    {sub.list.map(item => (
+                      <li>
+                        {tokenizePendingText(item).map(part =>
+                          part.isPending ? (
+                            <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                          ) : (
+                            part.value
+                          )
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {sub.table && (
+                  <div class="table-scroll-container" tabindex="0" role="region" aria-label={sub.table.caption || `Tabla de ${sub.title}`}>
+                    <table class="legal-data-table">
+                      {sub.table.caption && <caption>{sub.table.caption}</caption>}
+                      <thead>
+                        <tr>
+                          {sub.table.headers.map(h => (
+                            <th scope="col">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sub.table.rows.map(row => (
+                          <tr>
+                            {row.map((cell, cIdx) => (
+                              <td class:list={[{ 'font-medium text-primary': cIdx === 0 }]}>
+                                {tokenizePendingText(cell).map(part =>
+                                  part.isPending ? (
+                                    <mark class="pending-marker" title="Pendiente por completar">{part.value}</mark>
+                                  ) : (
+                                    part.value
+                                  )
+                                )}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            ))}
+          </section>
+        ))}
+
+        <!-- Navigation to other legal policies -->
+        <section id="otras-politicas" class="legal-section-block other-policies-card" aria-labelledby="title-otras-politicas">
+          <div class="section-title-wrap">
+            <h2 id="title-otras-politicas" class="section-h2">Otras políticas y documentos legales</h2>
+            <p class="lead-text">Consulta los demás documentos que forman parte del marco legal y de privacidad de PyLevel:</p>
+          </div>
+
+          <div class="other-policies-grid">
+            {otherPages.map(page => (
+              <a href={page.slug} class="policy-card-link">
+                <span class="policy-card-title">{page.title}</span>
+                <span class="policy-card-desc">{page.desc}</span>
+                <span class="policy-card-action">Leer documento ↗</span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <!-- Back to Top Button -->
+        <div class="back-to-top-wrapper">
+          <button type="button" id="btn-back-to-top" class="btn-back-to-top" aria-label="Volver al inicio de la página">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+            Volver arriba
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<script>
+  // Desktop TOC Scroll Spy
+  const sections = document.querySelectorAll<HTMLElement>('.legal-section-block');
+  const tocLinks = document.querySelectorAll<HTMLAnchorElement>('#desktop-toc-list .toc-link');
+
+  const observerOptions: IntersectionObserverInit = {
+    root: null,
+    rootMargin: '-80px 0px -65% 0px',
+    threshold: 0,
+  };
+
+  const observer = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        for (const link of tocLinks) {
+          const isActive = link.dataset.sectionTarget === id;
+          link.classList.toggle('active', isActive);
+          if (isActive) {
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        }
+      }
+    }
+  }, observerOptions);
+
+  sections.forEach(sec => observer.observe(sec));
+
+  // Back to top
+  const backToTopBtn = document.getElementById('btn-back-to-top');
+  if (backToTopBtn) {
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      const main = document.getElementById('main-legal-content');
+      if (main) main.focus();
+    });
+  }
+</script>
+
+<style>
+  /* Base & Skip Link */
+  .skip-link {
+    position: absolute;
+    top: -50px;
+    left: 1rem;
+    background: var(--color-primary, #3b82f6);
+    color: #ffffff;
+    padding: 0.75rem 1.25rem;
+    z-index: 10000;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: top 0.2s ease;
+  }
+  .skip-link:focus {
+    top: 1rem;
+  }
+
+  .legal-page-wrapper {
+    background: var(--color-bg, #0b1120);
+    color: var(--color-text-primary, #f8fafc);
+    min-height: 100vh;
+    padding-bottom: 4rem;
+  }
+
+  .legal-container {
+    width: min(1200px, calc(100% - 2rem));
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  /* Hero Header */
+  .legal-hero {
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.12), transparent 70%),
+      var(--color-surface, #0f172a);
+    border-bottom: 1px solid var(--color-border, #1e293b);
+    padding-block: 2.5rem 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .breadcrumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-text-muted, #64748b);
+    margin-bottom: 1.25rem;
+  }
+
+  .crumb-link {
+    color: var(--color-text-secondary, #94a3b8);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+  .crumb-link:hover {
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .crumb-current {
+    color: var(--color-text-primary, #f8fafc);
+    font-weight: 600;
+  }
+
+  .hero-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    padding: 0.25rem 0.65rem;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 9999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .hero-version {
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #64748b);
+    font-weight: 600;
+  }
+
+  .legal-main-title {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary, #f8fafc);
+  }
+
+  .legal-version-lead {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffd343;
+    margin: 0 0 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  .legal-main-lead {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary, #94a3b8);
+    max-width: 750px;
+    margin: 0;
+  }
+
+  /* Layout Structure */
+  .legal-body-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  /* Desktop Sticky Sidebar TOC */
+  .desktop-toc-aside {
+    position: sticky;
+    top: 90px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+  }
+
+  .toc-sticky-box {
+    background: var(--color-surface, #0f172a);
+    border: 1px solid var(--color-border, #1e293b);
+    border-radius: 12px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .toc-heading {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted, #64748b);
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .toc-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-secondary, #94a3b8);
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .toc-link:hover {
+    color: var(--color-text-primary, #f8fafc);
+    background: var(--color-surface-hover, #1e293b);
+  }
+
+  .toc-link.active {
+    color: #ffffff;
+    background: var(--color-primary, #3b82f6);
+    font-weight: 600;
+  }
+
+  .toc-num {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    opacity: 0.8;
+  }
+
+  .toc-doc-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-text-muted, #64748b);
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  /* Mobile Collapsible TOC */
+  .mobile-toc-aside {
+    display: none;
+    margin-bottom: 1.5rem;
+  }
+
+  .mobile-toc-details {
+    background: var(--color-surface, #0f172a);
+    border: 1px solid var(--color-border, #1e293b);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+  }
+
+  .mobile-toc-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #f8fafc);
+    list-style: none;
+  }
+
+  .mobile-toc-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .mobile-toc-nav {
+    margin-top: 1rem;
+    border-top: 1px solid var(--color-border, #1e293b);
+    padding-top: 0.75rem;
+  }
+
+  .mobile-toc-link {
+    display: block;
+    padding: 0.5rem 0.25rem;
+    color: var(--color-text-secondary, #94a3b8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  /* Main Article Reading Area */
+  .legal-article {
+    max-width: 75ch; /* Ancho de lectura de 70-80 caracteres por línea */
+    min-width: 0;
+  }
+
+  .legal-section-block {
+    background: var(--color-surface, #0f172a);
+    border: 1px solid var(--color-border, #1e293b);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  }
+
+  .common-notice-card {
+    border-color: rgba(59, 130, 246, 0.35);
+    background:
+      linear-gradient(180deg, rgba(59, 130, 246, 0.04) 0%, transparent 100%),
+      var(--color-surface, #0f172a);
+  }
+
+  .notice-badge-row {
+    margin-bottom: 0.5rem;
+  }
+
+  .notice-badge {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .heading-anchor-row,
+  .subheading-anchor-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .section-h2 {
+    font-size: 1.5rem;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    color: var(--color-text-primary, #f8fafc);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .section-h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #f8fafc);
+    margin: 1.5rem 0 0.75rem;
+    line-height: 1.35;
+  }
+
+  .heading-permalink {
+    color: var(--color-text-muted, #64748b);
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-family: var(--font-mono, monospace);
+    opacity: 0.4;
+    transition: opacity 0.15s ease, color 0.15s ease;
+  }
+
+  .heading-permalink:hover {
+    opacity: 1;
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .num-prefix {
+    color: var(--color-primary, #3b82f6);
+    margin-right: 0.35rem;
+  }
+
+  .lead-text {
+    font-size: 1rem;
+    line-height: 1.75;
+    color: var(--color-text-secondary, #cbd5e1);
+    margin: 0 0 1.25rem;
+  }
+
+  .body-text {
+    font-size: 0.95rem;
+    line-height: 1.75;
+    color: var(--color-text-secondary, #94a3b8);
+    margin: 0 0 1rem;
+  }
+
+  .organization-note {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--color-text-muted, #94a3b8);
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid #ffd343;
+    padding: 0.85rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    margin-top: 1.25rem;
+  }
+
+  .body-list {
+    margin: 0 0 1.25rem;
+    padding-left: 1.5rem;
+    color: var(--color-text-secondary, #94a3b8);
+    line-height: 1.75;
+    font-size: 0.95rem;
+  }
+
+  .body-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Pending markers highlighted */
+  .pending-marker {
+    background-color: #fef08a;
+    color: #854d0e;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-weight: 700;
+    border: 1px solid #facc15;
+    display: inline;
+  }
+  :global(html[data-theme='dark']) .pending-marker {
+    background-color: #713f12;
+    color: #fef08a;
+    border-color: #a16207;
+  }
+
+  /* Accessible Tables */
+  .table-scroll-container {
+    overflow-x: auto;
+    margin: 1.25rem 0;
+    border: 1px solid var(--color-border, #1e293b);
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.4);
+  }
+
+  .table-scroll-container:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  .legal-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+  }
+
+  .legal-data-table caption {
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted, #64748b);
+    text-align: left;
+    font-style: italic;
+    border-bottom: 1px solid var(--color-border, #1e293b);
+  }
+
+  .legal-data-table th,
+  .legal-data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-border, #1e293b);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .legal-data-table thead th {
+    background: rgba(30, 41, 59, 0.6);
+    font-weight: 700;
+    color: var(--color-text-primary, #f8fafc);
+  }
+
+  .legal-data-table tbody th {
+    font-weight: 650;
+    color: var(--color-text-primary, #f8fafc);
+    background: rgba(30, 41, 59, 0.2);
+  }
+
+  .legal-data-table tr:last-child th,
+  .legal-data-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .legal-data-table .font-medium {
+    font-weight: 600;
+    color: var(--color-text-primary, #f8fafc);
+  }
+
+  /* Other Policies Grid */
+  .other-policies-card {
+    border-color: var(--color-border, #1e293b);
+  }
+
+  .other-policies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+
+  .policy-card-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    border-radius: 8px;
+    background: rgba(30, 41, 59, 0.4);
+    border: 1px solid var(--color-border, #1e293b);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+  }
+
+  .policy-card-link:hover {
+    border-color: var(--color-primary, #3b82f6);
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateY(-2px);
+  }
+
+  .policy-card-link:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  .policy-card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #f8fafc);
+  }
+
+  .policy-card-desc {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary, #94a3b8);
+    line-height: 1.5;
+    flex-grow: 1;
+  }
+
+  .policy-card-action {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary, #3b82f6);
+    margin-top: 0.5rem;
+  }
+
+  /* Back to Top */
+  .back-to-top-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+  }
+
+  .btn-back-to-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--color-surface, #0f172a);
+    color: var(--color-text-secondary, #94a3b8);
+    border: 1px solid var(--color-border, #1e293b);
+    border-radius: 8px;
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-back-to-top:hover {
+    color: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, #3b82f6);
+    background: var(--color-surface-hover, #1e293b);
+  }
+
+  .btn-back-to-top:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 900px) {
+    .legal-body-layout {
+      grid-template-columns: 1fr;
+    }
+    .desktop-toc-aside {
+      display: none;
+    }
+    .mobile-toc-aside {
+      display: block;
+    }
+    .legal-section-block {
+      padding: 1.5rem 1.25rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .legal-main-title {
+      font-size: 1.75rem;
+    }
+  }
+</style>

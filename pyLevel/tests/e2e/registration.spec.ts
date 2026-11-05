@@ -26,6 +26,7 @@ test('crear una cuenta guarda el perfil elegido y permite corregir un correo dup
   await page.getByLabel('Correo', { exact: true }).fill(email);
   await page.getByLabel('Clave', { exact: true }).fill('PruebaRegistro2026!');
   await page.getByRole('combobox', { name: /Cuál es tu perfil/ }).selectOption('Docente');
+  await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await expect(page).toHaveURL(/\/perfil\/?$/);
   await expect(page.getByLabel('Ocupación', { exact: true })).toHaveValue('Docente');
@@ -40,11 +41,13 @@ test('crear una cuenta guarda el perfil elegido y permite corregir un correo dup
   await page.getByLabel('Correo', { exact: true }).fill(email);
   await page.getByLabel('Clave', { exact: true }).fill('PruebaRegistro2026!');
   await page.getByRole('combobox').selectOption('Programador/a');
+  await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('No se pudo crear la cuenta.');
   await expect(page.getByRole('button', { name: 'Crear cuenta', exact: true })).toBeEnabled();
   await expect(page.getByRole('combobox')).toHaveValue('Programador/a');
   await page.getByLabel('Correo', { exact: true }).fill(`registro-${randomUUID()}@example.invalid`);
+  await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await expect(page).toHaveURL(/\/perfil\/?$/);
   await expect(page.getByLabel('Ocupación', { exact: true })).toHaveValue('Programador/a');
@@ -87,3 +90,13 @@ for (const width of [320, 390]) {
     await expect(page).toHaveURL(/\/login$/);
   });
 }
+
+test('el registro no se puede enviar sin aceptar los terminos y politicas', async ({ page }) => {
+  await page.goto('/registro');
+  await page.getByLabel('Nombre completo', { exact: true }).fill('Carlos');
+  await page.getByLabel('Correo', { exact: true }).fill(`terms-${randomUUID()}@example.invalid`);
+  await page.getByLabel('Clave', { exact: true }).fill('PruebaRegistro2026!');
+  await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
+  await expect(page.locator('#register-terms-error')).toBeVisible();
+  await expect(page).toHaveURL(/\/registro\/?$/);
+});

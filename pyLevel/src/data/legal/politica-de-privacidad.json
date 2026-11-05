@@ -1,0 +1,198 @@
+{
+  "id": "politica-de-privacidad",
+  "slug": "/politica-de-privacidad",
+  "title": "Política de privacidad y tratamiento de datos personales",
+  "shortTitle": "Privacidad y datos personales",
+  "subtitle": "Tratamiento de datos personales de conformidad con la Ley Estatutaria 1581 de 2012 de Colombia",
+  "lead": "Esta política explica qué datos personales recoge PyLevel, para qué los usa, con quién los comparte, cuánto tiempo los conserva y cómo puedes ejercer tus derechos. Se elabora conforme a los artículos 15 y 20 de la Constitución Política, la Ley Estatutaria 1581 de 2012 y el Decreto 1377 de 2013, compilado en el Decreto 1074 de 2015. La autoridad de control en Colombia es la Superintendencia de Industria y Comercio (SIC).",
+  "sections": [
+    {
+      "id": "privacidad-1",
+      "number": "1",
+      "title": "Responsable del tratamiento",
+      "table": {
+        "caption": "Identificación del responsable del tratamiento de datos",
+        "headers": ["Dato", "Información"],
+        "rows": [
+          ["Responsable", "[Nombre completo del responsable: persona natural o institución]"],
+          ["Domicilio", "[ciudad y dirección], Colombia"],
+          ["Correo para consultas y reclamos", "[correo de contacto del proyecto]"],
+          ["Proyecto", "PyLevel, proyecto académico de la Institución Universitaria de Colombia"]
+        ]
+      }
+    },
+    {
+      "id": "privacidad-2",
+      "number": "2",
+      "title": "Qué datos recogemos",
+      "paragraphs": [
+        "Recogemos solo los datos necesarios para prestarte el servicio. No solicitamos datos sensibles (como origen racial, salud, orientación sexual, datos biométricos o convicciones políticas o religiosas) ni te pedimos que los incluyas en tu código o en cualquier otro campo."
+      ],
+      "table": {
+        "caption": "Categorías de datos personales recopilados y momento de captura",
+        "headers": ["Categoría", "Datos", "Cuándo se recogen"],
+        "rows": [
+          ["Identificación y contacto", "Nombre y correo electrónico", "Al registrarte"],
+          ["Credenciales", "Contraseña, que se guarda transformada con una función de hash con sal y nunca en texto plano", "Al registrarte"],
+          ["Evaluaciones", "Área evaluada, respuestas (incluido el código que escribes), resultado de cada respuesta, puntaje, nivel, fecha, reporte y desempeño por subtema", "Cuando presentas una evaluación"],
+          ["Historial y plan de estudio", "Resultados anteriores y los temas que debes reforzar", "Al guardarse cada resultado"],
+          ["Grupos", "Grupo y docente a los que estás asociado, si aplica", "Cuando el administrador te asocia a un grupo"],
+          ["Gamificación", "Tu preferencia de activarla, insignias y puntos", "Solo si activas la opción"],
+          ["Seguridad y funcionamiento", "Intentos fallidos de inicio de sesión, bloqueos de cuenta, registros técnicos de las ejecuciones de código, incidentes del sistema [y dirección IP o datos del navegador, si se registran]", "Al usar la plataforma"]
+        ]
+      }
+    },
+    {
+      "id": "privacidad-3",
+      "number": "3",
+      "title": "Para qué usamos tus datos",
+      "list": [
+        "Crear y administrar tu cuenta y autenticarte.",
+        "Ejecutar y calificar tu código y tus respuestas, y calcular tu puntaje y tu nivel.",
+        "Generar tu reporte, tu historial, tu comparación de evaluaciones y tu plan de estudio personalizado.",
+        "Permitir que tu docente consulte tus resultados, si perteneces a uno de sus grupos.",
+        "Gestionar grupos, el banco de preguntas y los recursos de estudio.",
+        "Mantener la seguridad de la plataforma: detectar abusos, bloquear accesos indebidos y registrar incidentes.",
+        "Detectar y corregir errores, preguntas mal planteadas o explicaciones que faltan, y mejorar el servicio con información agregada.",
+        "Comunicarnos contigo sobre el servicio, tu cuenta o tus solicitudes.",
+        "Cumplir obligaciones legales y atender requerimientos de autoridades competentes."
+      ],
+      "paragraphsAfter": [
+        "No usamos tus datos para publicidad, no los vendemos ni los cedemos a terceros con fines comerciales."
+      ]
+    },
+    {
+      "id": "privacidad-4",
+      "number": "4",
+      "title": "Principios que aplicamos",
+      "paragraphs": [
+        "Tratamos tus datos conforme a los principios de la Ley 1581 de 2012: legalidad, finalidad, libertad (solo con tu autorización previa, expresa e informada), veracidad, transparencia, acceso y circulación restringida, seguridad y confidencialidad."
+      ]
+    },
+    {
+      "id": "privacidad-5",
+      "number": "5",
+      "title": "Tu autorización",
+      "paragraphs": [
+        "5.1. Al registrarte debes marcar de forma expresa la casilla en la que aceptas esta política y autorizas el tratamiento de tus datos para las finalidades descritas. Sin esa autorización no es posible crear la cuenta, porque los datos son necesarios para prestar el servicio.",
+        "5.2. Conservamos la prueba de tu autorización (fecha y versión de la política aceptada).",
+        "5.3. Puedes revocar tu autorización o solicitar la supresión de tus datos en cualquier momento, salvo que exista un deber legal o contractual de conservarlos. La revocación implica el cierre de tu cuenta, porque sin datos no podemos prestar el servicio."
+      ]
+    },
+    {
+      "id": "privacidad-6",
+      "number": "6",
+      "title": "Menores de edad",
+      "paragraphs": [
+        "La Ley 1581 de 2012 prohíbe el tratamiento de datos de niños, niñas y adolescentes, salvo los de naturaleza pública, y exige que, cuando se traten, se respete el interés superior del menor y se cuente con la autorización de su representante legal. Por eso, PyLevel está dirigido a personas mayores de 18 años. Si eres menor de edad, tu representante legal debe autorizar tu registro y el tratamiento de tus datos y puede ejercer tus derechos. Si detectamos una cuenta de un menor sin esa autorización, la suspenderemos y suprimiremos sus datos."
+      ]
+    },
+    {
+      "id": "privacidad-7",
+      "number": "7",
+      "title": "Quién puede ver tus datos",
+      "table": {
+        "caption": "Destinatarios autorizados y finalidades del acceso a los datos",
+        "headers": ["Quién", "Qué puede ver", "Para qué"],
+        "rows": [
+          ["Tú", "Todos tus datos y tu historial", "Usar el servicio"],
+          ["Tu docente", "Nivel, puntaje e historial, solo si estás en uno de sus grupos", "Seguimiento académico"],
+          ["Administradores de PyLevel", "Datos de cuentas, grupos y avisos del sistema, en lo necesario para operar", "Gestión y soporte"],
+          ["Proveedores tecnológicos (encargados del tratamiento)", "Los datos que alojan o procesan por nuestra cuenta: [proveedor de hosting y base de datos]", "Alojar y operar la plataforma"],
+          ["Autoridades", "Los datos que una autoridad competente requiera legalmente", "Cumplir la ley"]
+        ]
+      },
+      "paragraphsAfter": [
+        "No compartimos tus datos con otros estudiantes. Tu historial no es público."
+      ]
+    },
+    {
+      "id": "privacidad-8",
+      "number": "8",
+      "title": "Transferencias y transmisiones internacionales",
+      "paragraphs": [
+        "Los servidores que alojan PyLevel pueden estar ubicados dentro o fuera de Colombia: [ubicación del servidor]. Si tus datos se transmiten a un proveedor en otro país, exigiremos que ofrezca un nivel adecuado de protección y que los trate únicamente según nuestras instrucciones, conforme a la normativa colombiana."
+      ]
+    },
+    {
+      "id": "privacidad-9",
+      "number": "9",
+      "title": "Seguridad de la información",
+      "paragraphs": [
+        "Adoptamos medidas técnicas y organizativas razonables para proteger tus datos contra pérdida, acceso no autorizado y uso indebido, entre ellas:"
+      ],
+      "list": [
+        "Almacenamiento de contraseñas con hash y sal, nunca en texto plano.",
+        "Control de acceso por rol: cada usuario solo accede a las funciones y datos que le corresponden.",
+        "Aislamiento del código de los usuarios en contenedores sin acceso a red ni a los archivos del servidor.",
+        "Bloqueo temporal de la cuenta tras intentos fallidos de acceso.",
+        "Revisiones de calidad y de seguridad del código, mediante análisis estático."
+      ],
+      "paragraphsAfter": [
+        "Ningún sistema es completamente invulnerable. Si ocurre un incidente de seguridad que afecte tus datos, lo registraremos, tomaremos medidas para contenerlo y, cuando la ley lo exija, lo informaremos a los titulares afectados y a la Superintendencia de Industria y Comercio."
+      ]
+    },
+    {
+      "id": "privacidad-10",
+      "number": "10",
+      "title": "Cuánto tiempo conservamos tus datos",
+      "paragraphs": [
+        "Conservamos tus datos mientras tu cuenta esté activa y durante [plazo, por ejemplo 12 meses] después de su cierre, para atender reclamaciones y obligaciones legales. Pasado ese plazo, se suprimen o se anonimizan. Los resultados que se hayan convertido en información agregada y anónima pueden conservarse para análisis estadístico, porque ya no te identifican."
+      ]
+    },
+    {
+      "id": "privacidad-11",
+      "number": "11",
+      "title": "Tus derechos como titular",
+      "paragraphs": [
+        "Conforme al artículo 8 de la Ley 1581 de 2012, tienes derecho a:"
+      ],
+      "list": [
+        "Conocer, actualizar y rectificar tus datos personales.",
+        "Solicitar prueba de la autorización que nos diste, salvo cuando la ley no la exija.",
+        "Ser informado, previa solicitud, del uso que se ha dado a tus datos.",
+        "Presentar quejas ante la Superintendencia de Industria y Comercio por infracciones a la ley.",
+        "Revocar la autorización y solicitar la supresión de tus datos cuando no se respeten los principios, derechos y garantías legales, o cuando ya no sean necesarios.",
+        "Acceder de forma gratuita a tus datos personales que hayan sido objeto de tratamiento."
+      ],
+      "paragraphsAfter": [
+        "Los derechos pueden ejercerlos el titular, su representante legal, un apoderado o un causahabiente, acreditando su calidad."
+      ]
+    },
+    {
+      "id": "privacidad-12",
+      "number": "12",
+      "title": "Cómo ejercer tus derechos",
+      "paragraphs": [
+        "12.1. Consultas. Escribe a [correo de contacto del proyecto] solicitando conocer tus datos o la información sobre su tratamiento. Responderemos en un máximo de 10 días hábiles. Si no podemos hacerlo en ese plazo, te avisaremos los motivos y la nueva fecha, que no superará 5 días hábiles adicionales.",
+        "12.2. Reclamos. Si crees que tus datos deben corregirse, actualizarse o suprimirse, o que se incumple la ley, envía un reclamo al mismo correo con:"
+      ],
+      "list": [
+        "Tu identificación y datos de contacto (y la de tu representante, si aplica).",
+        "La descripción clara de los hechos y de lo que solicitas.",
+        "Los documentos que quieras hacer valer."
+      ],
+      "paragraphsAfter": [
+        "12.3. Si el reclamo está incompleto, te pediremos subsanarlo dentro de los 5 días siguientes a su recepción. Si pasados 2 meses no lo completas, se entiende que desististe. Una vez completo, incluiremos en tus datos la leyenda \"reclamo en trámite\" en un máximo de 2 días hábiles y responderemos en un máximo de 15 días hábiles, prorrogables por hasta 8 días hábiles más, informándote los motivos.",
+        "12.4. Queja ante la autoridad. Solo después de agotar este trámite con nosotros, puedes presentar una queja ante la Superintendencia de Industria y Comercio (www.sic.gov.co).",
+        "12.5. Límites a la supresión. No podremos suprimir tus datos cuando exista un deber legal o contractual de conservarlos. En ese caso te explicaremos el motivo."
+      ]
+    },
+    {
+      "id": "privacidad-13",
+      "number": "13",
+      "title": "Cambios a esta política",
+      "paragraphs": [
+        "Podemos actualizar esta política por cambios legales o del servicio. Publicaremos la nueva versión con su fecha y, si el cambio altera las finalidades del tratamiento, pediremos de nuevo tu autorización. La versión vigente es la publicada en el footer de PyLevel."
+      ]
+    },
+    {
+      "id": "privacidad-14",
+      "number": "14",
+      "title": "Vigencia",
+      "paragraphs": [
+        "Esta política rige desde noviembre de 2026 y permanece vigente mientras PyLevel trate datos personales."
+      ]
+    }
+  ]
+}

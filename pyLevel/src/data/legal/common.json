@@ -1,0 +1,13 @@
+{
+  "platform": "PyLevel — Descubre tu nivel real en Python",
+  "nature": "Proyecto académico de la asignatura Ingeniería de Software, desarrollado en la Institución Universitaria de Colombia",
+  "projectLeaders": "David Santiago Cuervo Pinilla y Kevin Andrés Pardo",
+  "dataController": "[Nombre completo del responsable: persona natural o institución]",
+  "contactEmail": "[correo de contacto del proyecto]",
+  "address": "[ciudad y dirección], Colombia",
+  "version": "1.0",
+  "date": "Noviembre de 2026",
+  "versionDateString": "Versión 1.0 · noviembre de 2026",
+  "introNotice": "Este documento reúne los textos legales que acompañan a PyLevel: los Términos y condiciones de uso, la Política de uso aceptable y la Política de privacidad y tratamiento de datos personales, junto con la Política de cookies. Cada uno se publica como una página independiente enlazada desde el footer de la web.",
+  "organizationNote": "Cómo se organiza. Quien usa PyLevel acepta los Términos y condiciones y la Política de uso aceptable al crear su cuenta. La Política de privacidad explica qué datos se recogen, para qué se usan y cómo ejercer los derechos sobre ellos. Si algún punto no es claro, puedes escribir al correo de contacto indicado arriba."
+}

@@ -12,6 +12,10 @@ export async function registerStudent(page: Page) {
   await page.getByLabel('Nombre completo', { exact: true }).fill(student.name);
   await page.getByLabel('Correo', { exact: true }).fill(student.email);
   await page.getByLabel('Clave', { exact: true }).fill(student.password);
+  const terms = page.getByRole('checkbox');
+  if ((await terms.count()) > 0) {
+    await terms.check();
+  }
   await page.getByRole('button', { name: 'Crear cuenta', exact: true }).click();
   await expect(page).toHaveURL(/\/perfil\/?$/);
   await expect(page.getByLabel('Nombre completo')).toHaveValue(student.name);

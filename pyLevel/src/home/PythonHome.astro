@@ -89,10 +89,23 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
     </a>
     <p>Aprende. Practica. Construye.</p>
     <div class="footer-links">
-      <a href="/manual-de-usuario">Manual de usuario</a>
-      <a href="/manual-de-usuario#seccion-8-1">Preguntas frecuentes</a>
-      <button type="button" class="footer-cookies" data-cookie-details>Cookies y almacenamiento</button>
-      <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a>
+      <div class="footer-link-col">
+        <span class="footer-group-title">Documentación</span>
+        <a href="/manual-de-usuario">Manual de usuario</a>
+        <a href="/manual-de-usuario#seccion-8-1">Preguntas frecuentes</a>
+      </div>
+      <div class="footer-link-col">
+        <span class="footer-group-title">Legal</span>
+        <a href="/terminos-y-condiciones">Términos y condiciones</a>
+        <a href="/politica-de-uso-aceptable">Política de uso aceptable</a>
+        <a href="/politica-de-privacidad">Política de privacidad</a>
+        <a href="/politica-de-cookies">Política de cookies</a>
+      </div>
+      <div class="footer-link-col">
+        <span class="footer-group-title">Recursos</span>
+        <button type="button" class="footer-cookies" data-cookie-details>Cookies y almacenamiento</button>
+        <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a>
+      </div>
     </div>
     <small>Python y su logo son marcas de la Python Software Foundation.</small>
   </footer>
@@ -108,7 +121,11 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   .footer-brand { display: inline-flex; align-items: center; gap: 8px; }
   .footer-brand img { display: block; flex-shrink: 0; object-fit: contain; }
   .footer-brand-accent { color: var(--home-blue); }
-  .footer-links { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+  .footer-links { display: flex; align-items: flex-start; justify-content: flex-end; gap: 28px; flex-wrap: wrap; }
+  .footer-link-col { display: flex; flex-direction: column; gap: 6px; }
+  .footer-group-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--home-blue); margin-bottom: 2px; }
+  .footer-link-col a { color: var(--color-text-secondary); font-size: 11px; text-decoration: none; transition: color .15s ease; }
+  .footer-link-col a:hover { color: var(--home-blue); }
   .footer-cookies { min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-text-secondary); font: inherit; font-size: 12px; cursor: pointer; }
   .footer-cookies:hover { color: var(--home-blue); }
   .footer-cookies:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; border-radius: 4px; }

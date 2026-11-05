@@ -15,6 +15,7 @@ const lines = isRegister ? [
   { text: '            "Programador/a",' },
   { text: '            "Investigador/a", "Otro"]' },
   { text: 'ui.select(perfiles, label="Tu perfil")', builds: 'occupation' },
+  { text: 'ui.checkbox("Acepto términos")', builds: 'terms' },
   { text: 'ui.button("Crear cuenta")', builds: 'signin' },
   { text: 'ui.link("Iniciar sesión")', builds: 'account' },
   { text: 'ui.run()' },
@@ -32,7 +33,7 @@ const lines = isRegister ? [
   { text: 'ui.run()' },
 ];
 function tokenize(line: string) {
-  return line.split(/("[^"]*"|\b(?:from|import|True|input|select|button|link|run)\b)/g).filter(Boolean).map(text => ({
+  return line.split(/("[^"]*"|\b(?:from|import|True|input|select|checkbox|button|link|run)\b)/g).filter(Boolean).map(text => ({
     text,
     kind: text.startsWith('"') ? 'string' : /^(from|import|True)$/.test(text) ? 'keyword' : /^(input|select|button|link|run)$/.test(text) ? 'function' : 'plain',
   }));
@@ -80,6 +81,24 @@ function tokenize(line: string) {
               <option value="" disabled selected hidden>Selecciona tu perfil</option>
               {occupations.map(occupation => <option value={occupation}>{occupation}</option>)}
             </select><span aria-hidden="true">⌄</span></div>
+          </div>}
+          {isRegister && <div class="login-field terms-field" data-login-part="terms">
+            <div class="terms-row">
+              <input
+                id="register-terms"
+                name="acceptedTerms"
+                type="checkbox"
+                class="terms-checkbox"
+                required
+                aria-describedby="register-terms-error"
+              />
+              <label for="register-terms" class="terms-label">
+                He leído y acepto los <a href="/terminos-y-condiciones" target="_blank" rel="noopener noreferrer">Términos y condiciones</a>, la <a href="/politica-de-uso-aceptable" target="_blank" rel="noopener noreferrer">Política de uso aceptable</a> y la <a href="/politica-de-privacidad" target="_blank" rel="noopener noreferrer">Política de privacidad</a>, y autorizo el tratamiento de mis datos personales.
+              </label>
+            </div>
+            <p id="register-terms-error" class="terms-error-msg" role="alert" hidden>
+              Debes aceptar los Términos, Políticas y autorizar el tratamiento de datos para crear una cuenta.
+            </p>
           </div>}
           <div data-login-part="signin"><button id="login-submit" class="login-button sign-in" type="submit" disabled><span id="login-submit-label">{title}</span><span class="submit-icon" aria-hidden="true">↗</span></button></div>
           <div data-login-part="account"><a class="login-button create-account" href={isRegister ? '/login' : '/registro'}>{isRegister ? 'Iniciar sesión' : 'Crear cuenta'}</a></div>
@@ -136,6 +155,14 @@ function tokenize(line: string) {
   .select-field select { appearance: none; padding-right: 40px; cursor: pointer; color-scheme: dark; }
   .select-field select:has(option[value='']:checked) { color: #a0b4c5; }
   .select-field > span { position: absolute; right: 16px; top: 50%; transform: translateY(-60%); color: #85c4ef; pointer-events: none; }
+  .terms-field { margin-top: 2px; }
+  .terms-row { display: flex; align-items: flex-start; gap: 9px; }
+  .terms-checkbox { width: 17px !important; min-height: 17px !important; height: 17px !important; margin: 3px 0 0 !important; padding: 0 !important; flex-shrink: 0; cursor: pointer; accent-color: #ffd343; }
+  .terms-checkbox:focus-visible { outline: 2px solid #85c4ef; outline-offset: 2px; }
+  .terms-label { font-size: 11px; line-height: 1.45; color: #c0d3e2; cursor: pointer; }
+  .terms-label a { color: #85c4ef; text-decoration: underline; text-underline-offset: 2px; }
+  .terms-label a:hover { color: #ffd343; }
+  .terms-error-msg { margin: 6px 0 0; padding: 6px 10px; border: 1px solid #ed9f9f55; border-radius: 6px; color: #ffc6c6; background: #ed9f9f09; font-size: 11px; line-height: 1.4; }
   .login-button { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: space-between; gap: 20px; width: 100%; min-height: 50px; padding: 12px 17px; border: 1px solid #e8c54c; border-radius: 7px; background: #ffd343; color: #172c3e; font: 650 13px var(--font-sans); text-decoration: none; cursor: pointer; transition: background .2s ease, border-color .2s ease, transform .2s ease; }
   .sign-in { margin-top: 4px; }
   .submit-icon { font-size: 18px; font-weight: 400; }
@@ -276,12 +303,33 @@ function tokenize(line: string) {
       recovery?.setAttribute('aria-expanded', 'false');
       email.value = email.value.trim();
       if (displayName) displayName.value = displayName.value.trim();
+      if (isRegister) {
+        const termsCheckbox = document.getElementById('register-terms') as HTMLInputElement | null;
+        const termsError = document.getElementById('register-terms-error') as HTMLElement | null;
+        if (!termsCheckbox || !termsCheckbox.checked) {
+          if (termsError) {
+            termsError.hidden = false;
+          }
+          termsCheckbox?.focus();
+          return;
+        } else if (termsError) {
+          termsError.hidden = true;
+        }
+      }
       if (!form.reportValidity()) return;
       setSubmitting(true);
       if (announcement) announcement.textContent = isRegister ? 'Creando tu cuenta.' : 'Comprobando tus credenciales.';
       try {
         const body = isRegister
-          ? { email: email.value, password: password.value, displayName: displayName?.value, occupation: occupation?.value || '' }
+          ? {
+              email: email.value,
+              password: password.value,
+              displayName: displayName?.value,
+              occupation: occupation?.value || '',
+              acceptedTerms: true,
+              termsVersion: '1.0',
+              termsAcceptedAt: new Date().toISOString(),
+            }
           : { email: email.value, password: password.value };
         const response = await fetch(isRegister ? '/api/auth/register' : '/api/auth/login', {
           method: 'POST',
@@ -313,6 +361,16 @@ function tokenize(line: string) {
       recoveryNote.hidden = !recoveryNote.hidden;
       recovery.setAttribute('aria-expanded', String(!recoveryNote.hidden));
     });
+
+    if (isRegister) {
+      const termsCheckbox = document.getElementById('register-terms') as HTMLInputElement | null;
+      const termsError = document.getElementById('register-terms-error') as HTMLElement | null;
+      termsCheckbox?.addEventListener('change', () => {
+        if (termsCheckbox.checked && termsError) {
+          termsError.hidden = true;
+        }
+      });
+    }
     window.addEventListener('pageshow', event => {
       if (event.persisted && ready) {
         setSubmitting(false);
