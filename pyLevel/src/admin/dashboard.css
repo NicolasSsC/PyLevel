@@ -60,6 +60,22 @@
 .admin-page .callout-body { font-size: .8rem; line-height: 1.7; color: var(--color-text-secondary); }
 .admin-page .manual-search { margin-bottom: 1.5rem; display: grid; gap: .5rem; }
 .admin-page .manual-search label { font-size: .8rem; color: var(--color-text-secondary); font-weight: 600; }
+.admin-page .manual-subnav { display: flex; gap: .5rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--color-border); padding-bottom: .75rem; flex-wrap: wrap; }
+.admin-page .manual-tab-btn { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.1rem; border-radius: 8px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-secondary); font-size: .85rem; font-weight: 650; cursor: pointer; transition: all .15s ease; min-height: 40px; }
+.admin-page .manual-tab-btn:hover { color: var(--color-primary); border-color: var(--color-primary); background: var(--color-surface-hover); }
+.admin-page .manual-tab-btn.active { color: #fff; background: var(--color-primary); border-color: var(--color-primary); }
+.admin-page .manual-index-group { margin-bottom: 1.25rem; }
+.admin-page .manual-index-title { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--color-text-muted); font-weight: 700; margin: 0 0 .5rem; }
+.admin-page .manual-table-wrap { overflow-x: auto; margin: 1rem 0; border: 1px solid var(--color-border); border-radius: 8px; }
+.admin-page .manual-table { width: 100%; border-collapse: collapse; font-size: .8rem; text-align: left; }
+.admin-page .manual-table th { background: var(--color-surface-hover); padding: .75rem 1rem; border-bottom: 1px solid var(--color-border); font-weight: 700; color: var(--color-text-primary); }
+.admin-page .manual-table td { padding: .75rem 1rem; border-bottom: 1px solid var(--color-border-subtle); color: var(--color-text-secondary); vertical-align: top; }
+.admin-page .manual-table tr:last-child td { border-bottom: none; }
+.admin-page .manual-table code { font-family: var(--font-mono); font-size: .75rem; }
+.admin-page .step-card { border: 1px solid var(--color-border); border-radius: 8px; padding: 1rem; margin-bottom: .85rem; background: var(--color-bg); }
+.admin-page .step-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+.admin-page .step-badge { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--color-primary); color: white; font-size: .75rem; font-weight: 700; flex-shrink: 0; }
+.admin-page .arch-diagram { background: var(--color-bg); border: 1px solid var(--color-border); border-radius: 10px; padding: 1.25rem; margin: 1rem 0; font-family: var(--font-mono); font-size: .78rem; line-height: 1.5; overflow-x: auto; color: var(--color-text-primary); }
 @media (max-width: 900px) { .admin-page .admin-manual-layout { grid-template-columns: 1fr; } .admin-page .manual-index { position: static; } .admin-page .manual-index nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1rem; } }
 @media (max-width: 700px) {
   .admin-page .admin-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .25rem; }

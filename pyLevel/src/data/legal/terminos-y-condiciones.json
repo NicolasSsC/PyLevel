@@ -1,0 +1,142 @@
+{
+  "id": "terminos-y-condiciones",
+  "slug": "/terminos-y-condiciones",
+  "title": "Términos y condiciones de uso",
+  "shortTitle": "Términos y condiciones",
+  "subtitle": "Condiciones generales de uso del servicio y la plataforma PyLevel",
+  "lead": "Al crear una cuenta o usar PyLevel aceptas estos términos. Si no estás de acuerdo con alguna cláusula, no uses la plataforma. Estos términos se rigen por las leyes de la República de Colombia.",
+  "sections": [
+    {
+      "id": "clausula-1",
+      "number": "1",
+      "title": "Aceptación",
+      "paragraphs": [
+        "1.1. Al marcar la casilla de aceptación durante el registro, o al usar PyLevel, declaras que leíste y aceptas estos Términos y condiciones, la Política de uso aceptable y la Política de privacidad.",
+        "1.2. Si PyLevel actualiza estos documentos, te informará en la plataforma. El uso continuado después del aviso se entiende como aceptación de la nueva versión. Si no estás de acuerdo con el cambio, puedes dejar de usar el servicio y solicitar el cierre de tu cuenta."
+      ]
+    },
+    {
+      "id": "clausula-2",
+      "number": "2",
+      "title": "Qué es PyLevel",
+      "paragraphs": [
+        "2.1. PyLevel es una plataforma web que evalúa el nivel de habilidad en programación Python en cuatro áreas: Sintaxis básica, Programación orientada a objetos, Estructuras de datos y Algoritmos. Ejecuta el código que escribes en un entorno aislado, lo califica automáticamente y te clasifica en un nivel (Principiante, Intermedio o Avanzado).",
+        "2.2. PyLevel es un proyecto académico desarrollado en la Institución Universitaria de Colombia, en la asignatura de Ingeniería de Software. Se ofrece de forma gratuita y con fines formativos."
+      ]
+    },
+    {
+      "id": "clausula-3",
+      "number": "3",
+      "title": "Alcance de los resultados",
+      "paragraphs": [
+        "3.1. Tu puntaje y tu nivel son una referencia orientativa de tu desempeño en una evaluación concreta. No constituyen una certificación oficial, un título ni una calificación académica válida ante instituciones, empresas o terceros.",
+        "3.2. Los resultados dependen de las preguntas y de los casos de prueba del banco vigente en el momento de la evaluación. Pueden contener imprecisiones, y el equipo de PyLevel trabaja para corregirlas cuando las detecta.",
+        "3.3. Si un docente de tu grupo usa tus resultados en su clase, esa decisión académica es de su exclusiva responsabilidad."
+      ]
+    },
+    {
+      "id": "clausula-4",
+      "number": "4",
+      "title": "Cuenta de usuario",
+      "paragraphs": [
+        "4.1. Registro. Para usar PyLevel debes crear una cuenta con tu nombre, correo electrónico y una contraseña. Los datos deben ser verdaderos y estar actualizados. Un correo solo puede asociarse a una cuenta.",
+        "4.2. Edad. Debes tener 18 años cumplidos para registrarte por tu cuenta. Si eres menor de edad, tu representante legal debe autorizar el uso de la plataforma y el tratamiento de tus datos, como se explica en la Política de privacidad.",
+        "4.3. Seguridad de tu cuenta. Eres responsable de mantener la confidencialidad de tu contraseña y de lo que ocurra desde tu cuenta. Si sospechas un uso no autorizado, avísanos de inmediato al correo de contacto. No compartas tu cuenta con otras personas.",
+        "4.4. Bloqueo preventivo. Tras 5 intentos fallidos consecutivos de inicio de sesión, la cuenta se bloquea temporalmente por 15 minutos para protegerla. Estos valores pueden ajustarse por razones de seguridad.",
+        "4.5. Roles. Toda cuenta nueva se crea con el rol de Estudiante. Los roles de Docente y Administrador tienen permisos adicionales y los asigna el equipo de PyLevel. Cada rol solo accede a las funciones que le corresponden."
+      ],
+      "table": {
+        "caption": "Roles de usuario y capacidades permitidas en PyLevel",
+        "headers": ["Rol", "Qué puede hacer"],
+        "rows": [
+          ["Estudiante", "Presentar evaluaciones, ver sus resultados, historial y plan de estudio"],
+          ["Docente", "Consultar los resultados de los estudiantes asociados a sus grupos"],
+          ["Administrador", "Gestionar el banco de preguntas, los recursos de estudio y los grupos"]
+        ]
+      }
+    },
+    {
+      "id": "clausula-5",
+      "number": "5",
+      "title": "Reglas de uso",
+      "paragraphs": [
+        "5.1. Usarás PyLevel solo para los fines para los que fue creado y conforme a la ley y a la Política de uso aceptable de este documento.",
+        "5.2. Presentarás las evaluaciones por ti mismo. No está permitido que otra persona resuelva tu evaluación, ni resolver la de otro.",
+        "5.3. No intentarás vulnerar la seguridad de la plataforma ni de su entorno de ejecución de código."
+      ]
+    },
+    {
+      "id": "clausula-6",
+      "number": "6",
+      "title": "Tu contenido: el código que escribes",
+      "paragraphs": [
+        "6.1. Conservas la titularidad sobre el código y las respuestas que escribes en las evaluaciones.",
+        "6.2. Nos otorgas una licencia limitada, no exclusiva y gratuita para ejecutar, almacenar y procesar ese contenido únicamente para prestarte el servicio: calificarlo, mostrarte tu resultado, guardarlo en tu historial y, si perteneces a un grupo, ponerlo a disposición de tu docente.",
+        "6.3. Declaras que el código que envías es tuyo o que tienes derecho a usarlo, y que no infringe derechos de terceros.",
+        "6.4. PyLevel no usará tu código para fines comerciales ni lo publicará."
+      ]
+    },
+    {
+      "id": "clausula-7",
+      "number": "7",
+      "title": "Propiedad intelectual de PyLevel",
+      "paragraphs": [
+        "7.1. El software de PyLevel, su diseño, el banco de preguntas, los casos de prueba, las explicaciones, los recursos de estudio y los textos de la plataforma pertenecen al equipo desarrollador o a sus respectivos titulares, y están protegidos por las normas de propiedad intelectual y derechos de autor aplicables en Colombia. La licencia del código fuente, si se publica, es la indicada en el repositorio del proyecto: [licencia del repositorio].",
+        "7.2. No puedes copiar, difundir, vender ni extraer de forma masiva el banco de preguntas, los casos de prueba o las soluciones. Puedes tomar notas y capturas para tu estudio personal."
+      ]
+    },
+    {
+      "id": "clausula-8",
+      "number": "8",
+      "title": "Gamificación",
+      "paragraphs": [
+        "8.1. Las insignias y los puntos son opcionales y vienen desactivados por defecto. No tienen valor económico, no son canjeables y no modifican tu puntaje ni tu nivel."
+      ]
+    },
+    {
+      "id": "clausula-9",
+      "number": "9",
+      "title": "Disponibilidad y cambios en el servicio",
+      "paragraphs": [
+        "9.1. PyLevel se ofrece \"tal como está\". Nos esforzamos por mantenerlo disponible, pero no garantizamos que funcione sin interrupciones ni errores, y puede estar fuera de servicio por mantenimiento, fallas o razones ajenas a nuestro control.",
+        "9.2. Podemos modificar, ampliar o retirar funciones, áreas, preguntas y el propio servicio, especialmente al tratarse de un proyecto académico con ciclo de vida limitado. Cuando sea posible, avisaremos con antelación razonable."
+      ]
+    },
+    {
+      "id": "clausula-10",
+      "number": "10",
+      "title": "Limitación de responsabilidad",
+      "paragraphs": [
+        "10.1. En la medida en que la ley lo permita, el equipo de PyLevel y la Institución no responden por daños indirectos, pérdida de oportunidades, pérdida de datos ni por decisiones que tomes basándote en tus resultados.",
+        "10.2. Nada en estos términos excluye ni limita la responsabilidad que la ley colombiana no permita excluir o limitar, ni los derechos que te correspondan como titular de datos personales.",
+        "10.3. No somos responsables del contenido de los enlaces y recursos externos que se recomiendan en tu plan de estudio, que pertenecen a terceros."
+      ]
+    },
+    {
+      "id": "clausula-11",
+      "number": "11",
+      "title": "Suspensión y cierre de cuentas",
+      "paragraphs": [
+        "11.1. Podemos suspender o cerrar una cuenta que incumpla estos términos o la Política de uso aceptable, o que ponga en riesgo la seguridad de la plataforma o de otros usuarios. Siempre que sea posible, te avisaremos y te daremos la oportunidad de explicar lo ocurrido.",
+        "11.2. Puedes solicitar el cierre de tu cuenta y la supresión de tus datos en cualquier momento, conforme a la Política de privacidad."
+      ]
+    },
+    {
+      "id": "clausula-12",
+      "number": "12",
+      "title": "Ley aplicable y solución de controversias",
+      "paragraphs": [
+        "12.1. Estos términos se rigen por las leyes de la República de Colombia.",
+        "12.2. Ante cualquier inconformidad, te invitamos a escribirnos primero al correo de contacto para buscar una solución directa. Si no se resuelve, las partes se someten a los jueces y autoridades competentes de [ciudad], Colombia."
+      ]
+    },
+    {
+      "id": "clausula-13",
+      "number": "13",
+      "title": "Contacto",
+      "paragraphs": [
+        "Para preguntas sobre estos términos escribe a [correo de contacto del proyecto]."
+      ]
+    }
+  ]
+}

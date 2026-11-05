@@ -82,7 +82,33 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
     <div class="finale-grid" aria-hidden="true"></div><div class="finale-glow" aria-hidden="true"></div>
     <div class="home-container finale-content" data-reveal><span class="finale-star" aria-hidden="true">✳</span><p class="home-eyebrow">EL SIGUIENTE PASO ES TUYO</p><h2 id="finale-title">Con Python, construye<br/>lo que <span>te imagines.</span></h2><p>Un robot. Una aplicación. Una idea que todavía no tiene nombre.<br/>Todo puede empezar con una primera línea.</p><a href="/login" class="home-button yellow" data-guest-only hidden={authenticated}>Dale forma a tu primera idea <span aria-hidden="true">↗</span></a><span class="finale-signature" aria-hidden="true">tu_idea + Python = posibilidades</span></div>
   </section>
-  <footer class="home-footer home-container"><a href="/" class="footer-brand" aria-label="PyLevel, inicio"><img src="/pylevel-logo.svg" alt="" width="44" height="44" loading="lazy" decoding="async" /><span>Py<span class="footer-brand-accent">Level.</span></span></a><p>Aprende. Practica. Construye.</p><div class="footer-links"><button type="button" class="footer-cookies" data-cookie-details>Cookies y almacenamiento</button><a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a></div><small>Python y su logo son marcas de la Python Software Foundation.</small></footer>
+  <footer class="home-footer home-container">
+    <a href="/" class="footer-brand" aria-label="PyLevel, inicio">
+      <img src="/pylevel-logo.svg" alt="" width="44" height="44" loading="lazy" decoding="async" />
+      <span>Py<span class="footer-brand-accent">Level.</span></span>
+    </a>
+    <p>Aprende. Practica. Construye.</p>
+    <div class="footer-links">
+      <div class="footer-link-col">
+        <span class="footer-group-title">Documentación</span>
+        <a href="/manual-de-usuario">Manual de usuario</a>
+        <a href="/manual-de-usuario#seccion-8-1">Preguntas frecuentes</a>
+      </div>
+      <div class="footer-link-col">
+        <span class="footer-group-title">Legal</span>
+        <a href="/terminos-y-condiciones">Términos y condiciones</a>
+        <a href="/politica-de-uso-aceptable">Política de uso aceptable</a>
+        <a href="/politica-de-privacidad">Política de privacidad</a>
+        <a href="/politica-de-cookies">Política de cookies</a>
+      </div>
+      <div class="footer-link-col">
+        <span class="footer-group-title">Recursos</span>
+        <button type="button" class="footer-cookies" data-cookie-details>Cookies y almacenamiento</button>
+        <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer">Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span></a>
+      </div>
+    </div>
+    <small>Python y su logo son marcas de la Python Software Foundation.</small>
+  </footer>
 </main>
 
 <script>
@@ -95,7 +121,11 @@ ideas = [<span class="code-yellow">"imaginar"</span>, <span class="code-yellow">
   .footer-brand { display: inline-flex; align-items: center; gap: 8px; }
   .footer-brand img { display: block; flex-shrink: 0; object-fit: contain; }
   .footer-brand-accent { color: var(--home-blue); }
-  .footer-links { display: flex; align-items: center; justify-content: center; gap: 18px; flex-wrap: wrap; }
+  .footer-links { display: flex; align-items: flex-start; justify-content: flex-end; gap: 28px; flex-wrap: wrap; }
+  .footer-link-col { display: flex; flex-direction: column; gap: 6px; }
+  .footer-group-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--home-blue); margin-bottom: 2px; }
+  .footer-link-col a { color: var(--color-text-secondary); font-size: 11px; text-decoration: none; transition: color .15s ease; }
+  .footer-link-col a:hover { color: var(--home-blue); }
   .footer-cookies { min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-text-secondary); font: inherit; font-size: 12px; cursor: pointer; }
   .footer-cookies:hover { color: var(--home-blue); }
   .footer-cookies:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 4px; border-radius: 4px; }
