@@ -29,7 +29,7 @@ const { user } = Astro.props;
     </div>
     <div class="camera-details">
       <span class="label">SUPERVISIÓN DEL EXAMEN</span>
-      <h2 id="camera-title">Prepara tu cámara</h2>
+      <div class="camera-title-row"><h2 id="camera-title" tabindex="-1">Prepara tu cámara</h2><button id="camera-close" class="secondary" type="button" hidden>Volver al examen</button></div>
       <p>Comprobamos la presencia de un rostro, varios rostros y las interrupciones de cámara. Las imágenes se analizan en tu dispositivo: no se graban ni se envían al servidor. No identificamos personas.</p>
       <p>Solo guardamos el tipo de incidencia, su duración aproximada y la hora de recepción, junto a tu intento. Podrás consultarlos al entregar. Una alerta no modifica tu nota automáticamente.</p>
       <label class="camera-consent"><input type="checkbox" id="camera-consent" /><span>Entiendo y acepto este uso de la cámara y el registro de incidencias. El permiso de cámara se solicita por separado en el navegador.</span></label>
@@ -53,7 +53,7 @@ const { user } = Astro.props;
         <li>El tiempo comienza al pulsar «Comenzar examen» y continúa aunque cierres la página.</li>
         <li>Guardamos tus respuestas automáticamente. Puedes retomar este mismo intento al volver.</li>
         <li>Al finalizar el tiempo se cierra el intento con las últimas respuestas guardadas en el servidor.</li>
-        <li>La entrega será revisada. Esta primera versión no ejecuta ni califica automáticamente tu código.</li>
+        <li>Puedes probar los ejemplos de cada reto. La entrega final será revisada.</li>
       </ul>
       <label class="consent"><input type="checkbox" id="exam-consent" /><span>Entiendo que se registran las salidas de pestaña o ventana y las señales de conexión durante el examen.</span></label>
       <button id="exam-start" class="primary" type="button" disabled>Comenzar examen <span aria-hidden="true">→</span></button>
@@ -70,7 +70,7 @@ const { user } = Astro.props;
 
   <section id="exam-workspace" hidden aria-label="Examen en curso">
     <div class="exam-toolbar panel">
-      <div><div class="running"><span class="dot"></span><strong id="attempt-label">Examen en curso</strong><span class="divider">/</span><span id="exam-progress">0 de 3 respuestas</span></div><a id="camera-live" class="camera-live" href="#exam-camera" data-state="waiting">Activa la cámara para continuar la supervisión.</a></div>
+      <div><div class="running"><span class="dot"></span><strong id="attempt-label">Examen en curso</strong><span class="divider">/</span><span id="exam-progress">0 de 3 respuestas</span></div><div class="camera-summary"><span id="camera-live" class="camera-live" role="status" data-state="waiting">Activa la cámara para continuar la supervisión.</span><button id="camera-settings" class="camera-settings" type="button" aria-controls="exam-camera" aria-expanded="false">Revisar cámara</button></div></div>
       <div class="time"><span>TIEMPO RESTANTE</span><strong id="exam-timer" role="timer" aria-label="Tiempo restante">30:00</strong></div>
     </div>
     <div class="workspace-grid">
@@ -83,7 +83,7 @@ const { user } = Astro.props;
             </button>
           ))}
         </nav>
-        <div class="sidebar-bottom"><span class="label">SEGUIMIENTO</span><p><span class="dot"></span> <span id="incident-count">0 salidas registradas</span></p><p id="camera-incident-count">0 incidencias de cámara</p><p>Las incidencias se revisan por separado de tus respuestas.</p></div>
+        <div class="sidebar-bottom"><span class="label">SEGUIMIENTO</span><p><span class="dot"></span> <span id="incident-count">0 salidas registradas</span></p><p id="camera-incident-count">0 incidencias de cámara</p></div>
       </aside>
       <div>
         {exam.questions.map((q, i) => (
@@ -95,6 +95,12 @@ const { user } = Astro.props;
             <div class="example"><span class="label">EJEMPLOS DE COMPORTAMIENTO</span><pre>{q.example}</pre></div>
             <div class="editor-heading"><label for={`answer-${q.id}`}>Tu solución · main.py</label><span>Python 3</span></div>
             <textarea id={`answer-${q.id}`} data-answer={q.id} class="code-editor" spellcheck="false" autocomplete="off" autocapitalize="off" maxlength="12000" aria-describedby="editor-help" disabled>{q.starter}</textarea>
+            <div class="code-test-toolbar"><span>Comprueba los ejemplos de esta pregunta.</span><div><button class="secondary" type="button" data-code-stop={q.id} hidden>Detener prueba</button><button class="primary" type="button" data-code-test={q.id} aria-controls={`test-output-${q.id}`} disabled>Probar código</button></div></div>
+            <section id={`test-output-${q.id}`} class="code-test-output" data-code-output={q.id} aria-label={`Resultado de prueba · ${q.title}`} hidden>
+              <div class="code-test-heading"><strong>Salida de prueba</strong><span data-code-status={q.id} role="status" aria-live="polite"></span></div>
+              <pre data-code-terminal={q.id} tabindex="0"></pre>
+              <p>Los ejemplos no constituyen la calificación final.</p>
+            </section>
           </article>
         ))}
         <div class="editor-footer"><span id="editor-help">Tab inserta 4 espacios · Máximo 12.000 caracteres por respuesta</span><span id="save-state" role="status" aria-live="polite">Sin cambios pendientes</span></div>
@@ -146,6 +152,9 @@ const { user } = Astro.props;
   .camera-placeholder { font-size: 64px; color: #6886a3; }
   .camera-local { position: absolute; bottom: 0; inset-inline: 0; z-index: 2; padding: 10px 4px; background: #0c1623dd; color: #bcd0e2; text-align: center; font: 8px var(--font-mono); letter-spacing: .3px; }
   .camera-details h2 { font-size: 22px; margin: 10px 0; }
+  .camera-title-row, .camera-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .camera-settings { color: var(--color-primary); background: transparent; border: 0; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; font-family: inherit; font-size: 11px; cursor: pointer; }
+  .camera-summary { justify-content: flex-start; gap: 4px 14px; margin-top: 6px; }
   .camera-details p { font-size: 12px; color: var(--color-text-secondary); margin: 8px 0; }
   .camera-consent { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.6; margin: 18px 0; }
   .camera-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
@@ -221,6 +230,17 @@ const { user } = Astro.props;
   .editor-heading span { font-size: 10px; color: #94acc4; }
   .code-editor { display: block; resize: vertical; width: 100%; min-height: 250px; padding: 20px; background: #0c1623; color: #e2e8f0; caret-color: #ffd343; border: 1px solid #2c4058; border-top: 0; border-radius: 0 0 8px 8px; font: 13px/1.85 var(--font-mono); tab-size: 4; outline-offset: -2px; }
   .code-editor:focus { outline: 2px solid var(--color-primary); }
+  .code-test-toolbar, .code-test-toolbar > div, .code-test-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .code-test-toolbar { margin-top: 14px; }
+  .code-test-toolbar > span { font-size: 11px; color: var(--color-text-secondary); }
+  .code-test-toolbar .primary, .code-test-toolbar .secondary { padding: 9px 14px; }
+  .code-test-output { margin-top: 16px; border: 1px solid #2c4058; border-radius: 9px; background: #0c1623; color: #dce6f3; overflow: hidden; }
+  .code-test-heading { padding: 12px 15px; border-bottom: 1px solid #2c4058; font-size: 11px; }
+  .code-test-heading span { color: #adc0d5; }
+  .code-test-output pre { margin: 0; padding: 15px; max-height: 260px; overflow: auto; }
+  .code-test-output p { margin: 0; padding: 10px 15px; border-top: 1px solid #2c4058; color: #9cb3c9; font-size: 11px; }
+  .code-test-output[data-state='passed'] { border-color: #34d399; }
+  .code-test-output[data-state='passed'] .code-test-heading span { color: #6ee7b7; }
   .editor-footer { padding: 12px 2px; font-size: 10px; color: var(--color-text-secondary); align-items: flex-start; }
   #save-state { text-align: right; }
   .question-controls { margin: 8px 0 24px; }
