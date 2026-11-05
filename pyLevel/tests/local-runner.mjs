@@ -7,6 +7,8 @@ const server = createServer(async (req, res) => {
   for await (const chunk of req) chunks.push(chunk);
   const { files, action } = JSON.parse(Buffer.concat(chunks).toString());
   const main = files['main.py'] ?? '';
+  if (main.includes('SLOW_FIXTURE')) await new Promise(resolve => setTimeout(resolve, 1500));
+  if (res.destroyed) return;
   if (main.includes('TECHNICAL_FIXTURE')) { res.writeHead(503).end(JSON.stringify({ error: 'fixture unavailable' })); return; }
   const tampered = Object.entries(files).some(([path, code]) => path.startsWith('tests/') && code === 'tampered');
   const failed = main.includes('FAIL_FIXTURE') || tampered;
