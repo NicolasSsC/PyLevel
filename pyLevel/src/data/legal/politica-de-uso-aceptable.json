@@ -1,0 +1,106 @@
+{
+  "id": "politica-de-uso-aceptable",
+  "slug": "/politica-de-uso-aceptable",
+  "title": "Política de uso aceptable",
+  "shortTitle": "Uso aceptable",
+  "subtitle": "Reglas para el uso seguro de la plataforma y el entorno de ejecución de código",
+  "lead": "PyLevel ejecuta código escrito por sus usuarios. Por eso, además de las reglas generales de cualquier plataforma, existen reglas específicas para proteger el entorno de ejecución, los datos de otras personas y la integridad de las evaluaciones. Esta política complementa los Términos y condiciones.",
+  "sections": [
+    {
+      "id": "uso-1",
+      "number": "1",
+      "title": "Cómo funciona el entorno de ejecución",
+      "paragraphs": [
+        "Tu código se ejecuta en un contenedor aislado, sin acceso a internet ni a los archivos del servidor, con límites configurables de tiempo, memoria y CPU. Si tu código supera un límite, lanza un error o intenta algo no permitido, la ejecución se detiene y la respuesta se registra como incorrecta. El entorno está diseñado para contener esos intentos, pero eso no los hace permitidos."
+      ]
+    },
+    {
+      "id": "uso-2",
+      "number": "2",
+      "title": "Conductas permitidas",
+      "list": [
+        "Escribir código Python para resolver los ejercicios planteados.",
+        "Probar distintas soluciones, equivocarte y repetir evaluaciones.",
+        "Consultar documentación y material de estudio, incluidos los recursos de tu plan de estudio, para prepararte.",
+        "Reportar errores, preguntas mal planteadas o fallas de seguridad a través del canal de contacto."
+      ]
+    },
+    {
+      "id": "uso-3",
+      "number": "3",
+      "title": "Conductas prohibidas",
+      "table": {
+        "caption": "Clasificación de conductas expresamente prohibidas en PyLevel",
+        "headers": ["Categoría", "Ejemplos de lo que no se permite"],
+        "rows": [
+          [
+            "Ataques al entorno de ejecución",
+            "Intentar salir del contenedor, leer o escribir archivos del servidor, abrir conexiones de red, ejecutar comandos del sistema, modificar procesos o variables del entorno"
+          ],
+          [
+            "Consumo abusivo de recursos",
+            "Bucles infinitos intencionales, bombas de procesos (fork bombs), consumo masivo de memoria o CPU, minería de criptomonedas"
+          ],
+          [
+            "Ataques a la plataforma",
+            "Inyección SQL, escaneo de vulnerabilidades, fuerza bruta contra cuentas, saturación del servicio o cualquier prueba de intrusión sin autorización escrita"
+          ],
+          [
+            "Acceso indebido",
+            "Entrar a cuentas de otras personas, usar credenciales ajenas, intentar ver resultados de estudiantes que no son tuyos, saltarse los controles de acceso por rol"
+          ],
+          [
+            "Manipulación de resultados",
+            "Alterar puntajes, solicitudes o respuestas; usar bots o scripts automáticos para resolver o enviar evaluaciones"
+          ],
+          [
+            "Suplantación y trampas",
+            "Que otra persona resuelva tu evaluación, resolver la de otra persona, crear cuentas falsas o múltiples cuentas para evadir bloqueos"
+          ],
+          [
+            "Extracción y difusión del banco",
+            "Copiar de forma masiva, automatizar la descarga o publicar preguntas, casos de prueba y soluciones"
+          ],
+          [
+            "Contenido dañino",
+            "Código con malware, o texto en el código o en cualquier campo que sea ofensivo, discriminatorio o ilegal"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "uso-4",
+      "number": "4",
+      "title": "Qué ocurre si se incumple",
+      "paragraphs": [
+        "Según la gravedad, el equipo de PyLevel puede:"
+      ],
+      "list": [
+        "Detener la ejecución y registrar la respuesta como incorrecta.",
+        "Anular un resultado que se haya obtenido incumpliendo esta política.",
+        "Bloquear temporalmente la cuenta.",
+        "Suspender o cerrar la cuenta de forma definitiva.",
+        "Poner el hecho en conocimiento de la Institución Universitaria de Colombia o de las autoridades competentes cuando corresponda, por ejemplo, ante un posible delito informático."
+      ],
+      "paragraphsAfter": [
+        "Para registrar y detectar estos eventos, el sistema guarda registros técnicos de las ejecuciones (ver Política de privacidad)."
+      ]
+    },
+    {
+      "id": "uso-5",
+      "number": "5",
+      "title": "Reporte responsable de vulnerabilidades",
+      "paragraphs": [
+        "Si encuentras una falla de seguridad en PyLevel, queremos saberlo. Si la reportas de buena fe, sin aprovecharla ni acceder a datos de otras personas más allá de lo necesario para demostrarla, y nos das un tiempo razonable para corregirla antes de divulgarla, no tomaremos acciones en tu contra. Escríbenos a [correo de contacto del proyecto] con una descripción de lo que encontraste y los pasos para reproducirlo."
+      ]
+    },
+    {
+      "id": "uso-6",
+      "number": "6",
+      "title": "Errores del sistema y respuestas no evaluables",
+      "paragraphs": [
+        "Si una falla del propio sistema impide evaluar una respuesta (por ejemplo, un error del entorno de ejecución), esa respuesta no cuenta en tu puntaje ni te perjudica. Esta política solo sanciona conductas deliberadas del usuario, no las fallas técnicas del servicio."
+      ]
+    }
+  ]
+}

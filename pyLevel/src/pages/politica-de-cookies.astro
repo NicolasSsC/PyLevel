@@ -1,0 +1,9 @@
+---
+import LegalDocLayout from '../components/LegalDocLayout.astro';
+import docData from '../data/legal/politica-de-cookies.json';
+import type { LegalDocument } from '../data/legal/legal-types';
+
+const doc = docData as LegalDocument;
+---
+
+<LegalDocLayout doc={doc} />

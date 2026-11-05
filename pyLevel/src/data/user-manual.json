@@ -1,0 +1,662 @@
+{
+  "metadata": {
+    "title": "PyLevel — Manual de usuario",
+    "subtitle": "Guía completa de práctica de programación, evaluación y administración en PyLevel",
+    "version": "1.0",
+    "date": "Noviembre de 2026",
+    "author": "Equipo de Desarrollo de PyLevel"
+  },
+  "sections": [
+    {
+      "id": "seccion-1",
+      "number": "1",
+      "title": "Qué es PyLevel",
+      "lead": "PyLevel es una plataforma interactiva de aprendizaje y práctica de programación en Python. Resuelves desafíos y proyectos de código directamente en el navegador, y el sistema ejecuta tu solución de forma segura en un entorno aislado con pruebas automatizadas, evaluando tu código y brindándote retroalimentación inmediata con asistencia inteligente mediante PyBot.",
+      "paragraphs": [
+        "La plataforma cubre áreas fundamentales: Sintaxis básica, Programación orientada a objetos (POO), Estructuras de datos y Algoritmos. Al completar ejercicios y evaluaciones recibes tu puntaje, diagnóstico detallado por tema y recomendaciones para continuar mejorando tus habilidades."
+      ],
+      "subsections": [
+        {
+          "id": "seccion-1-1",
+          "number": "1.1",
+          "title": "A quién va dirigido este manual",
+          "table": {
+            "caption": "Público objetivo y rutas recomendadas de lectura en PyLevel",
+            "headers": [
+              "Si eres…",
+              "Qué puedes hacer en PyLevel",
+              "Ve a la sección"
+            ],
+            "rows": [
+              [
+                "Estudiante",
+                "Practicar ejercicios, resolver proyectos multi-archivo, presentar exámenes, revisar tu historial y recibir recomendaciones",
+                {
+                  "text": "3 y 4",
+                  "links": [
+                    { "label": "3", "target": "#seccion-3" },
+                    { "label": "4", "target": "#seccion-4" }
+                  ]
+                }
+              ],
+              [
+                "Administrador",
+                "Gestionar ejercicios y retos, supervisar métricas de estudiantes y administrar accesos",
+                {
+                  "text": "6",
+                  "links": [
+                    { "label": "6", "target": "#seccion-6" }
+                  ]
+                }
+              ]
+            ]
+          },
+          "note": "Si es tu primera vez, lee las secciones 2, 3 y 5: cubren cómo entrar, cómo resolver ejercicios y qué reglas de seguridad debe cumplir tu código.",
+          "noteLinks": [
+            { "label": "sección 2", "target": "#seccion-2" },
+            { "label": "sección 3", "target": "#seccion-3" },
+            { "label": "sección 5", "target": "#seccion-5" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-2",
+      "number": "2",
+      "title": "Primeros pasos",
+      "lead": "Para usar PyLevel necesitas un navegador web moderno, conexión a internet y una cuenta de usuario. La plataforma está pensada primero para computador: en dispositivos móviles o tabletas funciona para consulta y pruebas rápidas, pero la experiencia óptima de escritura y depuración de código se logra con teclado físico y pantalla completa.",
+      "subsections": [
+        {
+          "id": "seccion-2-1",
+          "number": "2.1",
+          "title": "Crear tu cuenta",
+          "steps": [
+            "Abre PyLevel y selecciona Registrarme.",
+            "Escribe tu nombre, tu correo electrónico y una contraseña segura. Todos los campos son obligatorios.",
+            "Pulsa Crear cuenta."
+          ],
+          "paragraphs": [
+            "Si falta un dato o tiene un formato incorrecto, el sistema te indica qué campo corregir. Si el correo ya está registrado, no se crea una cuenta duplicada: te sugiere iniciar sesión. Toda cuenta nueva se crea con el rol de Estudiante; los accesos de Administrador se gestionan de forma interna en la plataforma.",
+            "Tu contraseña se guarda cifrada mediante funciones criptográficas seguras. Nadie, ni siquiera el equipo administrador de PyLevel, puede visualizarla en texto plano."
+          ]
+        },
+        {
+          "id": "seccion-2-2",
+          "number": "2.2",
+          "title": "Iniciar sesión",
+          "steps": [
+            "Escribe tu correo y tu contraseña.",
+            "Pulsa Iniciar sesión.",
+            "Llegarás al menú principal y catálogo de ejercicios correspondiente a tu rol."
+          ],
+          "paragraphs": [
+            "Si los datos ingresados no coinciden, verás un mensaje general de credenciales inválidas. Por principios de seguridad defensiva, el mensaje no especifica si falló el correo o la contraseña."
+          ]
+        },
+        {
+          "id": "seccion-2-3",
+          "number": "2.3",
+          "title": "Bloqueo temporal de la cuenta",
+          "paragraphs": [
+            "Si se introducen credenciales erróneas 5 veces consecutivas, la cuenta entra en un bloqueo preventivo durante 15 minutos para protegerla contra ataques de fuerza bruta. Al transcurrir ese lapso, la protección se desactiva automáticamente y puedes volver a intentarlo."
+          ]
+        },
+        {
+          "id": "seccion-2-4",
+          "number": "2.4",
+          "title": "Si tu sesión expira",
+          "paragraphs": [
+            "Si la sesión caduca por inactividad prolongada, PyLevel solicitará renovar la autenticación. Si estabas guardando un avance o resultado, el sistema retiene los datos y completa el registro una vez inicias sesión nuevamente."
+          ]
+        },
+        {
+          "id": "seccion-2-5",
+          "number": "2.5",
+          "title": "Qué ve cada rol",
+          "table": {
+            "caption": "Capacidades y vistas disponibles por rol en PyLevel",
+            "headers": [
+              "Rol",
+              "Qué puede usar"
+            ],
+            "rows": [
+              [
+                "Estudiante",
+                "Catálogo de retos (desafíos clásicos y proyectos multi-archivo), exámenes, resultados, historial personal, soporte interactivo de PyBot y configuración de perfil"
+              ],
+              [
+                "Administrador",
+                "Panel de control administrativo (/admin/), gestión de retos y ejercicios, métricas globales de estudiantes y administración de permisos de administradores"
+              ]
+            ]
+          },
+          "paragraphs": [
+            "Si intentas acceder a una ruta administrativa sin los privilegios requeridos, el sistema te redirigirá e indicará que la función está restringida."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-3",
+      "number": "3",
+      "title": "Guía del estudiante",
+      "role": "Estudiante",
+      "lead": "Tu experiencia de aprendizaje en PyLevel combina práctica autónoma y evaluaciones estructuradas: exploras ejercicios y retos, programas tu solución en el workbench integrado, ejecutas pruebas con retroalimentación inmediata y analizas tus resultados con la guía de PyBot.",
+      "subsections": [
+        {
+          "id": "seccion-3-1",
+          "number": "3.1",
+          "title": "Elegir la modalidad y tema de práctica",
+          "paragraphs": [
+            "En el catálogo de ejercicios puedes explorar y filtrar por modalidad (Desafíos clásicos o Proyectos multi-archivo), dificultad (Fácil, Medio, Difícil) y etiquetas temáticas (#POO, #listas, #algoritmos, #validación)."
+          ],
+          "steps": [
+            "Selecciona el ejercicio o proyecto en el que deseas trabajar.",
+            "Revisa el enunciado, los criterios de aceptación y los archivos proporcionados en el banco de trabajo.",
+            "Escribe y refactoriza tu código en el editor incorporado."
+          ],
+          "note": "Puedes resolver los ejercicios en el orden que prefieras según tus intereses de estudio. Cada reto es independiente y conserva su estado de completitud una vez superadas las pruebas."
+        },
+        {
+          "id": "seccion-3-2",
+          "number": "3.2",
+          "title": "Responder preguntas y programar soluciones",
+          "paragraphs": [
+            "PyLevel ofrece dos modalidades principales de trabajo práctico:"
+          ],
+          "table": {
+            "caption": "Modalidades de ejercicios en PyLevel",
+            "headers": [
+              "Modalidad",
+              "Cómo se desarrolla"
+            ],
+            "rows": [
+              [
+                "Desafío Clásico",
+                "Implementación de funciones específicas o algoritmos en un único archivo de código, evaluados contra suites de pruebas unitarias automáticas"
+              ],
+              [
+                "Proyecto Multi-archivo",
+                "Desarrollo arquitectónico modular donde navegas entre múltiples módulos (entidades, controladores, utilidades) y coordinas la lógica de negocio"
+              ]
+            ]
+          },
+          "paragraphsAfter": [
+            "El banco de trabajo permite ejecutar tus pruebas tantas veces como requieras. Las pruebas públicas te orientan durante el desarrollo y los casos de evaluación certifican que la solución es sólida ante casos borde.",
+            "Toda la interfaz cuenta con soporte completo para navegación por teclado, accesibilidad de alto contraste y compatibilidad con tecnologías de asistencia."
+          ]
+        },
+        {
+          "id": "seccion-3-3",
+          "number": "3.3",
+          "title": "Qué pasa con tu código",
+          "paragraphs": [
+            "Al pulsar Ejecutar o Probar, tu código se envía al ejecutor seguro de PyLevel (alojado en un entorno aislado con gVisor y Docker). Se ejecutan las suites de pruebas automatizadas y se capturan las aserciones, salidas y posibles excepciones sin comprometer el sistema. Las especificaciones de aislamiento se describen en la sección 5."
+          ]
+        },
+        {
+          "id": "seccion-3-4",
+          "number": "3.4",
+          "title": "Resultado inmediato de cada ejecución",
+          "paragraphs": [
+            "Al concluir la ejecución, el terminal integrado despliega el resultado de cada prueba individual. Si alguna falla, se proporciona diagnóstico contextual:"
+          ],
+          "table": {
+            "caption": "Diagnóstico de causas de error en las pruebas",
+            "headers": [
+              "Causa del error",
+              "Qué significa"
+            ],
+            "rows": [
+              [
+                "Error de sintaxis (SyntaxError)",
+                "El código contiene un fallo gramatical de Python y el intérprete no pudo parsearlo"
+              ],
+              [
+                "Salida distinta (AssertionError)",
+                "El código completó su ejecución, pero el valor retornado o impreso difiere del esperado"
+              ],
+              [
+                "Excepción no controlada",
+                "El programa abortó prematuramente debido a un error en tiempo de ejecución (ej. KeyError, IndexError, TypeError)"
+              ],
+              [
+                "Tiempo excedido (Timeout)",
+                "El algoritmo superó el límite de tiempo de CPU establecido o entró en un bucle infinito"
+              ]
+            ]
+          },
+          "paragraphsAfter": [
+            "Puedes apoyarte en PyBot en cualquier momento: el asistente analiza el contexto del reto y el error obtenido para darte pistas conceptuales sin revelarte directamente la solución."
+          ]
+        },
+        {
+          "id": "seccion-3-5",
+          "number": "3.5",
+          "title": "Respuestas que no se pueden evaluar",
+          "paragraphs": [
+            "Si una prueba no puede procesarse por indisponibilidad temporal del ejecutor o fallo de infraestructura externa, el sistema notifica el incidente técnico y no penaliza tu desempeño ni tus estadísticas. Los administradores reciben automáticamente el aviso para su revisión."
+          ]
+        },
+        {
+          "id": "seccion-3-6",
+          "number": "3.6",
+          "title": "Ver tu resultado y reporte",
+          "paragraphs": [
+            "Al finalizar una evaluación o examen, la pantalla de resultados muestra de inmediato tu balance de desempeño:"
+          ],
+          "list": [
+            "Tu puntaje global obtenido en escala de 0 a 100 puntos.",
+            "El porcentaje de pruebas superadas satisfactoriamente.",
+            "Tus fortalezas identificadas en los temas donde demostraste dominio conceptual.",
+            "Aspectos a reforzar para enfocar tus siguientes sesiones de práctica.",
+            "Desglose pormenorizado por subtema y recomendaciones de ejercicios complementarios."
+          ]
+        },
+        {
+          "id": "seccion-3-7",
+          "number": "3.7",
+          "title": "Tu plan de estudio y recomendaciones",
+          "paragraphs": [
+            "PyLevel utiliza los resultados de tus pruebas para recomendarte lecturas y ejercicios afines a las áreas donde detectó oportunidades de mejora. Si obtuviste puntaje sobresaliente, el sistema te sugiere retos de mayor complejidad técnica."
+          ]
+        },
+        {
+          "id": "seccion-3-8",
+          "number": "3.8",
+          "title": "Tu historial personal",
+          "paragraphs": [
+            "Tus evaluaciones y ejercicios completados se sincronizan de forma automática e inmutable con tu cuenta. En tu panel de progreso puedes:"
+          ],
+          "list": [
+            "Consultar la lista de evaluaciones con fecha de realización, área evaluada y puntaje obtenido.",
+            "Acceder al desglose detallado de cualquier intento anterior.",
+            "Filtrar por modalidad, dificultad o rango temporal.",
+            "Revisar tu curva de aprendizaje y ejercicios resueltos satisfactoriamente."
+          ],
+          "paragraphsAfter": [
+            "Tu historial es estrictamente personal y confidencial: solo tú tienes acceso a los detalles de tu actividad."
+          ]
+        },
+        {
+          "id": "seccion-3-9",
+          "number": "3.9",
+          "title": "Insignias y puntos (opcional)",
+          "paragraphs": [
+            "PyLevel incluye un componente opcional de gamificación que premia la constancia. Si decides activarlo en tu perfil, recibirás insignias al completar retos consecutivos, resolver proyectos complejos o acumular sesiones de práctica activa.",
+            "Las insignias y puntos constituyen un estímulo motivacional: no reemplazan ni alteran las calificaciones objetivas de tus evaluaciones."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-4",
+      "number": "4",
+      "title": "Sistema de evaluación y cálculo de puntajes",
+      "lead": "La calificación en PyLevel es imparcial, cuantitativa y automatizada. Tu puntaje refleja con precisión la proporción de criterios de aceptación y pruebas unitarias que tu código satisface en cada evaluación.",
+      "subsections": [
+        {
+          "id": "seccion-4-1",
+          "number": "4.1",
+          "title": "La fórmula del puntaje",
+          "paragraphs": [
+            "El puntaje se computa como el porcentaje directo de preguntas o retos evaluables resueltos con éxito:"
+          ],
+          "formula": {
+            "latex": "\\text{Puntaje} = \\frac{\\text{respuestas correctas}}{\\text{preguntas evaluables}} \\times 100",
+            "numerator": "respuestas correctas",
+            "denominator": "preguntas evaluables",
+            "multiplier": "100",
+            "label": "Puntaje = (respuestas correctas / preguntas evaluables) * 100"
+          },
+          "paragraphsAfter": [
+            "Las preguntas o pruebas que hayan sido excluidas por anomalías de infraestructura no forman parte del denominador ni te descuentan puntaje. Por ejemplo, si una prueba fue descartada de un total de 10 y aprobaste 6 de las 9 válidas, tu puntaje corresponde a 66,7 puntos."
+          ]
+        },
+        {
+          "id": "seccion-4-2",
+          "number": "4.2",
+          "title": "Criterios de evaluación y pruebas automatizadas",
+          "paragraphs": [
+            "Para determinar si una solución es correcta, el ejecutor evalúa tres criterios objetivos:"
+          ],
+          "table": {
+            "caption": "Criterios de validación del código en las pruebas",
+            "headers": [
+              "Criterio",
+              "Qué verifica el evaluador"
+            ],
+            "rows": [
+              [
+                "Exactitud de salida",
+                "Los valores retornados, estructuras de datos modificadas o salidas estándar coinciden de forma idéntica con el resultado esperado para todos los casos de prueba"
+              ],
+              [
+                "Control de casos borde y excepciones",
+                "El algoritmo maneja listas vacías, valores negativos, tipos de datos inesperados o lanza las excepciones definidas en el requerimiento"
+              ],
+              [
+                "Límites de tiempo y memoria",
+                "El código finaliza satisfactoriamente dentro de la cuota de CPU asignada, descartando algoritmos ineficientes o bucles infinitos"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "seccion-4-3",
+          "number": "4.3",
+          "title": "Cómo interpretar tu reporte de resultados",
+          "table": {
+            "caption": "Elementos del reporte diagnóstico",
+            "headers": [
+              "Elemento del reporte",
+              "Utilidad para tu aprendizaje"
+            ],
+            "rows": [
+              [
+                "Fortalezas",
+                "Temas donde tus respuestas fueron óptimas; confirman la asimilación correcta de los conceptos"
+              ],
+              [
+                "Aspectos a reforzar",
+                "Conceptos con fallos recurrentes; representan el punto de partida sugerido para tu estudio"
+              ],
+              [
+                "Desglose por subtema",
+                "Porcentaje de éxito por categoría específica (#POO, #listas, #recursión, etc.)"
+              ],
+              [
+                "Muestra insuficiente",
+                "Aviso cuando un subtema contó con muy pocas preguntas para emitir un balance estadístico concluyente"
+              ]
+            ]
+          },
+          "paragraphsAfter": [
+            "Utiliza el reporte para orientar tus repasos y seleccionar nuevos ejercicios en el catálogo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-5",
+      "number": "5",
+      "title": "Reglas del entorno de ejecución seguro",
+      "lead": "El código enviado por los usuarios se procesa en un ejecutor remoto protegido con sandbox reforzado (Docker con aislamiento gVisor/runsc). Este entorno garantiza ejecuciones limpias, reproducibles y libres de riesgos para la plataforma.",
+      "subsections": [
+        {
+          "id": "seccion-5-1",
+          "number": "5.1",
+          "title": "Qué puede y qué no puede hacer tu código",
+          "table": {
+            "caption": "Permisos y restricciones del entorno de ejecución de Python",
+            "headers": [
+              "Operación",
+              "Permitida en PyLevel",
+              "Motivo"
+            ],
+            "rows": [
+              [
+                "Usar sintaxis estándar de Python, POO, estructuras de datos y algoritmos",
+                "Sí",
+                "Es el propósito formativo de la plataforma"
+              ],
+              [
+                "Importar módulos estándar como math, random, datetime o collections",
+                "Sí",
+                "Están disponibles en el entorno de ejecución"
+              ],
+              [
+                "Acceder a internet o abrir conexiones de red",
+                "No",
+                "Bloqueado para prevenir abusos y garantizar aislamiento estricto"
+              ],
+              [
+                "Escribir o leer archivos del sistema operativo anfitrión",
+                "No",
+                "El sistema de archivos es efímero y de solo lectura fuera del directorio de trabajo"
+              ],
+              [
+                "Ejecutar comandos del sistema operativo (os.system, subprocess)",
+                "No",
+                "Restringido por políticas de seguridad"
+              ],
+              [
+                "Consumir memoria o tiempo de CPU ilimitados",
+                "No",
+                "Cada ejecución cuenta con límites máximos predeterminados"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "seccion-5-2",
+          "number": "5.2",
+          "title": "Qué ocurre cuando tu código falla",
+          "paragraphs": [
+            "Si tu programa produce una excepción (como ZeroDivisionError o IndexError), el ejecutor captura la traza del error, finaliza el proceso de forma controlada y te muestra el diagnóstico. Un error en tu código jamás dañará la plataforma ni afectará a otros usuarios."
+          ]
+        },
+        {
+          "id": "seccion-5-3",
+          "number": "5.3",
+          "title": "Consejos para escribir tu solución",
+          "list": [
+            "Lee atentamente los tipos de datos que reciben los parámetros y el formato exacto del valor de retorno.",
+            "Usa nombres de variables claros y respeta las convenciones PEP 8 de Python.",
+            "Considera casos especiales: listas vacías, valores nulos, números negativos o cadenas con caracteres especiales.",
+            "Evita llamadas recursivas sin condición de parada que provoquen RecursionError."
+          ]
+        },
+        {
+          "id": "seccion-5-4",
+          "number": "5.4",
+          "title": "Si crees que fue un error del sistema",
+          "paragraphs": [
+            "Si tu solución es correcta según todos los requisitos pero una prueba técnica falla inesperadamente, toma nota del identificador del ejercicio y repórtalo a través de los canales de soporte (sección 7.3)."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-6",
+      "number": "6",
+      "title": "Guía del administrador",
+      "role": "Administrador",
+      "lead": "Como administrador gestionas el catálogo activo de retos de programación, supervisas las métricas agregadas de participación y gestionas los permisos del panel de control.",
+      "subsections": [
+        {
+          "id": "seccion-6-1",
+          "number": "6.1",
+          "title": "Gestión de ejercicios y retos",
+          "paragraphs": [
+            "En la pestaña 'Ejercicios y retos' del panel administrativo (/admin/) dispones de un inventario completo de los desafíos clásicos y proyectos multi-archivo de PyLevel.",
+            "Al crear o editar un ejercicio completas:"
+          ],
+          "table": {
+            "caption": "Estructura de configuración de retos en el panel administrativo",
+            "headers": [
+              "Parámetro",
+              "Descripción"
+            ],
+            "rows": [
+              [
+                "Identificador (ID)",
+                "Clave alfanumérica única (ej. 01_gestor_tareas, 02_agenda_salas)"
+              ],
+              [
+                "Título y descripción",
+                "Enunciado claro del problema, contexto formativo y requerimientos funcionales"
+              ],
+              [
+                "Modalidad",
+                "Desafío Clásico (archivo único) o Proyecto Multi-archivo"
+              ],
+              [
+                "Dificultad",
+                "Fácil, Medio o Difícil"
+              ],
+              [
+                "Etiquetas temáticas",
+                "Conceptos evaluados (ej. #POO, #modularizacion, #listas, #fechas)"
+              ],
+              [
+                "Archivos y módulos",
+                "Estructura del proyecto: plantillas para el estudiante, evaluadores y pruebas unitarias con unittest"
+              ]
+            ]
+          }
+        },
+        {
+          "id": "seccion-6-2",
+          "number": "6.2",
+          "title": "Modificar un ejercicio existente",
+          "paragraphs": [
+            "Puedes seleccionar cualquier reto existente para actualizar su enunciado, corregir casos de prueba o mejorar la plantilla de código. Los cambios guardados se reflejan inmediatamente en la base de datos de producción."
+          ]
+        },
+        {
+          "id": "seccion-6-3",
+          "number": "6.3",
+          "title": "Activar o desactivar visibilidad",
+          "paragraphs": [
+            "Si un ejercicio requiere mantenimiento o actualización de dependencias, puedes cambiar su estado a 'Desactivado (Oculto)'. Esto evita que nuevos estudiantes lo abran mientras conserva el historial previo de los que ya lo resolvieron."
+          ]
+        },
+        {
+          "id": "seccion-6-4",
+          "number": "6.4",
+          "title": "Métricas de estudiantes",
+          "paragraphs": [
+            "La pestaña 'Métricas de estudiantes' proporciona indicadores globales de actividad en la plataforma: volumen de estudiantes registrados, tasa de resolución de retos, tasa de éxito en exámenes y distribución de dificultades abordadas."
+          ]
+        },
+        {
+          "id": "seccion-6-5",
+          "number": "6.5",
+          "title": "Gestión de administradores",
+          "paragraphs": [
+            "La pestaña 'Administradores' permite revisar la lista de cuentas con privilegios administrativos, asignar nuevos administradores autorizados y revocar accesos cuando sea pertinente."
+          ]
+        },
+        {
+          "id": "seccion-6-6",
+          "number": "6.6",
+          "title": "Avisos y monitoreo técnico",
+          "paragraphs": [
+            "Los administradores supervisan la conectividad con el ejecutor seguro (https://runner.pylevel.site) y el estado de la base de datos PostgreSQL mediante las rutas de verificación /api/ready y /api/practice/health."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-7",
+      "number": "7",
+      "title": "Preguntas frecuentes, privacidad y soporte",
+      "lead": "Respuestas directas a las inquietudes más frecuentes, directrices de privacidad y datos de contacto del equipo de PyLevel.",
+      "subsections": [
+        {
+          "id": "seccion-8-1",
+          "aliasId": "faq",
+          "number": "7.1",
+          "title": "Preguntas frecuentes",
+          "isAccordion": true,
+          "faqs": [
+            {
+              "id": "faq-1",
+              "question": "¿Tengo que resolver los ejercicios en un orden estricto?",
+              "answer": "No. Tienes libertad para explorar el catálogo y resolver los retos según tus intereses o el tema que desees reforzar."
+            },
+            {
+              "id": "faq-2",
+              "question": "¿Puedo repetir un ejercicio o evaluación?",
+              "answer": "Sí. Puedes volver a intentar cualquier reto cuantas veces desees. Cada intento exitoso consolida tu aprendizaje y se registra en tu historial."
+            },
+            {
+              "id": "faq-3",
+              "question": "Mi código funciona en mi computador, pero PyLevel lo marca incorrecto. ¿Por qué?",
+              "answer": "Las causas más comunes son diferencias sutiles en la salida estándar frente a la esperada por los casos de prueba, manejo inadecuado de tipos de datos o superación de los límites de tiempo. Revisa el terminal integrado y las reglas del entorno seguro en la sección 5."
+            },
+            {
+              "id": "faq-4",
+              "question": "¿Por qué mi puntaje excluyó alguna pregunta?",
+              "answer": "Las preguntas o pruebas que experimenten fallas de infraestructura o del entorno se descartan automáticamente para no penalizar injustamente tu calificación (secciones 3.5 y 4.1)."
+            },
+            {
+              "id": "faq-5",
+              "question": "¿Por qué un subtema indica \"muestra insuficiente\"?",
+              "answer": "Porque en esa evaluación específica se incluyeron muy pocas preguntas de ese tema particular para arrojar un porcentaje estadístico representativo."
+            },
+            {
+              "id": "faq-6",
+              "question": "Mi cuenta quedó bloqueada. ¿Qué debo hacer?",
+              "answer": "Espera 15 minutos. El bloqueo de seguridad se levanta de manera automática tras 5 intentos fallidos consecutivos de inicio de sesión."
+            },
+            {
+              "id": "faq-7",
+              "question": "¿Las insignias alteran mis puntajes o calificaciones?",
+              "answer": "No. La gamificación es un reconocimiento visual optativo y no influye en las métricas objetivas de evaluación."
+            },
+            {
+              "id": "faq-8",
+              "question": "¿Puedo utilizar PyLevel desde dispositivos móviles?",
+              "answer": "Sí, la plataforma es responsiva y accesible desde navegadores móviles. No obstante, para programar y editar código con agilidad se recomienda usar un teclado físico y computador."
+            },
+            {
+              "id": "faq-9",
+              "question": "¿Quién tiene acceso a mis resultados y código?",
+              "answer": "Solo tú tienes acceso a tu historial detallado y código de ejercicios. Los administradores únicamente pueden visualizar métricas agregadas globales con fines de mantenimiento y soporte de la plataforma."
+            }
+          ]
+        },
+        {
+          "id": "seccion-7-2",
+          "number": "7.2",
+          "title": "Privacidad y seguridad de tus datos",
+          "list": [
+            "Tu contraseña se almacena con funciones criptográficas unidireccionales y jamás se guarda en texto plano.",
+            "Tu historial y avances son privados: solo tú puedes consultarlos desde tu sesión personal.",
+            "Tu código se ejecuta en un contenedor efímero aislado sin acceso a red externa ni al sistema anfitrión.",
+            "El sistema de autenticación no revela si el error fue de correo o contraseña para prevenir ataques de enumeración.",
+            "Por seguridad, recuerda cerrar sesión al utilizar equipos compartidos o públicos."
+          ]
+        },
+        {
+          "id": "seccion-7-3",
+          "number": "7.3",
+          "title": "Contacto y soporte",
+          "paragraphs": [
+            "Si experimentas algún inconveniente técnico no resuelto en esta guía, por favor comunícate detallando tu correo de usuario, el identificador del ejercicio y una descripción o captura del mensaje observado."
+          ],
+          "table": {
+            "caption": "Canales de soporte y contacto del proyecto",
+            "headers": [
+              "Canal",
+              "Dato"
+            ],
+            "rows": [
+              [
+                "Correo de soporte",
+                {
+                  "isPending": true,
+                  "text": "[correo de soporte del proyecto]"
+                }
+              ],
+              [
+                "Repositorio del proyecto",
+                {
+                  "isPending": true,
+                  "text": "[enlace al repositorio, si se desea publicar]"
+                }
+              ],
+              [
+                "Equipo",
+                "David Santiago Cuervo Pinilla y Kevin Andrés Pardo, Institución Universitaria de Colombia"
+              ]
+            ]
+          },
+          "footerNote": "PyLevel — Manual de usuario, versión 1.0, noviembre de 2026."
+        }
+      ]
+    }
+  ]
+}

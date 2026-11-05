@@ -1,0 +1,55 @@
+{
+  "id": "politica-de-cookies",
+  "slug": "/politica-de-cookies",
+  "title": "Política de cookies y almacenamiento en el navegador",
+  "shortTitle": "Cookies y almacenamiento",
+  "subtitle": "Información sobre cookies técnicas esenciales y almacenamiento local en PyLevel",
+  "lead": "PyLevel usa únicamente lo necesario para que tu sesión funcione. No usamos cookies de publicidad ni de seguimiento entre sitios. Una cookie es un pequeño archivo que el sitio guarda en tu navegador; el almacenamiento local cumple una función parecida.",
+  "sections": [
+    {
+      "id": "cookies-1",
+      "number": "1",
+      "title": "Tipos de cookies y almacenamiento utilizados",
+      "table": {
+        "caption": "Inventario de cookies técnicas y almacenamiento local en el navegador",
+        "headers": ["Tipo", "Para qué sirve", "Duración", "¿Se puede rechazar?"],
+        "rows": [
+          [
+            "Sesión y autenticación",
+            "Mantiene tu sesión iniciada y recuerda tu rol mientras navegas",
+            "Hasta que cierres sesión o la sesión expire",
+            "No: sin ella no puedes usar la cuenta"
+          ],
+          [
+            "Preferencias",
+            "Guarda ajustes como la activación de la gamificación o la configuración de la interfaz",
+            "[duración]",
+            "Sí, desde tu configuración o tu navegador"
+          ],
+          [
+            "Analítica [solo si se usa]",
+            "Mide de forma agregada cómo se usa el sitio para mejorarlo",
+            "[duración]",
+            "Sí"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "cookies-2",
+      "number": "2",
+      "title": "Cómo controlarlas",
+      "paragraphs": [
+        "Puedes borrar o bloquear las cookies desde la configuración de tu navegador. Si bloqueas las de sesión, no podrás iniciar sesión ni presentar evaluaciones."
+      ]
+    },
+    {
+      "id": "cookies-3",
+      "number": "3",
+      "title": "Datos personales",
+      "paragraphs": [
+        "Si una cookie permite identificarte, se trata como dato personal y se rige por la Política de privacidad. Si en el futuro se incorporan cookies de terceros o de analítica, esta política se actualizará y, cuando corresponda, se pedirá tu autorización antes de activarlas."
+      ]
+    }
+  ]
+}
