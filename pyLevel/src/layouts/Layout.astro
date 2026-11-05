@@ -1,6 +1,7 @@
 ---
 import Navbar from '../components/Navbar.astro';
 import PyBotWidget from '../components/PyBotWidget.astro';
+import CookieNotice from '../components/CookieNotice.astro';
 import '../styles/theme.css';
 import '../styles/global.css';
 import '../styles/navigation.css';
@@ -50,6 +51,7 @@ const {
 		{!hideNavbar && <Navbar />}
 		<slot />
 		{!hidePyBot && <PyBotWidget />}
+		<CookieNotice />
 	</body>
 </html>
 
