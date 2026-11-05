@@ -66,7 +66,7 @@ export interface ManualSection {
   id: string;
   number: string;
   title: string;
-  role?: 'Estudiante' | 'Docente' | 'Administrador';
+  role?: 'Estudiante' | 'Administrador';
   lead?: string;
   paragraphs?: string[];
   subsections?: ManualSubsection[];
