@@ -33,8 +33,14 @@ test('la cámara sigue procesando imágenes al ocultar la preparación durante e
   await page.getByRole('button', { name: /Comenzar examen/ }).click();
   await expect(page.getByRole('region', { name: 'Examen en curso' })).toBeVisible();
   await expect(page.locator('#exam-camera')).toBeHidden();
+  await page.evaluate(() => {
+    (window as any).__cameraStatusChanges = 0;
+    new MutationObserver(() => { (window as any).__cameraStatusChanges++; })
+      .observe(document.getElementById('camera-live')!, { childList: true, subtree: true });
+  });
   const frames = await page.evaluate(() => (window as any).__examFrames);
   await expect.poll(() => page.evaluate(() => (window as any).__examFrames)).toBeGreaterThan(frames + 3);
+  expect(await page.evaluate(() => (window as any).__cameraStatusChanges)).toBe(0);
   expect(await page.evaluate(() => (document.getElementById('camera-preview') as HTMLVideoElement).srcObject instanceof MediaStream)).toBe(true);
   await expect(page.locator('#camera-live')).toHaveText('Cámara activa · Un rostro detectado');
   await page.getByRole('button', { name: 'Revisar cámara', exact: true }).click();

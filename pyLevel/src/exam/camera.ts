@@ -28,8 +28,11 @@ export function createExamCamera(record: (event: ExamEvent) => void, change: () 
   const policy = createCameraPolicy(event => { if (isActive) record(event); });
 
   function report(text: string, state: 'waiting' | 'ok' | 'warning' = 'waiting') {
-    status.textContent = text; status.dataset.state = state;
-    el('camera-live').textContent = text; el('camera-live').dataset.state = state;
+    if (status.textContent !== text) status.textContent = text;
+    status.dataset.state = state;
+    const live = el('camera-live');
+    if (live.textContent !== text) live.textContent = text;
+    live.dataset.state = state;
   }
   function controls() {
     enable.disabled = !consent.checked || requesting || finished;
