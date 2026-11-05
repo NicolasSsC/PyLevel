@@ -1,0 +1,177 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<footer class:list={['pylevel-footer', className]}>
+  <div class="footer-container">
+    <div class="footer-col-brand">
+      <a href="/" class="footer-brand" aria-label="PyLevel - Inicio">
+        <img src="/pylevel-logo.svg" alt="" width="36" height="36" loading="lazy" decoding="async" />
+        <span class="brand-text">Py<span class="brand-accent">Level</span><b class="brand-dot">.</b></span>
+      </a>
+      <p class="footer-tagline">Plataforma web para el aprendizaje interactivo y la evaluación de Python.</p>
+    </div>
+
+    <nav class="footer-nav" aria-label="Enlaces del pie de página">
+      <div class="footer-links-group">
+        <span class="footer-group-title">Documentación</span>
+        <a href="/manual-de-usuario" class="footer-link">Manual de usuario</a>
+        <a href="/manual-de-usuario#seccion-8-1" class="footer-link">Preguntas frecuentes</a>
+      </div>
+      <div class="footer-links-group">
+        <span class="footer-group-title">Plataforma</span>
+        <a href="/ejercicios" class="footer-link">Ejercicios</a>
+        <a href="/examen" class="footer-link">Exámenes</a>
+        <a href="https://www.python.org/" target="_blank" rel="noopener noreferrer" class="footer-link">
+          Python.org ↗<span class="sr-only"> (abre en otra pestaña)</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-container bottom-flex">
+      <small>© 2026 PyLevel. Todos los derechos reservados.</small>
+      <small class="trademark">Python y su logo son marcas registradas de la Python Software Foundation.</small>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .pylevel-footer {
+    background: var(--color-surface, #0f172a);
+    border-top: 1px solid var(--color-border, #1e293b);
+    color: var(--color-text-secondary, #94a3b8);
+    margin-top: auto;
+    font-size: 0.9rem;
+  }
+
+  .footer-container {
+    width: min(1200px, calc(100% - 2rem));
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .pylevel-footer > .footer-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2.5rem;
+    padding-block: 3rem 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-col-brand {
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--color-text-primary, #f8fafc);
+  }
+
+  .brand-accent {
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .brand-dot {
+    color: #ffd343;
+  }
+
+  .footer-tagline {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin: 0;
+    color: var(--color-text-secondary, #94a3b8);
+  }
+
+  .footer-nav {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-links-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .footer-group-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--color-text-primary, #f8fafc);
+    margin-bottom: 0.25rem;
+  }
+
+  .footer-link {
+    color: var(--color-text-secondary, #94a3b8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.15s ease;
+  }
+
+  .footer-link:hover {
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .footer-link:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid var(--color-border-subtle, #1e293b);
+    padding-block: 1.25rem;
+    font-size: 0.78rem;
+    color: var(--color-text-muted, #64748b);
+  }
+
+  .bottom-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (max-width: 640px) {
+    .pylevel-footer > .footer-container {
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .footer-nav {
+      gap: 2rem;
+      width: 100%;
+      justify-content: space-between;
+    }
+  }
+</style>
+

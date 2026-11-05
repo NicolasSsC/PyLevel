@@ -2,37 +2,97 @@
 export const prerender = false;
 import AdminShell from '../../admin/AdminShell.astro';
 ---
-<AdminShell active="manual" title="Manual del Administrador" description="Guía de ejercicios, métricas de estudiantes y gestión de accesos del panel administrativo.">
-  <div class="manual-search"><label for="manual-search">Buscar en el manual</label><input id="manual-search" type="search" class="admin-input" placeholder="Ej. métricas, pruebas, administrador..." /></div>
+<AdminShell active="manual" title="Manual del Administrador y Técnico" description="Guía de uso administrativo y documentación técnica oficial de la arquitectura, APIs, esquemas y despliegue de PyLevel.">
+  <div class="manual-search">
+    <label for="manual-search">Buscar en el manual</label>
+    <input id="manual-search" type="search" class="admin-input" placeholder="Buscar por tema (ej. métricas, gVisor, exámenes, API, CSRF, PostgreSQL, BlazeFace)..." />
+  </div>
+
+  <div class="manual-subnav" role="tablist" aria-label="Subsecciones del manual">
+    <button type="button" class="manual-tab-btn active" role="tab" id="tab-btn-admin" data-manual-target="admin" aria-selected="true" aria-controls="manual-section-admin">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      Manual de Administración (Guía del Panel)
+    </button>
+    <button type="button" class="manual-tab-btn" role="tab" id="tab-btn-tecnico" data-manual-target="tecnico" aria-selected="false" aria-controls="manual-section-tecnico">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+      Manual Oficial de Software: PyLevel
+    </button>
+  </div>
+
   <div class="admin-manual-layout">
-    <aside class="account-card manual-index" aria-label="Índice del manual"><h2>Manual del Administrador</h2><nav><a href="#admin-acceso">Acceso y navegación</a><a href="#admin-crear">Crear ejercicios</a><a href="#admin-editar">Editar contenido</a><a href="#admin-desactivar">Activar y desactivar</a><a href="#admin-borrar">Quitar ejercicios</a><a href="#admin-pruebas">Pruebas unitarias</a><a href="#admin-metricas">Métricas de estudiantes</a><a href="#admin-cuentas">Administradores</a></nav></aside>
+    <aside class="account-card manual-index" aria-label="Índice del manual">
+      <div class="manual-index-group" data-manual-group="admin">
+        <h2 class="manual-index-title">Panel de Administración</h2>
+        <nav>
+          <a href="#admin-acceso">2.1 Acceso y navegación</a>
+          <a href="#admin-crear">2.2 Crear ejercicios</a>
+          <a href="#admin-editar">2.3 Editar contenido</a>
+          <a href="#admin-desactivar">2.4 Activar y desactivar</a>
+          <a href="#admin-borrar">2.5 Quitar ejercicios</a>
+          <a href="#admin-pruebas">2.6 Pruebas unitarias</a>
+          <a href="#admin-metricas">2.7 Métricas de estudiantes</a>
+          <a href="#admin-cuentas">2.8 Administradores</a>
+        </nav>
+      </div>
+
+      <div class="manual-index-group" data-manual-group="tecnico" hidden>
+        <h2 class="manual-index-title">Manual Técnico Oficial</h2>
+        <nav>
+          <a href="#tec-cap-1">1. Introducción y Alcance</a>
+          <a href="#tec-cap-2">2. Requisitos e Instalación</a>
+          <a href="#tec-cap-3">3. Guía de Inicio Rápido</a>
+          <a href="#tec-cap-4-1">4.1 Sandboxing Runner gVisor</a>
+          <a href="#tec-cap-4-2">4.2 Autenticación y Sesiones</a>
+          <a href="#tec-cap-4-3">4.3 Exámenes y Monitoreo Facial</a>
+          <a href="#tec-cap-4-4">4.4 Práctica y Tests Canónicos</a>
+          <a href="#tec-cap-4-5">4.5 Tutor IA PyBot</a>
+          <a href="#tec-cap-5-1">5.1 Contrato del Ejecutor</a>
+          <a href="#tec-cap-5-2">5.2 API de Práctica</a>
+          <a href="#tec-cap-5-3">5.3 API de Examen</a>
+          <a href="#tec-cap-5-4">5.4 Chat con el Tutor SSE</a>
+          <a href="#tec-cap-5-5">5.5 Flujo 1: Resolver Ejercicio</a>
+          <a href="#tec-cap-5-6">5.6 Flujo 2: Presentar Examen</a>
+          <a href="#tec-cap-6-1">6.1 Diagnóstico de Errores</a>
+          <a href="#tec-cap-6-2">6.2 Preguntas Frecuentes</a>
+          <a href="#tec-cap-7-1">7.1 Glosario Técnico</a>
+          <a href="#tec-cap-7-2">7.2 Anexo A: Modelo de Datos</a>
+          <a href="#tec-cap-7-3">7.3 Anexo B: Scripts y Ejecución</a>
+          <a href="#tec-cap-7-4">7.4 Anexo C: Suite de Pruebas</a>
+          <a href="#tec-cap-7-5">7.5 Anexo D: Estructura del Repo</a>
+          <a href="#tec-cap-7-6">7.6 Anexo E: Páginas del Sistema</a>
+        </nav>
+      </div>
+    </aside>
+
     <article class="account-card manual-content">
+      <!-- ========================================== -->
+      <!-- SUBSECCIÓN 1: MANUAL DEL ADMINISTRADOR      -->
+      <!-- ========================================== -->
+      <div class="manual-sub-content" id="manual-section-admin" data-manual-section="admin">
         <section class="doc-chapter" id="capitulo-admin">
           <div class="chapter-badge">GUÍA DEL PANEL</div>
-          <h2 class="chapter-title">Manual del Administrador</h2>
+          <h2 class="chapter-title">Manual de Administración de PyLevel</h2>
           <p class="chapter-intro">
-            Guía completa para administradores de PyLevel sobre el nuevo <a href="/admin/">Panel Administrativo</a>: gestión de retos, métricas de estudiantes, accesos y diseño de pruebas.
+            Guía de uso para administradores de PyLevel sobre el <a href="/admin/">Panel Administrativo</a>: gestión de retos, creación con IA, métricas de estudiantes, accesos y diseño de pruebas.
           </p>
 
           <div class="doc-topic" id="admin-acceso">
             <h3>2.1 Acceso al Panel Administrativo</h3>
             <p>
-              El panel de administración se encuentra en la ruta <code>/admin/</code>. Solo una cuenta con permiso de administrador puede abrir el panel y utilizar sus operaciones. Inicia sesión con tu cuenta habitual.
+              El panel de administración se encuentra en la ruta <code>/admin/</code>. Solo una cuenta activa con permiso de administrador (<code>users.role = 'admin'</code>) puede abrir el panel y utilizar sus operaciones. Inicia sesión con tu cuenta habitual.
             </p>
             <p>
-              Las pestañas del panel permiten abrir Ejercicios y retos, Métricas de estudiantes, Administradores y este manual.
+              Las pestañas del panel permiten abrir <strong>Ejercicios y retos</strong>, <strong>Métricas de estudiantes</strong>, <strong>Administradores</strong> y este manual.
             </p>
           </div>
 
           <div class="doc-topic" id="admin-crear">
             <h3>2.2 Crear Nuevos Ejercicios</h3>
-            <p>
-              Para publicar un nuevo reto:
-            </p>
+            <p>Para publicar un nuevo reto en la plataforma:</p>
             <ol>
               <li>Haz clic en el botón <strong>«Crear Nuevo Ejercicio»</strong> en el panel de administración.</li>
               <li><strong>Modalidad:</strong> Selecciona si es un <em>Desafío Clásico</em> o un <em>Proyecto Multi-archivo</em>.</li>
-              <li><strong>Borrador con IA (opcional):</strong> elige la dificultad, escribe un tema y pulsa «Generar borrador con IA». Revisa el enunciado, los módulos y las pruebas que se incorporan al formulario. El borrador no se publica hasta que pulses «Guardar ejercicio».</li>
+              <li><strong>Borrador con IA (opcional):</strong> Elige la dificultad, escribe un tema y pulsa «Generar borrador con IA». Revisa el enunciado, los módulos y las pruebas que se incorporan al formulario. El borrador no se publica hasta que pulses «Guardar ejercicio».</li>
               <li><strong>Identificador (ID):</strong> Define un ID único en minúsculas y guiones bajos (ej. <code>clasico_fibonacci</code> o <code>10_sistema_clinica</code>).</li>
               <li><strong>Datos descriptivos:</strong> Título, nivel académico (Inicial, Intermedio, Avanzado), dificultad (Fácil, Medio, Difícil), temas separados por coma y descripción breve.</li>
               <li><strong>Enunciado:</strong> Redacta las instrucciones, requerimientos y casos de ejemplo del ejercicio.</li>
@@ -48,22 +108,18 @@ import AdminShell from '../../admin/AdminShell.astro';
 
           <div class="doc-topic" id="admin-editar">
             <h3>2.3 Editar y Corregir Ejercicios Existentes</h3>
-            <p>
-              Si necesitas mejorar la redacción de un enunciado, ajustar los casos de prueba o agregar nuevas pistas:
-            </p>
+            <p>Si necesitas mejorar la redacción de un enunciado, ajustar los casos de prueba o agregar nuevas pistas:</p>
             <ol>
               <li>Ubica el ejercicio en la tabla del panel administrativo (puedes usar el buscador o el filtro de modalidad).</li>
               <li>Haz clic en el botón <strong>«Editar»</strong>.</li>
               <li>Modifica cualquier campo: enunciado, código inicial, pruebas unitarias o pistas pedagógicas.</li>
-              <li>Pulsa <strong>«Guardar ejercicio»</strong>. Los módulos adicionales y los metadatos del proyecto se conservan.</li>
+              <li>Pulsa <strong>«Guardar ejercicio»</strong>. Los módulos adicionales y los metadatos del proyecto se conservan de forma versionada.</li>
             </ol>
           </div>
 
           <div class="doc-topic" id="admin-desactivar">
             <h3>2.4 Desactivar y Activar Retos en 1 Clic</h3>
-            <p>
-              Durante periodos de exámenes, talleres prácticos o cuando estés preparando nuevos ejercicios que aún no deban ver los estudiantes, puedes <strong>desactivar</strong> cualquier ejercicio:
-            </p>
+            <p>Durante periodos de exámenes, talleres prácticos o cuando estés preparando nuevos ejercicios que aún no deban ver los estudiantes, puedes <strong>desactivar</strong> cualquier ejercicio:</p>
             <ul>
               <li>En la columna <strong>Estado</strong> de la tabla, haz clic sobre el botón <strong>«Activo»</strong>.</li>
               <li>El ejercicio cambiará automáticamente a <strong>«Desactivado»</strong>.</li>
@@ -74,21 +130,17 @@ import AdminShell from '../../admin/AdminShell.astro';
 
           <div class="doc-topic" id="admin-borrar">
             <h3>2.5 Eliminar Ejercicios</h3>
-            <p>
-              Si un ejercicio fue creado por error o ya no forma parte del plan de estudios:
-            </p>
+            <p>Si un ejercicio fue creado por error o ya no forma parte del plan de estudios:</p>
             <ul>
               <li>Haz clic en el botón <strong>«Borrar»</strong> en la fila del ejercicio.</li>
               <li>Aparecerá un diálogo de confirmación para retirarlo del catálogo.</li>
-              <li>Al confirmar, se retirará del catálogo. Sus versiones y la actividad histórica se conservan.</li>
+              <li>Al confirmar, se retirará del catálogo. Sus versiones históricas y la actividad de los estudiantes se conservan para no romper estadísticas.</li>
             </ul>
           </div>
 
           <div class="doc-topic" id="admin-pruebas">
             <h3>2.6 Diseño de Pruebas Unitarias Efectivas</h3>
-            <p>
-              Para comprobar el comportamiento de una solución, la suite de pruebas en <code>tests/test_publico.py</code> debe estructurarse usando el módulo nativo <code>unittest</code> de Python:
-            </p>
+            <p>Para comprobar el comportamiento de una solución, la suite de pruebas en <code>tests/test_publico.py</code> debe estructurarse usando el módulo nativo <code>unittest</code> de Python:</p>
             <div class="code-block-wrap">
               <div class="code-block-header">
                 <span>tests/test_publico.py</span>
@@ -123,11 +175,1411 @@ if __name__ == '__main__':
             </div>
           </div>
 
-<section class="doc-topic" id="admin-metricas"><h3>2.7 Métricas de Estudiantes</h3><p>Abre <a href="/admin/metricas/">Métricas de estudiantes</a> para explorar el resumen del curso, las alertas, los retos con menor aprobación, el gráfico de siete días, el rendimiento por ejercicio y los últimos intentos.</p><ul><li>Las cifras proceden de las cuentas y la actividad de práctica registradas en PyLevel.</li><li>Los intentos incluyen ejecuciones y pruebas; abrir un reto o pedir una pista no cuenta como intento.</li><li>La tasa de aprobación divide las pruebas aprobadas entre las pruebas con resultado aprobado o fallido. Los errores técnicos y las ejecuciones libres no reducen esa tasa.</li><li>«Gestionar» abre el catálogo con el ejercicio correspondiente. Los títulos y estados reflejan los últimos cambios guardados.</li></ul></section>
-<section class="doc-topic" id="admin-cuentas"><h3>2.8 Gestión de Administradores</h3><p>En <a href="/admin/accesos/">Administradores</a>, introduce el correo de una cuenta activa y registrada para habilitarla como administrador. Su contraseña se conserva.</p><p>La tabla muestra los administradores reales. «Retirar acceso» devuelve una cuenta al rol de estudiante; no elimina sus datos. No puedes retirar tu propio acceso.</p></section>
-        </section>
+          <div class="doc-topic" id="admin-metricas">
+            <h3>2.7 Métricas de Estudiantes</h3>
+            <p>Abre <a href="/admin/metricas/">Métricas de estudiantes</a> para explorar el resumen del curso, las alertas, los retos con menor aprobación, el gráfico de siete días, el rendimiento por ejercicio y los últimos intentos.</p>
+            <ul>
+              <li>Las cifras proceden de las cuentas y la actividad de práctica registradas en PyLevel.</li>
+              <li>Los intentos incluyen ejecuciones y pruebas; abrir un reto o pedir una pista no cuenta como intento.</li>
+              <li>La tasa de aprobación divide las pruebas aprobadas entre las pruebas con resultado aprobado o fallido. Los errores técnicos y las ejecuciones libres no reducen esa tasa.</li>
+              <li>«Gestionar» abre el catálogo con el ejercicio correspondiente. Los títulos y estados reflejan los últimos cambios guardados.</li>
+            </ul>
+          </div>
 
-<p id="manual-empty" class="account-muted" role="status" hidden>No se encontraron secciones con esa búsqueda.</p></article></div>
+          <div class="doc-topic" id="admin-cuentas">
+            <h3>2.8 Gestión de Administradores</h3>
+            <p>En <a href="/admin/accesos/">Administradores</a>, introduce el correo de una cuenta activa y registrada para habilitarla como administrador. Su contraseña se conserva intacta.</p>
+            <p>La tabla muestra los administradores reales. «Retirar acceso» devuelve una cuenta al rol de estudiante; no elimina sus datos. Por seguridad, no puedes retirar tu propio acceso.</p>
+          </div>
+        </section>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- SUBSECCIÓN 2: MANUAL TÉCNICO OFICIAL        -->
+      <!-- ========================================== -->
+      <div class="manual-sub-content" id="manual-section-tecnico" data-manual-section="tecnico" hidden>
+        <section class="doc-chapter" id="capitulo-tecnico">
+          <div class="chapter-badge">DOCUMENTO TÉCNICO OFICIAL</div>
+          <h2 class="chapter-title">Manual Oficial de Software: PyLevel</h2>
+          <p class="chapter-intro">
+            Plataforma web para el aprendizaje interactivo, la evaluación controlada y la tutoría con IA en Python.
+          </p>
+
+          <div class="manual-table-wrap">
+            <table class="manual-table">
+              <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+              <tbody>
+                <tr><td><strong>Producto</strong></td><td>PyLevel</td></tr>
+                <tr><td><strong>Repositorio</strong></td><td><code>https://github.com/NicolasSsC/PyLevel.git</code></td></tr>
+                <tr><td><strong>Núcleo web</strong></td><td>Astro ^7.3.8 con adaptador <code>@astrojs/node</code> (modo standalone)</td></tr>
+                <tr><td><strong>Fuente de este manual</strong></td><td>Documento de contexto técnico <code>pylevel_context_manual.md</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="doc-callout">
+            <div class="callout-icon">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
+            <div class="callout-body">
+              <strong>Nota sobre el alcance de este manual:</strong> Todo el contenido proviene del documento de contexto técnico del proyecto. Cuando un detalle no está especificado en ese documento (por ejemplo, el cuerpo exacto de algunas respuestas de la API), el manual lo indica de forma explícita en lugar de suponerlo.
+            </div>
+          </div>
+
+          <!-- CAPÍTULO 1 -->
+          <div class="doc-topic" id="tec-cap-1">
+            <h3>Capítulo 1: Introducción y Alcance</h3>
+            <h4>1.1 Objetivo del proyecto</h4>
+            <p>
+              PyLevel es una plataforma web integral para el aprendizaje interactivo, la evaluación técnica controlada y la tutoría pedagógica asistida por inteligencia artificial en el lenguaje de programación Python.
+            </p>
+            <p>La plataforma integra cinco capacidades:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>#</th><th>Capacidad</th><th>Descripción resumida</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td><strong>Práctica interactiva</strong></td><td>Dos modalidades: ejercicios clásicos y proyectos contextualizados</td></tr>
+                  <tr><td>2</td><td><strong>Sandboxing</strong></td><td>Ejecución del código del estudiante en contenedores aislados con gVisor (<code>runsc</code>)</td></tr>
+                  <tr><td>3</td><td><strong>Exámenes cronometrados</strong></td><td>Control de tiempo en el servidor y monitoreo de presencia y cámara</td></tr>
+                  <tr><td>4</td><td><strong>Tutor PyBot</strong></td><td>Asistente conversacional con streaming y guardrails pedagógicos</td></tr>
+                  <tr><td>5</td><td><strong>Persistencia y progreso</strong></td><td>Autenticación, sesiones, historial, intentos y recomendaciones</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>1.2 Modalidades de práctica</h4>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Modalidad</th><th>Identificador (mode)</th><th>Enfoque</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Ejercicios clásicos</strong></td>
+                    <td><code>classic</code></td>
+                    <td>Retos algorítmicos sobre sintaxis, estructuras de control, listas, cadenas y algoritmos. Incluye animaciones pedagógicas interactivas, como la visualización paso a paso de Bubble Sort.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Proyectos contextualizados</strong></td>
+                    <td><code>contextual</code></td>
+                    <td>Proyectos de desarrollo de software multi-archivo basados en Programación Orientada a Objetos (POO), patrones de diseño y pruebas unitarias con <code>unittest</code>.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>1.3 Tutor pedagógico PyBot</h4>
+            <p>PyBot es un asistente conversacional flotante, con una interfaz inspirada en la mensajería moderna. Sus características principales son:</p>
+            <ul>
+              <li>Respuestas en streaming, palabra por palabra, mediante Server-Sent Events (SSE).</li>
+              <li>Conexión a la API REST de Google Gemini, con fallback automático entre modelos.</li>
+              <li>Salidas estructuradas mediante esquemas JSON estrictos (<code>responseSchema</code>).</li>
+              <li>Guardrails contra la inyección de prompts.</li>
+              <li>Generación dinámica de retos y proyectos multi-archivo, pistas pedagógicas socráticas y diagnóstico de errores en tiempo de ejecución.</li>
+            </ul>
+
+            <h4>1.4 Sandboxing con gVisor</h4>
+            <p>El código escrito por el estudiante nunca se ejecuta en el servidor web. Se ejecuta en contenedores Docker desechables respaldados por el runtime gVisor (<code>runsc</code>), con:</p>
+            <ul>
+              <li>Aislamiento de red (<code>--network=none</code>).</li>
+              <li>Sistemas de archivos efímeros en <code>tmpfs</code>.</li>
+              <li>Límites estrictos de CPU, memoria y número de procesos.</li>
+              <li>Ejecución con un usuario sin privilegios (<code>nobody</code>: 65534:65534).</li>
+            </ul>
+
+            <h4>1.5 Monitoreo de exámenes</h4>
+            <p>El módulo de exámenes ofrece evaluaciones formales con el tiempo controlado por el servidor y dos mecanismos de monitoreo:</p>
+            <ol>
+              <li><strong>Presencia pasiva:</strong> Mediante eventos de ventana del navegador (<code>visibilitychange</code>, <code>blur/focus</code>, <code>pagehide</code>).</li>
+              <li><strong>Control de cámara local:</strong> Mediante MediaPipe BlazeFace ejecutándose en un Web Worker dentro del navegador. El análisis cuenta rostros en tiempo real y <strong>no transmite ni almacena grabaciones ni imágenes del estudiante</strong>.</li>
+            </ol>
+
+            <h4>1.6 Arquitectura general</h4>
+            <div class="arch-diagram">
++----------------------------------------------------------------------------------------+
+|                                    NAVEGADOR                                           |
+|  +-------------------------------------+      +-------------------------------------+  |
+|  |             Web Worker              |      |           Interfaz Astro            |  |
+|  |        MediaPipe BlazeFace          |      |  (Workbench, ExamWindow,            |  |
+|  +------------------+------------------+      |   PyBotWidget)                      |  |
+|                     | solo nº de rostros      +------------------+------------------+  |
+|                     +--------------------------------------------&gt;|                    |
++------------------------------------------------------------------|---------------------+
+                                                                   | HTTP / SSE
+                                                                   v
++----------------------------------------------------------------------------------------+
+|                              SERVIDOR NODE (Astro SSR)                                 |
+|  +----------------------------------------------------------------------------------+  |
+|  |                       middleware.ts (CSRF Origin y cabeceras)                    |  |
+|  +------------------------------------------+---------------------------------------+  |
+|                                             |                                          |
+|                                             v                                          |
+|  +----------------------------------------------------------------------------------+  |
+|  |                                  Endpoints /api/*                                |  |
+|  +--------------------+---------------------+-------------------+-------------------+  |
++-----------------------|---------------------|-------------------|----------------------+
+                        |                     |                   |
+                        v                     v                   v
+              +-------------------+ +-------------------+ +-------------------+
+              |    PostgreSQL     | |    Puente HTTP    | |   ai/client.ts    |
+              | (o PGlite local)  | | core/server.mjs   | |  worker persistente|
+              +-------------------+ |      :8787        | +---------+---------+
+                                    +---------+---------+           | NDJSON
+                                              |                     v
+                                              v           +-------------------+
+                                    +-------------------+ |   ai/bridge.py    |
+                                    |  Docker + gVisor  | |     (Python)      |
+                                    |       runsc       | +---------+---------+
+                                    | runner/execute.py |           | REST
+                                    +-------------------+           v
+                                                          +-------------------+
+                                                          |    API REST de    |
+                                                          |   Google Gemini   |
+                                                          +-------------------+
+            </div>
+
+            <h4>1.7 Público destinatario</h4>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Perfil</th><th>Uso previsto de este manual</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Estudiantes y desarrolladores en aprendizaje</strong></td><td>Practicar ejercicios, resolver proyectos contextualizados, interactuar con PyBot y presentar exámenes</td></tr>
+                  <tr><td><strong>Docentes, instructores y evaluadores</strong></td><td>Comprender cómo funcionan la práctica, el examen y el monitoreo. En esta versión no existe un panel docente ni de evaluación (consulte la sección 1.8)</td></tr>
+                  <tr><td><strong>Desarrolladores y mantenedores (Full Stack)</strong></td><td>Extender la aplicación Astro, configurar endpoints y mantener la base de datos</td></tr>
+                  <tr><td><strong>Ingeniería de operaciones, DevOps y administradores</strong></td><td>Desplegar la plataforma, configurar el daemon Docker con <code>runsc</code>, administrar PostgreSQL y configurar proxies inversos HTTPS</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>1.8 Alcance actual y funcionalidades no incluidas</h4>
+            <p>Esta versión de PyLevel implementa las vistas de estudiante y el panel de administración. Las siguientes funcionalidades no están implementadas y no deben asumirse al usar o desplegar la plataforma:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Funcionalidad</th><th>Estado en esta versión</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Panel de administración</strong></td><td>Implementado en <code>/admin/</code> con gestión de retos, métricas y roles de administradores.</td></tr>
+                  <tr><td><strong>Panel docente o de evaluadores</strong></td><td>No incluido. Según la documentación del módulo de exámenes (<code>EXAMS.md</code>), tampoco hay panel docente en vivo</td></tr>
+                  <tr><td><strong>Roles de usuario</strong></td><td>Implementado en <code>users.role</code> (valores: <code>user</code> y <code>admin</code>)</td></tr>
+                  <tr><td><strong>Penalización automática en el examen</strong></td><td>No incluida</td></tr>
+                  <tr><td><strong>Pruebas ocultas en el examen</strong></td><td>No incluidas</td></tr>
+                  <tr><td><strong>Calificación del examen</strong></td><td>No incluida</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>Rutas implementadas:</strong> <code>/</code> (portada), <code>/prelogin</code>, <code>/login</code>, <code>/registro</code>, <code>/perfil</code>, <code>/progreso</code>, <code>/examen</code>, <code>/ejercicios</code> y <code>/admin/</code>.</p>
+          </div>
+
+          <!-- CAPÍTULO 2 -->
+          <div class="doc-topic" id="tec-cap-2">
+            <h3>Capítulo 2: Requisitos del Sistema e Instalación</h3>
+            <h4>2.1 Tecnologías y versiones</h4>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Componente</th><th>Versión / requisito</th><th>Observaciones</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Node.js</strong></td><td>&gt;= 22.12.0</td><td>Usa la capacidad nativa de Node para ejecutar TypeScript (<code>--experimental-strip-types</code>)</td></tr>
+                  <tr><td><strong>Astro</strong></td><td>^7.3.8 (v7.4.0)</td><td>Adaptador <code>@astrojs/node</code> en modo standalone</td></tr>
+                  <tr><td><strong>Python (host / Tutor IA)</strong></td><td>3.10+</td><td>Compatible con 3.12 y 3.13; ejecuta los submódulos de IA y los puentes de desarrollo</td></tr>
+                  <tr><td><strong>Python (ejecutor sandboxed)</strong></td><td>3.12</td><td>Fijado en la imagen Docker <code>pylevel-python:local</code></td></tr>
+                  <tr><td><strong>PostgreSQL</strong></td><td>14+</td><td>En producción o entorno local. Se admite PostgreSQL alojado (por ejemplo, Railway o Render Postgres)</td></tr>
+                  <tr><td><strong>PGlite</strong></td><td><code>@electric-sql/pglite ^0.5.10</code></td><td>PostgreSQL embebido, para pruebas unitarias y desarrollo sin Postgres externo</td></tr>
+                  <tr><td><strong>Gestor de paquetes</strong></td><td>pnpm (recomendado) o npm</td><td>Total compatibilidad con scripts npm en Windows/Linux</td></tr>
+                  <tr><td><strong>Motor de contenedores</strong></td><td>Docker Engine en host Linux</td><td>Con el runtime de sandbox gVisor (<code>runsc</code>) registrado</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>2.2 Dependencias del núcleo web (<code>pyLevel/package.json</code>)</h4>
+            <p><strong>Producción</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Paquete</th><th>Versión</th><th>Función</th></tr></thead>
+                <tbody>
+                  <tr><td><code>astro</code></td><td>^7.3.8</td><td>Framework web principal con SSR y generación estática</td></tr>
+                  <tr><td><code>@astrojs/node</code></td><td>^11.1.7</td><td>Adaptador SSR para servidores Node.js</td></tr>
+                  <tr><td><code>@mediapipe/tasks-vision</code></td><td>0.10.32</td><td>Visión computacional WebAssembly para detección facial</td></tr>
+                  <tr><td><code>bcryptjs</code></td><td>^3.0.3</td><td>Hashing y verificación de contraseñas</td></tr>
+                  <tr><td><code>dotenv</code></td><td>^18.0.8</td><td>Carga de variables de entorno</td></tr>
+                  <tr><td><code>pg</code></td><td>^8.23.1</td><td>Cliente PostgreSQL para Node.js con connection pool</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Desarrollo</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Paquete</th><th>Versión</th><th>Función</th></tr></thead>
+                <tbody>
+                  <tr><td><code>@electric-sql/pglite</code></td><td>^0.5.10</td><td>PostgreSQL WASM en memoria para la suite de pruebas</td></tr>
+                  <tr><td><code>@electric-sql/pglite-socket</code></td><td>^0.2.13</td><td>Emulador de socket Postgres para pruebas de integración de red</td></tr>
+                  <tr><td><code>tailwindcss</code> y <code>@tailwindcss/vite</code></td><td>^4.3.3</td><td>Framework de utilidades CSS</td></tr>
+                  <tr><td><code>esbuild</code></td><td>^0.28.2</td><td>Empaqueta el Web Worker clásico de MediaPipe</td></tr>
+                  <tr><td><code>typescript</code></td><td>^6.0.3</td><td>Tipado, junto con los paquetes <code>@types/*</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <h4>2.3 Variables de entorno</h4>
+            <p>Se definen en <code>pyLevel/.env</code> (o como variables del sistema). La plantilla es <code>pyLevel/.env.example</code>.</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>pyLevel/.env</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code># Configuración de conexión a PostgreSQL
+PGHOST="localhost"                # Host de PostgreSQL (o URL remota como Railway/Render)
+PGPORT="5432"                     # Puerto del servicio de base de datos
+PGUSER="pylevel_user"             # Usuario de la base de datos
+PGPASSWORD="tu_password_seguro"   # Contraseña de acceso
+PGDATABASE="pylevel"              # Nombre de la base de datos
+PGSSLMODE="prefer"                # 'require' para producción remota, 'disable' o loopback local
+DB_SSL="false"                    # Flag complementario ('false' solo permitido en 127.0.0.1)
+
+# Dominio y seguridad web
+APP_ORIGIN="http://localhost:4321" # Origen público exacto para validación CSRF (ej. https://pylevel.site)
+
+# URL del ejecutor de código Python
+PYLEVEL_RUNNER_URL="http://127.0.0.1:8787" # Dirección del puente de ejecución Docker/gVisor
+
+# Conectividad del Tutor IA (Google Gemini)
+GEMINI_API_KEY="AIzaSy..."       # API Key de Google Gemini (opcional si se usa modo local)</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Variable</th><th>Obligatoria</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE</code></td><td>Sí</td><td>Parámetros de conexión a PostgreSQL</td></tr>
+                  <tr><td><code>PGSSLMODE</code></td><td>Sí</td><td><code>require</code> para producción remota; <code>disable</code> o <code>prefer</code> en local</td></tr>
+                  <tr><td><code>DB_SSL</code></td><td>Sí</td><td><code>false</code> solo está permitido en 127.0.0.1</td></tr>
+                  <tr><td><code>APP_ORIGIN</code></td><td>Sí</td><td>Origen público exacto; se usa en la validación CSRF por Origin</td></tr>
+                  <tr><td><code>PYLEVEL_RUNNER_URL</code></td><td>Sí</td><td>Dirección del puente hacia el ejecutor Docker/gVisor</td></tr>
+                  <tr><td><code>GEMINI_API_KEY</code></td><td>Opcional</td><td>Sin clave, PyBot opera en modo diagnóstico local limitado. El contexto también menciona el archivo <code>.gemini_key</code> como alternativa</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Seguridad:</strong> El archivo <code>.env</code> contiene credenciales. No debe versionarse; use <code>.env.example</code> como plantilla.</p>
+
+            <h4>2.4 Script de preparación de cámara</h4>
+            <p>El script <code>pyLevel/scripts/prepare-camera.mjs</code> prepara los recursos de visión artificial del examen:</p>
+            <ol>
+              <li>Verifica el hash SHA-256 del modelo BlazeFace (<code>blaze_face_short_range.tflite</code>).</li>
+              <li>Copia los binarios WebAssembly de MediaPipe.</li>
+              <li>Compila el Web Worker clásico con <code>esbuild</code>.</li>
+            </ol>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>cd pyLevel
+node scripts/prepare-camera.mjs</code></pre>
+            </div>
+            <p>Los resultados quedan en <code>pyLevel/public/models/face-detector/</code> (modelo y licencia) y en <code>pyLevel/public/vendor/mediapipe/</code> (WASM y <code>camera-worker.js</code>).</p>
+
+            <h4>2.5 Docker con gVisor (<code>runsc</code>)</h4>
+            <p>Requisito exclusivo para el ejecutor <code>runner/</code>, en un host Linux. El runtime <code>runsc</code> debe estar registrado en <code>/etc/docker/daemon.json</code>:</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>/etc/docker/daemon.json</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "runtimes": &#123;
+    "runsc": &#123;
+      "path": "/usr/bin/runsc"
+    &#125;
+  &#125;
+&#125;</code></pre>
+            </div>
+            <p>Reinicie Docker para aplicar el cambio:</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>sudo systemctl restart docker</code></pre>
+            </div>
+          </div>
+
+          <!-- CAPÍTULO 3 -->
+          <div class="doc-topic" id="tec-cap-3">
+            <h3>Capítulo 3: Guía de Inicio Rápido</h3>
+            <p>Este capítulo lleva la plataforma desde cero hasta un entorno de desarrollo funcional:</p>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">1</span><strong>Clonar el repositorio</strong></div>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>git clone https://github.com/NicolasSsC/PyLevel.git
+cd PyLevel</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">2</span><strong>Instalar dependencias</strong></div>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>cd pyLevel
+pnpm install
+# O alternativamente con npm:
+npm install</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">3</span><strong>Preparar recursos de cámara</strong></div>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>node scripts/prepare-camera.mjs</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">4</span><strong>Configurar variables de entorno</strong></div>
+              <p>Edite <code>.env</code> y defina las credenciales de PostgreSQL y, opcionalmente, <code>GEMINI_API_KEY</code> (consulte la sección 2.3).</p>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>cp .env.example .env</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">5</span><strong>Disponer de una base de datos</strong></div>
+              <ul>
+                <li><strong>Con PostgreSQL propio:</strong> verifique que el servicio esté activo con las credenciales del <code>.env</code>.</li>
+                <li><strong>Sin PostgreSQL externo:</strong> levante la base embebida PGlite en una terminal aparte. Escucha en <code>127.0.0.1:5432</code> y persiste en <code>pyLevel/.pgdata</code>.</li>
+              </ul>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>cd pyLevel
+node scripts/dev-db.mjs</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">6</span><strong>Aplicar las migraciones</strong></div>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>node scripts/migrate.mjs
+# O mediante el script definido en package.json:
+npm run db:migrate</code></pre></div>
+              <p>Las migraciones son SQL aditivo e idempotente, ubicadas en <code>pyLevel/migrations/</code>:</p>
+              <div class="manual-table-wrap">
+                <table class="manual-table">
+                  <thead><tr><th>Archivo</th><th>Contenido</th></tr></thead>
+                  <tbody>
+                    <tr><td><code>001_sessions_exams.sql</code></td><td>Tablas <code>auth_sessions</code>, <code>exam_attempts</code>, <code>exam_events</code></td></tr>
+                    <tr><td><code>002_profile_progress.sql</code></td><td>Campos <code>occupation</code>, <code>birthday</code> y tabla <code>practice_activity</code></td></tr>
+                    <tr><td><code>003_exam_camera.sql</code></td><td>Campos de consentimiento, modo y eventos de cámara</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">7</span><strong>Preparar el ejecutor seguro (Linux)</strong></div>
+              <p>Con Docker y <code>runsc</code> configurados (sección 2.5), construya la imagen del sandbox desde la raíz del repositorio:</p>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>docker build -t pylevel-python:local runner</code></pre></div>
+              <p>Pruebe el supervisor de ejecución:</p>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>printf '%s' '&#123;"files":&#123;"main.py":"print(42)"&#125;,"action":"run"&#125;' | python3 runner/execute.py</code></pre></div>
+              <p>La respuesta esperada es:</p>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Respuesta</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>&#123;"status":"completed","exit_code":0,"output":"42\n"&#125;</code></pre></div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">8</span><strong>Levantar la plataforma en desarrollo</strong></div>
+              <p>Se necesitan hasta tres procesos, cada uno en su propia terminal:</p>
+              <div class="manual-table-wrap">
+                <table class="manual-table">
+                  <thead><tr><th>Proceso</th><th>Comando</th><th>Resultado</th></tr></thead>
+                  <tbody>
+                    <tr><td><strong>Base de datos embebida (opcional)</strong></td><td><code>cd pyLevel &amp;&amp; node scripts/dev-db.mjs</code></td><td>PostgreSQL PGlite en <code>127.0.0.1:5432</code></td></tr>
+                    <tr><td><strong>Puente HTTP del ejecutor</strong></td><td><code>node pyLevel/src/core/server.mjs</code></td><td>Escucha en <code>http://127.0.0.1:8787</code> y recibe solicitudes en <code>/api/execute</code></td></tr>
+                    <tr><td><strong>Servidor web Astro</strong></td><td><code>cd pyLevel &amp;&amp; npm run dev</code></td><td>Disponible en <code>http://localhost:4321/</code></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-header"><span class="step-badge">9</span><strong>Verificar con la suite de pruebas (opcional)</strong></div>
+              <div class="code-block-wrap"><div class="code-block-header"><span>Terminal</span><button type="button" class="copy-btn">Copiar</button></div><pre class="code-pre"><code>cd pyLevel
+npm test</code></pre></div>
+              <p>Ejecuta 24 pruebas con PGlite en memoria, que cubren autenticación, sesiones, CSRF, exámenes, cámara y progreso.</p>
+              <div class="doc-callout">
+                <div class="callout-icon">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                </div>
+                <div class="callout-body">
+                  <strong>Usuarios de Windows (PowerShell):</strong> Si pnpm o npm fallan con <code>UnauthorizedAccess</code>, consulte el Capítulo 6. Recuerde además que el ejecutor con gVisor requiere un host Linux.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CAPÍTULO 4 -->
+          <div class="doc-topic" id="tec-cap-4-1">
+            <h3>4.1 Sandboxing: Runner Docker con gVisor (<code>runner/</code>)</h3>
+            <p><strong>Propósito:</strong> Ejecutar código arbitrario del estudiante sin poner en riesgo el servidor. El componente se compone de cuatro archivos:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Archivo</th><th>Rol</th></tr></thead>
+                <tbody>
+                  <tr><td><code>runner/execute.py</code></td><td>Supervisor confiable que valida la solicitud e invoca Docker con <code>runsc</code></td></tr>
+                  <tr><td><code>runner/bootstrap.py</code></td><td>Entrypoint dentro del contenedor</td></tr>
+                  <tr><td><code>runner/Dockerfile</code></td><td>Define la imagen <code>pylevel-python:local</code> (Debian + Python 3.12)</td></tr>
+                  <tr><td><code>runner/test_runner.py</code></td><td>Suite de pruebas del supervisor y sus restricciones</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Validación de la solicitud: <code>validate(payload)</code></strong></p>
+            <ul>
+              <li>El JSON debe contener la clave <code>files</code>, con entre 1 y 50 archivos.</li>
+              <li>Los nombres de archivo deben ser rutas relativas POSIX válidas: sin <code>..</code>, sin barras invertidas y con longitud de 200 caracteres como máximo.</li>
+              <li><code>action</code> debe ser <code>'run'</code> o <code>'test'</code>.</li>
+              <li>Si la acción es <code>'run'</code>, es obligatoria la presencia de <code>main.py</code>.</li>
+            </ul>
+
+            <p><strong>Ejecución aislada: <code>execute(payload)</code></strong></p>
+            <p>Serializa la solicitud (máximo 256 KiB) y levanta un contenedor Docker efímero con las siguientes directivas:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Directiva</th><th>Efecto</th></tr></thead>
+                <tbody>
+                  <tr><td><code>--runtime=runsc</code></td><td>Obligatorio. Usa el sandbox de kernel gVisor y rechaza runc</td></tr>
+                  <tr><td><code>--network=none</code></td><td>Sin acceso a interfaces de red ni a internet</td></tr>
+                  <tr><td><code>--read-only</code></td><td>Sistema de archivos raíz del contenedor en solo lectura</td></tr>
+                  <tr><td><code>--user=65534:65534</code></td><td>Ejecuta como el usuario <code>nobody</code>, sin privilegios</td></tr>
+                  <tr><td><code>--cap-drop=ALL</code></td><td>Elimina todas las capacidades de Linux</td></tr>
+                  <tr><td><code>--security-opt=no-new-privileges</code></td><td>Impide la obtención de privilegios adicionales</td></tr>
+                  <tr><td><code>--memory=128m y --memory-swap=128m</code></td><td>Límite estricto de 128 MiB de RAM</td></tr>
+                  <tr><td><code>--cpus=0.5</code></td><td>Máximo de medio núcleo de CPU</td></tr>
+                  <tr><td><code>--pids-limit=32</code></td><td>Previene ataques de agotamiento por bifurcación (fork bombs)</td></tr>
+                  <tr><td><code>--tmpfs /workspace:size=8m y --tmpfs /tmp:size=8m</code></td><td>Espacios de trabajo volátiles en RAM</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Límites operativos adicionales:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Límite</th><th>Valor</th></tr></thead>
+                <tbody>
+                  <tr><td>Tiempo máximo de ejecución</td><td>10 segundos</td></tr>
+                  <tr><td>Salida combinada (stdout + stderr)</td><td>64 KiB</td></tr>
+                  <tr><td>Tamaño máximo del payload</td><td>256 KiB</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Dentro del contenedor: <code>bootstrap.py</code></strong></p>
+            <ol>
+              <li>Lee el JSON desde <code>sys.stdin</code>.</li>
+              <li>Escribe cada archivo en <code>/workspace</code>.</li>
+              <li>Ejecuta, con stdin cerrado (<code>DEVNULL</code>):
+                <ul>
+                  <li><strong>Acción run:</strong> <code>python3 -B -u main.py</code></li>
+                  <li><strong>Acción test:</strong> <code>python3 -B -u -m unittest discover -s tests -v</code></li>
+                </ul>
+              </li>
+            </ol>
+
+            <div class="arch-diagram">
+API de PyLevel          Puente server.mjs       runner/execute.py        Docker + runsc         bootstrap.py
+      |                        |                       |                       |                      |
+      |--POST /api/execute----&gt;|                       |                       |                      |
+      |                        |--JSON por stdin------&gt;|                       |                      |
+      |                        |                       |--validate(payload)    |                      |
+      |                        |                       |--Contenedor efímero--&gt;|                      |
+      |                        |                       |                       |--Recibe JSON--------&gt;|
+      |                        |                       |                       |                      |--Escribe /workspace
+      |                        |                       |                       |                      |--python3 main/test
+      |                        |                       |                       |&lt;-Salida acotada 64KiB-|
+      |                        |                       |&lt;-status, exit, output--|                      |
+      |                        |&lt;-Respuesta JSON-------|                       |                      |
+      |&lt;-Respuesta JSON--------|                       |                       |                      |
+            </div>
+
+            <p><strong>Puente de desarrollo (<code>pyLevel/src/core/server.mjs</code>):</strong> Es el puente HTTP de desarrollo hacia el supervisor Docker. Escucha en <code>http://127.0.0.1:8787</code> y admite una sola ejecución simultánea por diseño. Para producción, el contexto indica que se requiere una cola de trabajos con un pool de contenedores.</p>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-4-2">
+            <h3>4.2 Autenticación y Sesiones SHA-256 (<code>pyLevel/src/lib/</code>)</h3>
+            <p><strong>Credenciales:</strong> Las contraseñas se almacenan cifradas con <code>bcryptjs</code> (la tabla <code>users</code> documenta un cost factor de 10 o superior).</p>
+            <p><strong>Tokens opacos: <code>session-store.ts</code>:</strong></p>
+            <ul>
+              <li>Genera tokens aleatorios criptográficos de 256 bits (<code>crypto.randomBytes(32)</code>).</li>
+              <li>En la base de datos guarda únicamente el hash SHA-256 del token, en la tabla <code>auth_sessions</code>. Así, un volcado de datos no permite falsificar sesiones.</li>
+              <li>Vencimiento predeterminado: 7 días (<code>now() + 7 days</code>).</li>
+            </ul>
+
+            <p><strong>Cookies y contexto de sesión: <code>session.ts</code>:</strong> La cookie se llama <code>pylevel_session</code> y tiene estas propiedades:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Atributo</th><th>Valor</th></tr></thead>
+                <tbody>
+                  <tr><td><code>HttpOnly</code></td><td>Sí</td></tr>
+                  <tr><td><code>SameSite</code></td><td>Lax</td></tr>
+                  <tr><td><code>Path</code></td><td>/</td></tr>
+                  <tr><td><code>Secure</code></td><td>Automático en producción o HTTPS</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Función</th><th>Comportamiento</th></tr></thead>
+                <tbody>
+                  <tr><td><code>startSession(cookies, request, userId)</code></td><td>Genera un nuevo token, lo persiste en la base de datos y revoca la cookie previa del navegador</td></tr>
+                  <tr><td><code>currentUser(cookies)</code></td><td>Resuelve el usuario activo; verifica que la sesión no haya expirado y que la cuenta tenga <code>is_active = true</code></td></tr>
+                  <tr><td><code>destroySession(cookies)</code></td><td>Revoca y elimina la sesión de la base de datos y luego limpia la cookie en el cliente</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Protección CSRF y cabeceras: <code>middleware.ts</code>:</strong></p>
+            <p>El middleware inspecciona cada petición a los endpoints privados (<code>/api/auth/*</code>, <code>/api/exam/*</code>, <code>/api/account/*</code>, <code>/api/practice/*</code>) y:</p>
+            <ul>
+              <li>Para toda mutación (<code>POST</code>, <code>PUT</code>, <code>DELETE</code>), exige que el encabezado <code>Origin</code> coincida exactamente con el origen configurado o permitido, mitigando Cross-Site Request Forgery.</li>
+              <li>Inyecta <code>Permissions-Policy: camera=(self), microphone=()</code>.</li>
+              <li>Aplica <code>Cache-Control: no-store</code> y <code>Vary: Cookie</code> en rutas privadas y en las vistas de examen, perfil y progreso.</li>
+            </ul>
+
+            <p><strong>Endpoints de autenticación y cuenta:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Ruta</th><th>Función</th></tr></thead>
+                <tbody>
+                  <tr><td><code>/api/auth/ (login, logout, me, register)</code></td><td>Inicio y cierre de sesión, consulta del usuario actual y registro</td></tr>
+                  <tr><td><code>/api/account/profile</code></td><td>Actualización de perfil y cambio de correo</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Perfil de usuario: <code>profile.ts</code>:</strong></p>
+            <ul>
+              <li>Valida nombre (máximo 100 caracteres), correo válido, ocupación opcional y fecha de nacimiento.</li>
+              <li>La fecha de nacimiento se valida contra la zona horaria <code>America/Bogota</code>: no se admiten fechas futuras ni anteriores a 1900.</li>
+              <li>Si el usuario cambia su correo, debe confirmar su contraseña actual. Además, se revocan todas las demás sesiones activas en otros dispositivos con:</li>
+            </ul>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>SQL</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>DELETE FROM auth_sessions WHERE user_id = $1 AND token_hash &lt;&gt; $2</code></pre>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-4-3">
+            <h3>4.3 Exámenes y Monitoreo Facial con MediaPipe BlazeFace (<code>pyLevel/src/exam/</code>)</h3>
+            <p><strong>Definición del examen: <code>definition.ts</code>:</strong> Define la evaluación oficial inmutable <code>fundamentos-python-v1</code>:</p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Atributo</th><th>Valor</th></tr></thead>
+                <tbody>
+                  <tr><td>Duración</td><td>30 minutos</td></tr>
+                  <tr><td>Retos</td><td>3: acceso, pares, clasificar</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tipos de incidencia registrables:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Categoría</th><th>Tipos (kind)</th><th>Fuentes (source)</th></tr></thead>
+                <tbody>
+                  <tr><td>Presencia en ventana</td><td><code>away, return</code></td><td><code>visibility, focus, pagehide, resume</code></td></tr>
+                  <tr><td>Cámara</td><td><code>camera_ready, camera_missing, camera_multiple, camera_interrupted, camera_unavailable</code></td><td><code>camera</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Ciclo de vida del intento: <code>store.ts</code> (<code>examStore</code>):</strong></p>
+            <ul>
+              <li><strong>Estados del intento:</strong> <code>in_progress</code>, <code>submitted</code>, <code>expired</code>.</li>
+              <li><strong>Bloqueo optimista mediante el campo <code>revision</code>:</strong> Si dos pestañas sincronizan a la vez, la versión desactualizada es rechazada, evitando sobrescrituras accidentales de código.</li>
+              <li>Transacciones atómicas SQL (<code>BEGIN / COMMIT / ROLLBACK</code>) con bloqueo de fila <code>FOR UPDATE</code>.</li>
+              <li><strong>El servidor manda sobre el tiempo:</strong> Rechaza cualquier envío cuando la hora actual del servidor supera <code>expires_at</code>.</li>
+              <li>Restricción de unicidad: <code>UNIQUE(user_id, exam_id)</code>.</li>
+            </ul>
+
+            <p><strong>Sincronización y presencia:</strong></p>
+            <ul>
+              <li><code>client.ts</code>: Cliente que sincroniza periódicamente el examen y guarda las respuestas hacia <code>POST /api/exam/attempt</code>.</li>
+              <li><code>presence.ts</code>: Rastrea los eventos de visibilidad y foco de la ventana (<code>visibilitychange</code>, <code>blur/focus</code>, <code>pagehide</code>) y genera los eventos <code>away</code> y <code>return</code>.</li>
+            </ul>
+
+            <p><strong>Cámara: <code>camera.ts</code>, <code>camera-policy.ts</code> y <code>camera-worker.ts</code>:</strong> El controlador abre la cámara con:</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>JavaScript</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>navigator.mediaDevices.getUserMedia(&#123; video: &#123; width: 320, height: 240, frameRate: 10 &#125; &#125;)</code></pre>
+            </div>
+
+            <p><strong>Umbrales de detección:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Condición</th><th>Umbral</th><th>Resultado</th></tr></thead>
+                <tbody>
+                  <tr><td>1 rostro estable</td><td>1,5 segundos consecutivos</td><td>Estado <code>ready</code></td></tr>
+                  <tr><td>Ningún rostro</td><td>5 segundos continuos</td><td>Alerta e incidencia de ausencia</td></tr>
+                  <tr><td>Más de un rostro</td><td>3 segundos continuos</td><td>Alerta e incidencia de múltiples rostros</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>El Web Worker (<code>camera-worker.ts</code>) ejecuta el runtime WASM de MediaPipe Tasks Vision con el modelo <code>blaze_face_short_range.tflite</code>. Procesa imágenes reducidas a unos 3 fotogramas por segundo y devuelve únicamente el número entero de rostros detectados.</p>
+            <p><strong>Privacidad:</strong> El sistema no almacena, graba ni transmite imágenes, vectores biométricos ni audio.</p>
+            <p><strong>Alcance:</strong> Los eventos de presencia y cámara se registran en la tabla <code>exam_events</code>, pero esta versión no incluye un panel de evaluadores para consultarlos ni aplica penalizaciones automáticas.</p>
+
+            <p><strong>Modos de monitoreo (<code>camera_mode</code>):</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Modo</th><th>Significado</th></tr></thead>
+                <tbody>
+                  <tr><td><code>camera</code></td><td>El estudiante aceptó el monitoreo por cámara</td></tr>
+                  <tr><td><code>unavailable</code></td><td>No usa cámara; se declara una causa (<code>permission</code>, <code>device</code>, <code>unsupported</code>, <code>technical</code>, <code>accessibility</code>)</td></tr>
+                  <tr><td><code>legacy</code></td><td>Valor por defecto de intentos registrados sin cámara</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-4-4">
+            <h3>4.4 Práctica y Métricas de Progreso con Tests Canónicos (<code>pyLevel/src/account/</code>)</h3>
+            <p><strong>Integridad pedagógica: <code>practice.ts</code>:</strong> Las funciones <code>executePractice</code> y <code>preparePracticeFiles</code> protegen la validez de las pruebas. Cuando la acción es <code>'test'</code>, el servidor reemplaza cualquier archivo de pruebas editado en el navegador por la versión original canónica del catálogo (<code>tests/test_publico.py</code>). De este modo, un estudiante no puede aprobar modificando las aserciones en el cliente.</p>
+
+            <p><strong>Clasificación del resultado: <code>activity.ts</code>:</strong> <code>classifyResult</code> clasifica cada ejecución en uno de cuatro estados: <code>passed</code>, <code>failed</code>, <code>technical_error</code> o <code>cancelled</code>.</p>
+            <p>Un ejercicio se declara superado solo si se cumplen todas estas condiciones:</p>
+            <ol>
+              <li>La acción es <code>'test'</code>.</li>
+              <li><code>status === 'completed'</code>.</li>
+              <li><code>exit_code === 0</code>.</li>
+              <li>La salida contiene el reporte oficial de pruebas, con al menos 1 prueba ejecutada y el mensaje OK (verificado con las expresiones regulares <code>^Ran (\d+) tests? ...</code> y <code>^OK\s*$</code>).</li>
+            </ol>
+
+            <div class="arch-diagram">
+                       [ Ejecución con action = test ]
+                                      |
+                                      v
+                         /-------------------------\
+                        /     status = completed?   \--- No ---&gt; [ failed o technical_error ]
+                        \                           /                     ^
+                         \-------------------------/                      |
+                                      | Sí                                |
+                                      v                                   |
+                         /-------------------------\                      |
+                        /      exit_code = 0?       \--- No --------------+
+                        \                           /                     |
+                         \-------------------------/                      |
+                                      | Sí                                |
+                                      v                                   |
+                         /-------------------------\                      |
+                        /  Salida con 'Ran N tests' \--- No --------------+
+                        \     (N &gt;= 1) y 'OK'?      /
+                         \-------------------------/
+                                      | Sí
+                                      v
+                                 [ passed ]
+            </div>
+
+            <p><strong>Seguimiento y progreso:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Archivo</th><th>Función</th></tr></thead>
+                <tbody>
+                  <tr><td><code>activity.ts (activityStore)</code></td><td>Registro y consulta de actividades de práctica</td></tr>
+                  <tr><td><code>progress.ts</code></td><td>Cálculo de progreso y recomendaciones pedagógicas</td></tr>
+                  <tr><td><code>data.ts</code></td><td>Transformaciones de datos de cuenta</td></tr>
+                  <tr><td><code>AccountShell.astro</code></td><td>Layout de pestañas del usuario autenticado</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>La actividad se registra en la tabla <code>practice_activity</code> con los tipos de acción <code>opened</code>, <code>hint</code>, <code>solution</code>, <code>run</code> y <code>test</code>. La vista <code>progreso.astro</code> presenta métricas de avance, historial y recomendaciones.</p>
+
+            <p><strong>Catálogo de ejercicios (<code>pyLevel/src/core/</code>):</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Archivo</th><th>Contenido</th></tr></thead>
+                <tbody>
+                  <tr><td><code>catalog.ts</code></td><td>Catálogos unificados y contratos de ejercicios</td></tr>
+                  <tr><td><code>classic-exercises.ts</code></td><td>Definición de retos clásicos y sus pruebas unitarias</td></tr>
+                  <tr><td><code>exercises.json</code></td><td>Proyectos contextualizados multi-archivo originales</td></tr>
+                  <tr><td><code>ClassicWorkbench.astro / Workbench.astro</code></td><td>Entornos de trabajo para retos clásicos y proyectos contextualizados</td></tr>
+                  <tr><td><code>bubble-sort.ts y BubbleSortAnimation.astro</code></td><td>Generación de pasos y visualización didáctica de Bubble Sort</td></tr>
+                  <tr><td><code>workspace.ts</code></td><td>Almacenamiento local de borradores en el navegador</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><strong>Borradores:</strong> Los borradores no entregados viven en el <code>localStorage</code> del navegador. Solo las ejecuciones oficiales (<code>/api/practice/execute</code>) se persisten en PostgreSQL.</p>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-4-5">
+            <h3>4.5 Tutor IA PyBot: Streaming SSE y Esquemas JSON (<code>pyLevel/src/ai/</code>)</h3>
+            <p>PyBot sigue un patrón de fachada, con <code>ai_tutor.py</code> (clase <code>AITutor</code>) como punto de entrada.</p>
+            <div class="arch-diagram">
+[PyBotWidget.astro] --POST /api/ai/chat--&gt; [Endpoint SSR] --&gt; [ai/client.ts warm worker] --NDJSON--&gt; [bridge.py --daemon] --&gt; [chat.py ChatManager] --&gt; [provider.py GeminiProvider] --&gt; [Gemini REST API]
+       ^                                         |
+       +---------------SSE: chunk----------------+
+            </div>
+
+            <p><strong>Componentes:</strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Archivo</th><th>Clase / rol</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>provider.py</code></td><td>GeminiProvider</td><td>Cliente HTTP REST a Google Gemini con fallback de modelos y salidas estructuradas</td></tr>
+                  <tr><td><code>chat.py</code></td><td>ChatManager</td><td>Conversación socrática con guardrails anti-jailbreak</td></tr>
+                  <tr><td><code>diagnostics.py</code></td><td>DiagnosticsManager</td><td>Diagnóstico y explicación de errores</td></tr>
+                  <tr><td><code>challenges.py</code></td><td>n/d</td><td>Generación de retos y pistas socráticas</td></tr>
+                  <tr><td><code>projects.py</code></td><td>n/d</td><td>Generación de proyectos multi-archivo POO con suites unittest</td></tr>
+                  <tr><td><code>exams.py</code></td><td>n/d</td><td>Generación de bancos de preguntas y exámenes de certificación</td></tr>
+                  <tr><td><code>bridge.py</code></td><td>n/d</td><td>Puente CLI y daemon NDJSON entre Node y Python</td></tr>
+                  <tr><td><code>client.ts</code></td><td>n/d</td><td>Conector TypeScript con worker persistente y SSE</td></tr>
+                  <tr><td><code>PyBotWidget.astro</code></td><td>n/d</td><td>Widget flotante de chat</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Proveedor Gemini y esquemas JSON:</strong></p>
+            <ul>
+              <li>Endpoint base: <code>https://generativelanguage.googleapis.com/v1beta/models/...:generateContent</code>.</li>
+              <li>Para las salidas estructuradas usa <code>responseSchema</code> junto con <code>responseMimeType: "application/json"</code>.</li>
+              <li>Ante agotamiento de cuota o indisponibilidad, prueba los siguientes modelos en este orden:</li>
+            </ul>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Orden</th><th>Modelo</th></tr></thead>
+                <tbody>
+                  <tr><td>1</td><td><code>gemini-flash-lite-latest</code></td></tr>
+                  <tr><td>2</td><td><code>gemini-3.5-flash-lite</code></td></tr>
+                  <tr><td>3</td><td><code>gemini-3-flash-preview</code></td></tr>
+                  <tr><td>4</td><td><code>gemini-3.5-flash</code></td></tr>
+                  <tr><td>5</td><td><code>gemini-3.8-flash</code></td></tr>
+                  <tr><td>6</td><td><code>gemini-flash-latest</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Comportamiento pedagógico:</strong></p>
+            <ul>
+              <li><strong>No entrega soluciones directas.</strong> Formula preguntas orientadoras, analiza la lógica del estudiante y explica conceptos teóricos.</li>
+              <li><strong>Guardrails anti-jailbreak:</strong> detectan intentos de manipular las instrucciones y solicitudes fuera del ámbito de Python.</li>
+              <li><strong>Diagnóstico de errores:</strong> analiza salidas de error, excepciones comunes (<code>IndentationError</code>, <code>ZeroDivisionError</code>, <code>IndexError</code>, <code>TypeError</code>, <code>AttributeError</code>, <code>RecursionError</code>) y pruebas unitarias fallidas, explicando en lenguaje claro la causa raíz y cómo corregirla.</li>
+            </ul>
+
+            <p><strong>Puente Node-Python y streaming:</strong></p>
+            <ul>
+              <li><code>bridge.py</code> opera en dos modos: unidisparo (lee stdin y responde JSON) y worker persistente (<code>--daemon</code>), con un protocolo NDJSON por línea.</li>
+              <li><code>client.ts</code> mantiene un proceso worker en caliente (warm worker), lo que elimina el costo de arrancar el intérprete Python en cada petición. Expone <code>streamChat</code> para transmitir la respuesta palabra por palabra mediante SSE.</li>
+            </ul>
+
+            <p><strong>Widget <code>PyBotWidget.astro</code>:</strong> Widget flotante con animaciones CSS, indicador de estado en línea y selector de pestañas (Chat, Retos, Proyectos, Examen). Renderiza Markdown con resaltado de sintaxis y admite streaming SSE en vivo.</p>
+            <p><strong>Endpoints de IA:</strong> La ruta principal documentada es <code>POST /api/ai/chat</code>. El contexto indica además la existencia de <code>hint</code> y <code>generate-challenge</code> bajo <code>pages/api/ai/</code>, junto con otros endpoints no detallados.</p>
+          </div>
+
+          <!-- CAPÍTULO 5 -->
+          <div class="doc-topic" id="tec-cap-5-1">
+            <h3>Capítulo 5: Formatos de Entrada, Salida y Ejemplos de Uso Reales</h3>
+            <div class="doc-callout">
+              <div class="callout-icon">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+              </div>
+              <div class="callout-body">
+                <strong>Convención:</strong> Todas las peticiones que modifican datos (<code>POST</code>, <code>PUT</code>, <code>DELETE</code>) a rutas privadas deben incluir el encabezado <code>Origin</code> correcto (consulte la sección 4.2) y una cookie de sesión <code>pylevel_session</code> válida.
+              </div>
+            </div>
+
+            <h4>5.1 Contrato del ejecutor sandboxed</h4>
+            <p>Aplica a <code>runner/execute.py</code> (por stdin) y al puente <code>POST /api/execute</code> (por cuerpo JSON).</p>
+
+            <p><strong>Entrada:</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Entrada JSON</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "files": &#123;
+    "main.py": "def sumar(a, b):\n    return a + b\n\nprint(sumar(2, 3))",
+    "tests/test_publico.py": "import unittest\nfrom main import sumar\n\nclass Tests(unittest.TestCase):\n    def test_sumar(self):\n        self.assertEqual(sumar(2, 3), 5)"
+  &#125;,
+  "action": "run"
+&#125;</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Campo</th><th>Tipo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>files</code></td><td>objeto</td><td>Clave-valor con rutas relativas POSIX UTF-8 (de 1 a 50 archivos). Payload máximo: 256 KiB</td></tr>
+                  <tr><td><code>action</code></td><td>cadena</td><td><code>'run'</code> ejecuta <code>main.py</code>; <code>'test'</code> ejecuta la suite <code>unittest discover -s tests</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Salida:</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Salida JSON</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "status": "completed",
+  "exit_code": 0,
+  "output": "5\n"
+&#125;</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>status</th><th>Significado</th></tr></thead>
+                <tbody>
+                  <tr><td><code>completed</code></td><td>El proceso finalizó dentro del plazo. Revise <code>exit_code</code> para saber si tuvo éxito</td></tr>
+                  <tr><td><code>timeout</code></td><td>El proceso superó los 10 segundos y fue interrumpido</td></tr>
+                  <tr><td><code>output_limit</code></td><td>La salida combinada superó los 64 KiB y fue truncada</td></tr>
+                  <tr><td><code>invalid_request</code></td><td>Entrada malformada o rutas no permitidas. Incluye el campo error</td></tr>
+                  <tr><td><code>cleanup_failed</code></td><td>Falla de Docker al limpiar el contenedor en el host</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-5-2">
+            <h3>5.2 API de práctica: <code>POST /api/practice/execute</code></h3>
+            <p><strong>Solicitud:</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Solicitud POST /api/practice/execute</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "mode": "classic",
+  "exerciseId": "clasico_sumar_pares",
+  "action": "test",
+  "files": &#123;
+    "main.py": "def sumar_pares(numeros):\n    return sum(n for n in numeros if n % 2 == 0)"
+  &#125;
+&#125;</code></pre>
+            </div>
+
+            <p><strong>Respuesta:</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Respuesta</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "status": "completed",
+  "exit_code": 0,
+  "output": "Ran 5 tests in 0.002s\n\nOK\n",
+  "tracking": "saved",
+  "practiceResult": "passed",
+  "testsRun": 5
+&#125;</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Campo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>status, exit_code, output</code></td><td>Resultado directo del ejecutor (sección 5.1)</td></tr>
+                  <tr><td><code>tracking</code></td><td>Estado del registro de la actividad (<code>saved</code> en el ejemplo)</td></tr>
+                  <tr><td><code>practiceResult</code></td><td>Clasificación del servidor: <code>passed</code>, <code>failed</code>, <code>technical_error</code> o <code>cancelled</code></td></tr>
+                  <tr><td><code>testsRun</code></td><td>Número de pruebas unitarias ejecutadas</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>Otras rutas de práctica indicadas en el contexto: <code>/api/practice/activity</code> y <code>/api/practice/health</code>. Sus formatos no están detallados en el contexto.</p>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-5-3">
+            <h3>5.3 API de examen: <code>POST /api/exam/attempt</code></h3>
+            <p>Un único endpoint atiende tres acciones: <code>start</code>, <code>sync</code> y <code>submit</code>.</p>
+
+            <p><strong>Inicio (<code>action: "start"</code>):</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Inicio</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "action": "start",
+  "monitoring": &#123;
+    "mode": "camera",
+    "consent": true
+  &#125;
+&#125;</code></pre>
+            </div>
+            <p>Si la cámara no está disponible:</p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Cámara no disponible</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123; "mode": "unavailable", "consent": true, "reason": "device" &#125;</code></pre>
+            </div>
+
+            <p><strong>Sincronización o entrega (<code>action: "sync"</code> o <code>"submit"</code>):</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Sincronización o entrega</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "action": "sync",
+  "attemptId": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+  "revision": 3,
+  "answers": &#123;
+    "acceso": "def puede_acceder(t, e, b):\n    return (t or e) and not b",
+    "pares": "def sumar_pares(nums):\n    return sum(x for x in nums if x % 2 == 0)",
+    "clasificar": "def clasificar_numero(n):\n    if n &gt; 0: return 'positivo'\n    elif n &lt; 0: return 'negativo'\n    return 'cero'"
+  &#125;,
+  "events": [
+    &#123;
+      "id": "e4f5a6b7-c8d9-0e1f-2a3b-4c5d6e7f8a9b",
+      "kind": "away",
+      "source": "visibility"
+    &#125;
+  ]
+&#125;</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Campo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>attemptId</code></td><td>UUID del intento (tabla <code>exam_attempts</code>)</td></tr>
+                  <tr><td><code>revision</code></td><td>Versión de guardado para el control optimista de concurrencia</td></tr>
+                  <tr><td><code>answers</code></td><td>Código de respuesta por reto (<code>acceso</code>, <code>pares</code>, <code>clasificar</code>)</td></tr>
+                  <tr><td><code>events</code></td><td>Incidencias de presencia o cámara. El id lo genera el cliente para deduplicación</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><em>El contexto no especifica el cuerpo de las respuestas de esta API.</em></p>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-5-4">
+            <h3>5.4 Chat con el tutor: <code>POST /api/ai/chat</code></h3>
+            <p>Soporta streaming SSE cuando se envía <code>"stream": true</code> o la cabecera <code>Accept: text/event-stream</code>.</p>
+
+            <p><strong>Solicitud:</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Solicitud</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>&#123;
+  "mensaje": "¿Por qué me da error IndexError en mi lista?",
+  "historial": [
+    &#123; "role": "user", "content": "Hola PyBot" &#125;,
+    &#123; "role": "assistant", "content": "¡Hola! Estoy listo para apoyarte con Python. ¿En qué trabajas hoy?" &#125;
+  ],
+  "contexto": &#123;
+    "codigo": "nums = [1, 2, 3]\nprint(nums[3])",
+    "ejercicio": "clasico_sumar_pares"
+  &#125;,
+  "stream": true
+&#125;</code></pre>
+            </div>
+
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Campo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>mensaje</code></td><td>Pregunta actual del estudiante</td></tr>
+                  <tr><td><code>historial</code></td><td>Mensajes previos, con role (<code>user</code> o <code>assistant</code>) y content</td></tr>
+                  <tr><td><code>contexto.codigo</code></td><td>Código del estudiante relacionado con la consulta</td></tr>
+                  <tr><td><code>contexto.ejercicio</code></td><td>Identificador del ejercicio en curso</td></tr>
+                  <tr><td><code>stream</code></td><td><code>true</code> para recibir la respuesta por SSE</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Respuesta en streaming (SSE):</strong></p>
+            <div class="code-block-wrap">
+              <div class="code-block-header"><span>Eventos SSE</span><button type="button" class="copy-btn">Copiar</button></div>
+              <pre class="code-pre"><code>data: &#123;"chunk": "Un error "&#125;
+
+data: &#123;"chunk": "IndexError "&#125;
+
+data: &#123;"chunk": "ocurre cuando intentas acceder a una posición que no existe en la lista..."&#125;
+
+data: [DONE]</code></pre>
+            </div>
+            <p>Cada evento <code>data:</code> transporta un fragmento <code>chunk</code>. El marcador <code>[DONE]</code> señala el fin del flujo.</p>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-5-5">
+            <h3>5.5 Flujo de uso 1: un estudiante resuelve un ejercicio</h3>
+            <div class="arch-diagram">
+Estudiante    Workbench (navegador)    /api/practice/execute    Servidor (practice.ts)    Ejecutor gVisor    PostgreSQL
+    |                 |                         |                        |                      |                |
+    |--Abre ejercicio-&gt;|                         |                        |                      |                |
+    |  y escribe      |--Guarda borrador en     |                        |                      |                |
+    |  código         |  localStorage           |                        |                      |                |
+    |                 |                         |                        |                      |                |
+    |--Pulsa ejecutar-|                         |                        |                      |                |
+    |  o probar ------&gt;|--POST (mode, id, action)-&gt;|                     |                      |                |
+    |                 |                         |--preparePracticeFiles-&gt;|                      |                |
+    |                 |                         |  (si action = test,    |                      |                |
+    |                 |                         |   reemplaza por tests  |                      |                |
+    |                 |                         |   canónicos)           |                      |                |
+    |                 |                         |                        |--files + action-----&gt;|                |
+    |                 |                         |                        |&lt;-status, exit, output-|               |
+    |                 |                         |--classifyResult-------&gt;|                      |                |
+    |                 |                         |                        |--Registra actividad------------------&gt;|
+    |                 |&lt;-output, practiceResult-|                        |                      |                |
+    |&lt;-Muestra result-|                         |                        |                      |                |
+            </div>
+
+            <p><strong>Paso a paso:</strong></p>
+            <ol>
+              <li><strong>Iniciar sesión:</strong> El estudiante se registra (<code>/registro</code>) o inicia sesión (<code>/login</code>). El servidor emite la cookie <code>pylevel_session</code>.</li>
+              <li><strong>Elegir un ejercicio:</strong> Desde el centro de ejercicios (<code>ExerciseHub</code>) o el listado filtrable (<code>ExerciseList</code>), en modalidad clásica o contextualizada.</li>
+              <li><strong>Escribir la solución:</strong> En el entorno de trabajo. El borrador se guarda localmente en el navegador.</li>
+              <li><strong>Ejecutar (<code>run</code>):</strong> El servidor lanza <code>main.py</code> en el sandbox y devuelve la salida. Sirve para explorar el comportamiento del código.</li>
+              <li><strong>Probar (<code>test</code>):</strong> El servidor sustituye el archivo de pruebas por la versión canónica (<code>tests/test_publico.py</code>) y ejecuta <code>unittest</code>.</li>
+              <li><strong>Interpretar el resultado:</strong> El ejercicio se marca como superado únicamente cuando hay <code>status = completed</code>, <code>exit_code = 0</code>, al menos una prueba ejecutada y el mensaje <code>OK</code>.</li>
+              <li><strong>Pedir ayuda a PyBot (opcional):</strong> Si aparece un error como <code>IndexError</code>, el estudiante puede consultar al tutor, que responde con orientación socrática y no con la solución directa.</li>
+              <li><strong>Revisar el avance:</strong> En <code>/progreso</code>, donde se muestran métricas, historial y recomendaciones.</li>
+            </ol>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-5-6">
+            <h3>5.6 Flujo de uso 2: un estudiante presenta un examen</h3>
+            <div class="arch-diagram">
+Estudiante    examen.astro    Cámara y Worker BlazeFace    /api/exam/attempt    PostgreSQL
+    |              |                      |                        |                |
+    |--Abre examen-&gt;|                      |                        |                |
+    |  y acepta    |--getUserMedia-------&gt;|                        |                |
+    |  monitoreo   |&lt;-Nº rostros (~3 fps)-|                        |                |
+    |              |                      |                        |                |
+    |              |--start (monitoring)--------------------------&gt;|                |
+    |              |                                               |--Crea intento-&gt;|
+    |              |                                               |  (in_progress, |
+    |              |                                               |   expires_at)  |
+    |              |&lt;-------------------[Durante 30 minutos]-------|                |
+    |              |                                               |                |
+    |              |--sync (attemptId, revision, answers, events)-&gt;|                |
+    |              |                                               |--Guarda con---&gt;|
+    |              |                                               |  revision y    |
+    |              |                                               |  FOR UPDATE    |
+    |              |                                               |                |
+    |--Entrega-----&gt;|--submit--------------------------------------&gt;|                |
+    |  examen      |                                               |--status = -----&gt;|
+    |              |                                               |  submitted     |
+            </div>
+
+            <p><strong>Paso a paso:</strong></p>
+            <ol>
+              <li><strong>Acceso:</strong> El estudiante autenticado abre <code>/examen</code>. Si el navegador lo requiere, debe estar en <code>https://</code> o en <code>http://localhost</code> para poder usar la cámara.</li>
+              <li><strong>Consentimiento y modo de monitoreo:</strong> Acepta el uso de la cámara (<code>mode: "camera", consent: true</code>). Si no es posible, el cliente declara <code>mode: "unavailable"</code> con una causa (<code>permission, device, unsupported, technical o accessibility</code>).</li>
+              <li><strong>Inicio:</strong> El cliente envía <code>action: "start"</code>. El servidor calcula <code>expires_at</code> (30 minutos para <code>fundamentos-python-v1</code>) y crea el intento. Solo hay un intento por usuario y examen (<code>UNIQUE(user_id, exam_id)</code>).</li>
+              <li><strong>Resolución de los tres retos:</strong> <code>acceso</code>, <code>pares</code> y <code>clasificar</code>.</li>
+              <li><strong>Sincronización periódica:</strong> El cliente envía <code>action: "sync"</code> con el <code>attemptId</code>, la <code>revision</code> vigente, las <code>answers</code> y los <code>events</code> acumulados. Una revisión desactualizada (por ejemplo, desde una segunda pestaña) es rechazada.</li>
+              <li><strong>Monitoreo:</strong>
+                <ul>
+                  <li>Si el estudiante cambia de pestaña o pierde el foco, se registran los eventos <code>away</code> y <code>return</code>.</li>
+                  <li>Si no se detecta ningún rostro durante 5 segundos continuos, o se detecta más de uno durante 3 segundos continuos, se registra la incidencia de cámara correspondiente.</li>
+                </ul>
+              </li>
+              <li><strong>Entrega:</strong> El cliente envía <code>action: "submit"</code>. Si la hora del servidor ya superó <code>expires_at</code>, la entrega se rechaza.</li>
+            </ol>
+          </div>
+
+          <!-- CAPÍTULO 6 -->
+          <div class="doc-topic" id="tec-cap-6-1">
+            <h3>Capítulo 6: Solución de Problemas y Preguntas Frecuentes</h3>
+            <h4>6.1 Tabla diagnóstica de errores</h4>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Escenario / error</th><th>Causa raíz</th><th>Solución / mitigación</th></tr></thead>
+                <tbody>
+                  <tr>
+                    <td><code>HTTP 403: Origen de la solicitud no permitido</code></td>
+                    <td>La petición mutatoria no envió la cabecera <code>Origin</code>, o no coincide con <code>APP_ORIGIN</code> ni con <code>localhost</code></td>
+                    <td>Verifique que las llamadas AJAX incluyan <code>Origin</code>. En producción, configure <code>APP_ORIGIN</code> con el origen público exacto y asegúrese de que el proxy inverso lo respete</td>
+                  </tr>
+                  <tr>
+                    <td><code>HTTP 429: Hay una ejecución en curso. Intenta nuevamente...</code></td>
+                    <td>El puente de desarrollo <code>server.mjs</code> admite solo una ejecución simultánea por diseño</td>
+                    <td>Espere a que termine la ejecución actual. Para producción se requiere una cola de trabajos con un pool de contenedores</td>
+                  </tr>
+                  <tr>
+                    <td><code>HTTP 503: El ejecutor no está disponible</code></td>
+                    <td>El puente en el puerto 8787 no está levantado o <code>PYLEVEL_RUNNER_URL</code> es inaccesible</td>
+                    <td>Verifique que <code>node pyLevel/src/core/server.mjs</code> esté activo, que <code>PYLEVEL_RUNNER_URL</code> sea correcto y que Docker con <code>runsc</code> esté en ejecución</td>
+                  </tr>
+                  <tr>
+                    <td><code>Cámara no activa en /examen/</code></td>
+                    <td>El navegador bloquea <code>getUserMedia</code> si la página no se sirve por <code>https://</code> o <code>localhost</code></td>
+                    <td>En desarrollo, acceda solo por <code>http://localhost:4321</code>. En producción, configure un certificado SSL/TLS</td>
+                  </tr>
+                  <tr>
+                    <td><code>UnauthorizedAccess en PowerShell al ejecutar pnpm o npm</code></td>
+                    <td>Directiva de ejecución de scripts restringida en Windows (<code>Set-ExecutionPolicy</code>)</td>
+                    <td>Ejecute los comandos con <code>cmd.exe /c "..."</code> o habilite <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code></td>
+                  </tr>
+                  <tr>
+                    <td><code>Respuesta de examen rechazada tras el vencimiento</code></td>
+                    <td>El estudiante intentó entregar o guardar después de <code>expires_at</code></td>
+                    <td>Comportamiento esperado por diseño: el servidor manda sobre el tiempo para garantizar equidad académica</td>
+                  </tr>
+                  <tr>
+                    <td><code>Sin respuestas en el streaming de PyBot</code></td>
+                    <td>Falta <code>GEMINI_API_KEY</code> o no tiene saldo ni cuota</td>
+                    <td>Proporcione una clave válida en <code>.env</code> o <code>.gemini_key</code>. Sin clave, PyBot opera en modo diagnóstico local limitado</td>
+                  </tr>
+                  <tr>
+                    <td><code>Los borradores no se sincronizan entre navegadores</code></td>
+                    <td>Los borradores no entregados se guardan en el <code>localStorage</code> del navegador</td>
+                    <td>Comportamiento previsto: solo las entregas y ejecuciones oficiales (<code>/api/practice/execute</code>) se persisten en PostgreSQL</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-6-2">
+            <h3>6.2 Preguntas frecuentes</h3>
+            <ul>
+              <li>
+                <strong>¿Por qué mi ejercicio no se marca como superado aunque mi código funciona?</strong><br />
+                Solo se declara superado cuando la acción es <code>test</code>, el proceso terminó con <code>status = completed</code> y <code>exit_code = 0</code>, y la salida incluye el reporte oficial con al menos una prueba y el mensaje <code>OK</code>. Ejecutar con <code>run</code> no certifica el ejercicio.
+              </li>
+              <li>
+                <strong>¿Puedo modificar los tests para que pasen?</strong><br />
+                No. En la acción <code>test</code>, el servidor reemplaza los archivos de prueba por la versión canónica del catálogo.
+              </li>
+              <li>
+                <strong>¿Se graba mi imagen durante el examen?</strong><br />
+                No. El Web Worker procesa los fotogramas localmente y devuelve solo la cantidad de rostros. No se almacenan ni transmiten imágenes, vectores biométricos ni audio.
+              </li>
+              <li>
+                <strong>¿Qué pasa si no tengo cámara o no concedo el permiso?</strong><br />
+                Se puede iniciar el examen en modo <code>unavailable</code>, declarando la causa (<code>permission, device, unsupported, technical o accessibility</code>). Ese estado queda registrado.
+              </li>
+              <li>
+                <strong>¿Qué ocurre si abro el examen en dos pestañas?</strong><br />
+                El control optimista por <code>revision</code> rechaza la sincronización desactualizada, para evitar sobrescrituras accidentales del código.
+              </li>
+              <li>
+                <strong>¿Qué pasa si se agota el tiempo?</strong><br />
+                El servidor rechaza cualquier guardado o entrega posterior a <code>expires_at</code>. El estado <code>expired</code> forma parte del ciclo de vida del intento.
+              </li>
+              <li>
+                <strong>¿Cuánto dura mi sesión?</strong><br />
+                Siete días desde su emisión. Si cambia su correo, se cierran automáticamente sus sesiones en otros dispositivos.
+              </li>
+              <li>
+                <strong>¿Qué límites tiene la ejecución de mi código?</strong><br />
+                10 segundos de tiempo, 128 MiB de memoria, 0,5 CPU, 32 procesos, 64 KiB de salida y sin acceso a red.
+              </li>
+              <li>
+                <strong>¿Puedo trabajar sin una clave de Gemini?</strong><br />
+                Sí, de forma limitada. Sin <code>GEMINI_API_KEY</code>, PyBot opera en modo diagnóstico local.
+              </li>
+            </ul>
+          </div>
+
+          <!-- CAPÍTULO 7 -->
+          <div class="doc-topic" id="tec-cap-7-1">
+            <h3>Capítulo 7: Glosario Técnico y Anexos</h3>
+            <h4>7.1 Glosario</h4>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>gVisor / runsc</strong></td><td>gVisor es un sandbox de kernel de aplicación; <code>runsc</code> es su runtime para Docker. PyLevel lo exige (<code>--runtime=runsc</code>) y rechaza runc</td></tr>
+                  <tr><td><strong>BlazeFace</strong></td><td>Modelo de detección facial ligero (<code>blaze_face_short_range.tflite</code>) ejecutado en el navegador mediante MediaPipe Tasks Vision. Aquí solo se usa para contar rostros</td></tr>
+                  <tr><td><strong>Token opaco</strong></td><td>Identificador aleatorio de 256 bits sin información interna. El navegador recibe el token; la base de datos guarda solo su hash SHA-256</td></tr>
+                  <tr><td><strong>PGlite</strong></td><td>PostgreSQL compilado a WebAssembly (<code>@electric-sql/pglite</code>), usado en memoria para las pruebas y como base embebida de desarrollo (<code>dev-db.mjs</code>)</td></tr>
+                  <tr><td><strong>SSE (Server-Sent Events)</strong></td><td>Mecanismo HTTP para que el servidor envíe eventos unidireccionales al navegador. PyBot lo usa para el streaming palabra por palabra</td></tr>
+                  <tr><td><strong>Canónico</strong></td><td>Versión original e inalterable de un recurso del catálogo. En PyLevel, el archivo de pruebas <code>tests/test_publico.py</code> que reemplaza al editado por el estudiante</td></tr>
+                  <tr><td><strong>Subtest</strong></td><td>Concepto de <code>unittest</code> (<code>subTest</code>) que permite ejecutar varias comprobaciones dentro de una misma prueba y reportar cada una por separado. El contexto técnico de PyLevel no detalla su uso en la plataforma</td></tr>
+                  <tr><td><strong>CSRF</strong></td><td>Cross-Site Request Forgery. Se mitiga validando el encabezado <code>Origin</code> en toda mutación</td></tr>
+                  <tr><td><strong>tmpfs</strong></td><td>Sistema de archivos en memoria, volátil, usado para <code>/workspace</code> y <code>/tmp</code> dentro del contenedor</td></tr>
+                  <tr><td><strong>NDJSON</strong></td><td>JSON delimitado por saltos de línea; protocolo del worker persistente <code>bridge.py --daemon</code></td></tr>
+                  <tr><td><strong>Warm worker</strong></td><td>Proceso Python mantenido activo para no pagar el arranque del intérprete en cada petición de IA</td></tr>
+                  <tr><td><strong>Guardrail</strong></td><td>Regla de seguridad del tutor que limita el tema (solo Python) y bloquea manipulaciones del prompt</td></tr>
+                  <tr><td><strong>Bloqueo optimista</strong></td><td>Control de concurrencia basado en el campo <code>revision</code>; una versión desactualizada se rechaza</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-7-2">
+            <h3>7.2 Anexo A: Modelo de datos</h3>
+            <p>Las relaciones con <code>auth_sessions</code>, <code>exam_attempts</code> y <code>practice_activity</code> se establecen por la columna <code>user_id</code>, que en esas tablas está definida como <code>text</code> en el contexto técnico. Solo <code>profiles</code> y <code>exam_events</code> declaran una referencia (<code>REFERENCES</code>) explícita.</p>
+
+            <div class="arch-diagram">
+                   +------------------------+
+                   |         users          |
+                   +-----------+------------+
+                               |
+         +---------------------+---------------------+---------------------+
+         | 1:1                 | 1:N                 | 1:N                 | 1:N
+         v                     v                     v                     v
++-----------------+   +-----------------+   +-----------------+   +-----------------+
+|    profiles     |   |  auth_sessions  |   |  exam_attempts  |   |practice_activity|
++-----------------+   +-----------------+   +--------+--------+   +-----------------+
+                                                     | 1:N
+                                                     v
+                                            +-----------------+
+                                            |   exam_events   |
+                                            +-----------------+
+            </div>
+
+            <p><strong>Tabla <code>users</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>id</code></td><td>uuid</td><td>PRIMARY KEY</td></tr>
+                  <tr><td><code>email</code></td><td>text</td><td>NOT NULL, UNIQUE (en minúsculas)</td></tr>
+                  <tr><td><code>password_hash</code></td><td>text</td><td>NOT NULL (bcrypt, cost 10 o superior)</td></tr>
+                  <tr><td><code>is_active</code></td><td>boolean</td><td>NOT NULL, DEFAULT true</td></tr>
+                  <tr><td><code>created_at</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
+                  <tr><td><code>updated_at</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tabla <code>profiles</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>user_id</code></td><td>uuid</td><td>PRIMARY KEY, REFERENCES users(id)</td></tr>
+                  <tr><td><code>display_name</code></td><td>text</td><td>NOT NULL</td></tr>
+                  <tr><td><code>avatar_url</code></td><td>text</td><td></td></tr>
+                  <tr><td><code>bio</code></td><td>text</td><td></td></tr>
+                  <tr><td><code>occupation</code></td><td>text</td><td>Máximo 100 caracteres</td></tr>
+                  <tr><td><code>birthday</code></td><td>date</td><td>Entre 1900-01-01 y la fecha actual en Bogotá</td></tr>
+                  <tr><td><code>updated_at</code></td><td>timestamptz</td><td>NOT NULL</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tabla <code>auth_sessions</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>token_hash</code></td><td>char(64)</td><td>PRIMARY KEY (SHA-256 del token)</td></tr>
+                  <tr><td><code>user_id</code></td><td>text</td><td>NOT NULL</td></tr>
+                  <tr><td><code>created_at</code></td><td>timestamptz</td><td>NOT NULL, DEFAULT now()</td></tr>
+                  <tr><td><code>expires_at</code></td><td>timestamptz</td><td>NOT NULL (7 días tras la emisión)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tabla <code>exam_attempts</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>id</code></td><td>uuid</td><td>PRIMARY KEY</td></tr>
+                  <tr><td><code>user_id</code></td><td>text</td><td>NOT NULL</td></tr>
+                  <tr><td><code>exam_id</code></td><td>text</td><td>NOT NULL (ej. fundamentos-python-v1)</td></tr>
+                  <tr><td><code>status</code></td><td>text</td><td>NOT NULL, CHECK en in_progress, submitted, expired</td></tr>
+                  <tr><td><code>answers</code></td><td>jsonb</td><td>NOT NULL, DEFAULT '&#123;&#125;'</td></tr>
+                  <tr><td><code>revision</code></td><td>integer</td><td>NOT NULL, DEFAULT 0</td></tr>
+                  <tr><td><code>started_at</code></td><td>timestamptz</td><td>NOT NULL, DEFAULT now()</td></tr>
+                  <tr><td><code>expires_at</code></td><td>timestamptz</td><td>NOT NULL (calculado en el servidor)</td></tr>
+                  <tr><td><code>submitted_at</code></td><td>timestamptz</td><td></td></tr>
+                  <tr><td><code>last_seen_at</code></td><td>timestamptz</td><td>NOT NULL, DEFAULT now()</td></tr>
+                  <tr><td><code>camera_mode</code></td><td>text</td><td>NOT NULL, DEFAULT 'legacy' (camera, unavailable, legacy)</td></tr>
+                  <tr><td><code>camera_consent_at</code></td><td>timestamptz</td><td></td></tr>
+                  <tr><td><code>camera_unavailable_reason</code></td><td>text</td><td>permission, device, unsupported, technical, accessibility</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><em>Restricción adicional: <code>UNIQUE(user_id, exam_id)</code></em></p>
+
+            <p><strong>Tabla <code>exam_events</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>id</code></td><td>uuid</td><td>PRIMARY KEY (generado en el cliente)</td></tr>
+                  <tr><td><code>attempt_id</code></td><td>uuid</td><td>NOT NULL, REFERENCES exam_attempts(id) ON DELETE CASCADE</td></tr>
+                  <tr><td><code>kind</code></td><td>text</td><td>NOT NULL, CHECK en away, return, camera_ready, camera_missing, camera_multiple, camera_interrupted, camera_unavailable</td></tr>
+                  <tr><td><code>source</code></td><td>text</td><td>NOT NULL, CHECK en visibility, focus, pagehide, resume, camera</td></tr>
+                  <tr><td><code>duration_ms</code></td><td>integer</td><td></td></tr>
+                  <tr><td><code>occurred_at</code></td><td>timestamptz</td><td>NOT NULL, DEFAULT now() (registrado por el servidor)</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p><strong>Tabla <code>practice_activity</code></strong></p>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Columna</th><th>Tipo</th><th>Restricciones</th></tr></thead>
+                <tbody>
+                  <tr><td><code>id</code></td><td>uuid</td><td>PRIMARY KEY</td></tr>
+                  <tr><td><code>user_id</code></td><td>text</td><td>NOT NULL</td></tr>
+                  <tr><td><code>exercise_id</code></td><td>text</td><td>NOT NULL</td></tr>
+                  <tr><td><code>mode</code></td><td>text</td><td>NOT NULL, CHECK en classic, contextual</td></tr>
+                  <tr><td><code>kind</code></td><td>text</td><td>NOT NULL, CHECK en opened, hint, solution, run, test</td></tr>
+                  <tr><td><code>result</code></td><td>text</td><td>CHECK en pending, passed, failed, technical_error, cancelled</td></tr>
+                  <tr><td><code>tests_run</code></td><td>integer</td><td>NOT NULL, DEFAULT 0</td></tr>
+                  <tr><td><code>duration_ms</code></td><td>integer</td><td>NOT NULL, DEFAULT 0</td></tr>
+                  <tr><td><code>created_at</code></td><td>timestamptz</td><td>NOT NULL, DEFAULT now()</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-7-3">
+            <h3>7.3 Anexo B: Scripts y modos de ejecución</h3>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Propósito</th><th>Comando</th></tr></thead>
+                <tbody>
+                  <tr><td>Preparar cámara</td><td><code>node scripts/prepare-camera.mjs</code></td></tr>
+                  <tr><td>Migrar la base de datos</td><td><code>node scripts/migrate.mjs o pnpm db:migrate</code></td></tr>
+                  <tr><td>Base de datos embebida</td><td><code>node scripts/dev-db.mjs</code></td></tr>
+                  <tr><td>Servidor de desarrollo</td><td><code>npm run dev</code></td></tr>
+                  <tr><td>Puente del ejecutor</td><td><code>node pyLevel/src/core/server.mjs</code></td></tr>
+                  <tr><td>Pruebas unitarias</td><td><code>npm test</code></td></tr>
+                  <tr><td>Construir imagen del sandbox</td><td><code>docker build -t pylevel-python:local runner</code></td></tr>
+                  <tr><td>Probar el supervisor</td><td><code>printf '%s' '&#123;"files":&#123;"main.py":"print(42)"&#125;,"action":"run"&#125;' | python3 runner/execute.py</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-7-4">
+            <h3>7.4 Anexo C: Suite de pruebas</h3>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Archivo</th><th>Cobertura</th></tr></thead>
+                <tbody>
+                  <tr><td><code>tests/account-progress.test.ts</code></td><td>Progreso y perfil (PGlite)</td></tr>
+                  <tr><td><code>tests/camera-policy.test.ts</code></td><td>Políticas de incidencias de cámara</td></tr>
+                  <tr><td><code>tests/exam-session.test.ts</code></td><td>Examen, concurrencia y sesiones</td></tr>
+                  <tr><td><code>tests/http-smoke.mjs</code></td><td>Pruebas de humo de endpoints HTTP</td></tr>
+                  <tr><td><code>tests/local-db.mjs</code></td><td>Servidor temporal de base de datos para pruebas</td></tr>
+                  <tr><td><code>tests/local-runner.mjs</code></td><td>Simulador del ejecutor para pruebas</td></tr>
+                  <tr><td><code>runner/test_runner.py</code></td><td>Supervisor del ejecutor y sus restricciones</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-7-5">
+            <h3>7.5 Anexo D: Estructura del repositorio</h3>
+            <div class="arch-diagram">
+PyLevel/
+├── .github/
+│   ├── CODEOWNERS                      # Responsables de código
+│   └── workflows/sonar.yml             # CI con SonarQube Cloud
+├── pyLevel/                            # Aplicación web (Astro + Node + APIs)
+│   ├── .env.example / .env             # Plantilla y configuración activa
+│   ├── astro.config.mjs                # Astro, Tailwind v4, proxies y CSRF
+│   ├── package.json
+│   ├── migrations/                     # 001_sessions_exams, 002_profile_progress, 003_exam_camera
+│   ├── public/
+│   │   ├── models/face-detector/       # Modelo BlazeFace y licencia
+│   │   └── vendor/mediapipe/           # WASM y camera-worker.js
+│   ├── scripts/                        # dev-db.mjs, migrate.mjs, prepare-camera.mjs
+│   ├── src/
+│   │   ├── middleware.ts               # CSRF Origin y cabeceras
+│   │   ├── account/                    # Perfil, actividad, progreso, práctica
+│   │   ├── ai/                         # PyBot (Python + client.ts)
+│   │   ├── components/                 # Navbar, PyBotWidget, BubbleSortAnimation, etc.
+│   │   ├── core/                       # Catálogo, retos, editores, puente server.mjs
+│   │   ├── exam/                       # Examen, cámara, presencia, store
+│   │   ├── home/                       # Portada educativa
+│   │   ├── layouts/                    # AppLayout, Layout
+│   │   ├── lib/                        # db, http, runner, session, session-store
+│   │   ├── pages/                      # Rutas Astro y endpoints /api
+│   │   └── styles/                     # CSS global
+│   └── tests/                          # Suite automatizada
+├── runner/                             # Aislamiento y ejecución segura
+│   ├── Dockerfile
+│   ├── bootstrap.py
+│   ├── execute.py
+│   └── test_runner.py
+├── package.json                        # Configuración raíz
+└── sonar-project.properties            # Métricas y exclusiones de SonarQube
+            </div>
+          </div>
+
+          <div class="doc-topic" id="tec-cap-7-6">
+            <h3>7.6 Anexo E: Páginas de la aplicación</h3>
+            <div class="manual-table-wrap">
+              <table class="manual-table">
+                <thead><tr><th>Ruta</th><th>Archivo</th><th>Descripción</th></tr></thead>
+                <tbody>
+                  <tr><td><code>/</code></td><td><code>index.astro</code></td><td>Portada principal interactiva</td></tr>
+                  <tr><td><code>/prelogin</code></td><td>n/d</td><td>Ruta implementada. El contexto técnico no detalla su archivo ni su contenido</td></tr>
+                  <tr><td><code>/login</code></td><td><code>login.astro</code></td><td>Inicio de sesión</td></tr>
+                  <tr><td><code>/registro</code></td><td><code>registro.astro</code></td><td>Registro de cuentas</td></tr>
+                  <tr><td><code>/perfil</code></td><td><code>perfil.astro</code></td><td>Perfil de usuario (protegida)</td></tr>
+                  <tr><td><code>/progreso</code></td><td><code>progreso.astro</code></td><td>Métricas, historial y recomendaciones</td></tr>
+                  <tr><td><code>/examen</code></td><td><code>examen.astro</code></td><td>Evaluación cronometrada con cámara</td></tr>
+                  <tr><td><code>/ejercicios/</code></td><td><code>ejercicios/</code></td><td>Catálogo y editor de ejercicios</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p><em>Fin del manual.</em></p>
+          </div>
+        </section>
+      </div>
+
+      <p id="manual-empty" class="account-muted" role="status" hidden>No se encontraron secciones con esa búsqueda.</p>
+    </article>
+  </div>
   <p id="manual-feedback" class="admin-feedback" role="status"></p>
 </AdminShell>
+
 <script>import '../../admin/manual-client';</script>

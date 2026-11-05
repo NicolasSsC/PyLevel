@@ -1,0 +1,637 @@
+{
+  "metadata": {
+    "title": "PyLevel — Manual de usuario",
+    "subtitle": "Plataforma de evaluación mediante evidencia real de desempeño sobre proyectos Python",
+    "author": "@kevin",
+    "date": "Nov 4, 2026",
+    "version": "1.0, noviembre de 2026"
+  },
+  "sections": [
+    {
+      "id": "seccion-1",
+      "number": "1",
+      "title": "Qué es PyLevel",
+      "lead": "PyLevel te dice en qué nivel real de Python estás. Resuelves ejercicios de programación escribiendo código directamente en el navegador, y el sistema lo ejecuta de forma segura, lo califica y te ubica en un nivel: Principiante, Intermedio o Avanzado.",
+      "paragraphs": [
+        "La evaluación cubre cuatro áreas: Sintaxis básica, Programación orientada a objetos (POO), Estructuras de datos y Algoritmos. Al terminar recibes tu puntaje por área, tu nivel general y recomendaciones para mejorar."
+      ],
+      "subsections": [
+        {
+          "id": "seccion-1-1",
+          "number": "1.1",
+          "title": "A quién va dirigido este manual",
+          "table": {
+            "caption": "Público objetivo y rutas recomendadas de lectura en PyLevel",
+            "headers": ["Si eres…", "Qué puedes hacer en PyLevel", "Ve a la sección"],
+            "rows": [
+              [
+                "Estudiante",
+                "Presentar evaluaciones, ver tu nivel, revisar tu historial y recibir recomendaciones",
+                { "text": "3 y 4", "links": [{ "label": "3", "target": "#seccion-3" }, { "label": "4", "target": "#seccion-4" }] }
+              ],
+              [
+                "Docente",
+                "Seguir el progreso de tus estudiantes y consultar reportes",
+                { "text": "6", "links": [{ "label": "6", "target": "#seccion-6" }] }
+              ],
+              [
+                "Administrador",
+                "Gestionar usuarios y el banco de preguntas",
+                { "text": "7", "links": [{ "label": "7", "target": "#seccion-7" }] }
+              ]
+            ]
+          },
+          "note": "Si es tu primera vez, lee las secciones 2, 3 y 5: cubren cómo entrar, cómo presentar la evaluación y qué reglas debe cumplir tu código.",
+          "noteLinks": [
+            { "label": "sección 2", "target": "#seccion-2" },
+            { "label": "sección 3", "target": "#seccion-3" },
+            { "label": "sección 5", "target": "#seccion-5" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-2",
+      "number": "2",
+      "title": "Primeros pasos",
+      "lead": "Para usar PyLevel necesitas un navegador web, conexión a internet y una cuenta. La plataforma está pensada primero para computador: en un celular o tableta funciona, pero la experiencia de escribir código es mejor con teclado y pantalla grande.",
+      "subsections": [
+        {
+          "id": "seccion-2-1",
+          "number": "2.1",
+          "title": "Crear tu cuenta",
+          "steps": [
+            "Abre PyLevel y selecciona Registrarme.",
+            "Escribe tu nombre, tu correo electrónico y una contraseña. Todos los campos son obligatorios.",
+            "Pulsa Crear cuenta."
+          ],
+          "paragraphs": [
+            "Si falta un dato o tiene un formato incorrecto, el sistema te indica qué campo corregir. Si el correo ya está registrado, no se crea una cuenta nueva: te sugiere iniciar sesión. Toda cuenta nueva se crea con el rol de Estudiante; los roles de Docente y Administrador no se obtienen al registrarte.",
+            "Tu contraseña se guarda cifrada. Nadie, ni siquiera el equipo de PyLevel, puede verla."
+          ]
+        },
+        {
+          "id": "seccion-2-2",
+          "number": "2.2",
+          "title": "Iniciar sesión",
+          "steps": [
+            "Escribe tu correo y tu contraseña.",
+            "Pulsa Iniciar sesión.",
+            "Llegarás al menú principal, que cambia según tu rol."
+          ],
+          "paragraphs": [
+            "Si los datos son incorrectos, verás un mensaje general de credenciales inválidas. Por seguridad, el mensaje no dice si falló el correo o la contraseña."
+          ]
+        },
+        {
+          "id": "seccion-2-3",
+          "number": "2.3",
+          "title": "Bloqueo temporal de la cuenta",
+          "paragraphs": [
+            "Si escribes mal tus credenciales 5 veces seguidas, la cuenta se bloquea durante 15 minutos para protegerla de accesos no autorizados. Cuando pasa ese tiempo, se desbloquea sola y puedes volver a intentarlo. No tienes que hacer nada más."
+          ]
+        },
+        {
+          "id": "seccion-2-4",
+          "number": "2.4",
+          "title": "Si tu sesión expira",
+          "paragraphs": [
+            "Si tu sesión caduca mientras haces algo, PyLevel te pide iniciar sesión de nuevo. Si estabas guardando un resultado, el sistema lo conserva y lo guarda cuando vuelves a entrar."
+          ]
+        },
+        {
+          "id": "seccion-2-5",
+          "number": "2.5",
+          "title": "Qué ve cada rol",
+          "table": {
+            "caption": "Capacidades y vistas disponibles por rol de usuario",
+            "headers": ["Rol", "Qué puede usar"],
+            "rows": [
+              ["Estudiante", "Evaluaciones, resultados, historial, plan de estudio y configuración personal"],
+              ["Docente", "Los grupos que tiene asignados y los resultados de sus estudiantes"],
+              ["Administrador", "Banco de preguntas, recursos de estudio, grupos y asignación de estudiantes"]
+            ]
+          },
+          "paragraphs": [
+            "Si intentas abrir una función que no corresponde a tu rol, el sistema te lo informa y no te deja avanzar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-3",
+      "number": "3",
+      "title": "Guía del estudiante",
+      "role": "Estudiante",
+      "lead": "Una evaluación se hace en cinco pasos: eliges un área, respondes las preguntas una por una, recibes el resultado de cada una al instante y, al final, ves tu puntaje, tu nivel y tu reporte.",
+      "subsections": [
+        {
+          "id": "seccion-3-1",
+          "number": "3.1",
+          "title": "Elegir el área",
+          "paragraphs": [
+            "En el menú principal aparecen las cuatro áreas: Sintaxis básica, POO, Estructuras de datos y Algoritmos, además del acceso a tu historial."
+          ],
+          "steps": [
+            "Selecciona el área que quieres evaluar.",
+            "El sistema te pide confirmar. Pulsa Confirmar para empezar o Cancelar para volver al menú."
+          ],
+          "note": "Cada evaluación mide una sola área, así que puedes presentar las cuatro por separado. Si un área todavía no tiene preguntas activas, verás un aviso y la evaluación no comienza."
+        },
+        {
+          "id": "seccion-3-2",
+          "number": "3.2",
+          "title": "Responder las preguntas",
+          "paragraphs": [
+            "Las preguntas aparecen de una en una, con un indicador como Pregunta 3 de 10. Hay dos tipos:"
+          ],
+          "table": {
+            "caption": "Tipos de preguntas en la evaluación",
+            "headers": ["Tipo", "Cómo se responde"],
+            "rows": [
+              ["Opción múltiple", "Lee el enunciado y elige una sola opción"],
+              ["Ejercicio de código", "Lee el enunciado y escribe tu solución en el editor. Puede traer una plantilla inicial para ayudarte a empezar"]
+            ]
+          },
+          "paragraphsAfter": [
+            "Cuando termines, pulsa Siguiente. Si dejaste la respuesta vacía, el sistema te pide confirmar antes de continuar. Al pulsar Siguiente, tu respuesta queda registrada y se valida, así que revísala antes de avanzar.",
+            "El editor se maneja completamente con el teclado, y toda la interfaz está diseñada para ser accesible (contraste, lectores de pantalla y navegación sin mouse)."
+          ]
+        },
+        {
+          "id": "seccion-3-3",
+          "number": "3.3",
+          "title": "Qué pasa con tu código",
+          "paragraphs": [
+            "Cuando envías un ejercicio de código, PyLevel lo ejecuta en un entorno aislado y lo prueba contra varios casos de prueba, cada uno con una entrada y una salida esperada. Tu respuesta es correcta si el código produce lo esperado en los casos de prueba. Las reglas de ese entorno están en la sección 5."
+          ]
+        },
+        {
+          "id": "seccion-3-4",
+          "number": "3.4",
+          "title": "Resultado inmediato de cada respuesta",
+          "paragraphs": [
+            "Después de cada pregunta, el sistema te dice si tu respuesta fue correcta o incorrecta antes de mostrarte la siguiente. Si fue incorrecta, también ves una explicación según la causa del error:"
+          ],
+          "table": {
+            "caption": "Tipos de causas de error en ejercicios de evaluación",
+            "headers": ["Causa del error", "Qué significa"],
+            "rows": [
+              ["Opción equivocada", "Elegiste una opción que no era la correcta"],
+              ["Error de sintaxis", "El código tiene un error de escritura y Python no pudo leerlo"],
+              ["Salida distinta", "El código se ejecutó, pero el resultado no coincide con el esperado"],
+              ["Excepción", "El código se detuvo con un error mientras se ejecutaba"],
+              ["Tiempo excedido", "El código tardó más del límite permitido o nunca terminó"]
+            ]
+          },
+          "paragraphsAfter": [
+            "Si para ese error no hay una explicación específica, verás un mensaje general y el equipo de PyLevel recibe el aviso para completarla."
+          ]
+        },
+        {
+          "id": "seccion-3-5",
+          "number": "3.5",
+          "title": "Respuestas que no se pueden evaluar",
+          "paragraphs": [
+            "A veces una respuesta no se puede evaluar por una falla del sistema, no por tu código: por ejemplo, si el entorno de ejecución falla o la pregunta no tiene respuesta esperada configurada. En ese caso la respuesta se excluye del cálculo y no te penaliza. El equipo de PyLevel recibe un aviso para revisarlo."
+          ]
+        },
+        {
+          "id": "seccion-3-6",
+          "number": "3.6",
+          "title": "Ver tu resultado",
+          "paragraphs": [
+            "Al responder la última pregunta aparece la pantalla de resultados en pocos segundos (menos de 3 segundos). Allí ves:"
+          ],
+          "list": [
+            "Tu puntaje de 0 a 100.",
+            "Tu nivel (Principiante, Intermedio o Avanzado) y el área evaluada.",
+            "Tu reporte, con tus fortalezas y los aspectos a reforzar.",
+            "El desempeño por subtema, es decir, el porcentaje de aciertos en cada tema dentro del área. Los subtemas con muy pocas preguntas se marcan como muestra insuficiente porque su porcentaje no es confiable. Las preguntas sin subtema aparecen como Sin clasificar.",
+            "Accesos a Ver mi historial, Ver mi plan de estudio y a hacer una nueva evaluación."
+          ],
+          "paragraphsAfter": [
+            "Si no acertaste ninguna pregunta, tu puntaje es 0 y se muestra con normalidad. Si no respondiste nada, el sistema te avisa."
+          ]
+        },
+        {
+          "id": "seccion-3-7",
+          "number": "3.7",
+          "title": "Tu plan de estudio",
+          "paragraphs": [
+            "Desde Ver mi plan de estudio, PyLevel toma los aspectos que debes reforzar y arma una lista ordenada del tema con peor desempeño al de mejor desempeño. Cada tema trae los recursos de estudio disponibles, como enlaces y ejercicios recomendados. Si un tema aún no tiene recursos, verás solo el tema por reforzar.",
+            "Si no tienes aspectos por reforzar, el sistema te felicita y te sugiere evaluar un área o un nivel superior. Si todavía no has hecho ninguna evaluación, te lleva a hacer una."
+          ]
+        },
+        {
+          "id": "seccion-3-8",
+          "number": "3.8",
+          "title": "Tu historial",
+          "paragraphs": [
+            "Cada resultado se guarda automáticamente en tu historial, una sola vez, sin que tengas que hacer nada. Si falla el guardado, el sistema te avisa, deja tu resultado a la vista y lo reintenta.",
+            "En Mi historial puedes:"
+          ],
+          "list": [
+            "Ver la lista de tus evaluaciones con fecha, área, puntaje y nivel.",
+            "Abrir el detalle de una evaluación: nivel, puntaje, reporte y desglose por subtema.",
+            "Filtrar por área o por rango de fechas.",
+            "Comparar dos o más evaluaciones para ver tu evolución en una tabla y en una gráfica. Si comparas áreas distintas, el sistema te advierte que la comparación no es equivalente."
+          ],
+          "paragraphsAfter": [
+            "Solo tú ves tu historial. Un docente puede verlo únicamente si eres parte de uno de sus grupos."
+          ]
+        },
+        {
+          "id": "seccion-3-9",
+          "number": "3.9",
+          "title": "Insignias y puntos (opcional)",
+          "paragraphs": [
+            "PyLevel tiene un modo de gamificación que viene desactivado. Puedes activarlo o desactivarlo en tu configuración. Si lo activas, ganas insignias cuando completas 5 evaluaciones, cuando alcanzas el nivel Avanzado en un área y cuando aciertas 3 respuestas seguidas, además de puntos.",
+            "Las insignias y los puntos son un extra: nunca cambian tu puntaje ni tu nivel. Con el modo activo o inactivo, tu resultado es exactamente el mismo."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-4",
+      "number": "4",
+      "title": "Cómo se calcula tu nivel",
+      "lead": "Tu nivel depende solo de tu puntaje en el área evaluada: 0 a 39 es Principiante, 40 a 74 es Intermedio y 75 a 100 es Avanzado. El cálculo es automático, no interviene ninguna persona y siempre da el mismo resultado para el mismo puntaje.",
+      "subsections": [
+        {
+          "id": "seccion-4-1",
+          "number": "4.1",
+          "title": "El puntaje",
+          "paragraphs": [
+            "Tu puntaje es el porcentaje de preguntas evaluables que respondiste correctamente:"
+          ],
+          "formula": {
+            "latex": "\\text{Puntaje} = \\frac{\\text{respuestas correctas}}{\\text{preguntas evaluables}} \\times 100",
+            "numerator": "respuestas correctas",
+            "denominator": "preguntas evaluables",
+            "multiplier": "100",
+            "label": "Puntaje = (respuestas correctas / preguntas evaluables) * 100"
+          },
+          "paragraphsAfter": [
+            "Las preguntas no evaluables (sección 3.5) no cuentan ni a favor ni en contra. Por ejemplo, si de 10 preguntas una no se pudo evaluar y acertaste 6 de las 9 restantes, tu puntaje es 66,7."
+          ]
+        },
+        {
+          "id": "seccion-4-2",
+          "number": "4.2",
+          "title": "Los tres niveles",
+          "table": {
+            "caption": "Rangos de puntaje y correspondencia de niveles en PyLevel",
+            "headers": ["Nivel", "Puntaje", "Qué indica"],
+            "rows": [
+              ["Principiante", "0 – 39", "Estás empezando en esta área; conviene reforzar los fundamentos"],
+              ["Intermedio", "40 – 74", "Dominas buena parte del área, con aspectos por consolidar"],
+              ["Avanzado", "75 – 100", "Manejas el área con solvencia"]
+            ]
+          }
+        },
+        {
+          "id": "seccion-4-3",
+          "number": "4.3",
+          "title": "Un nivel por área",
+          "paragraphs": [
+            "Cada área se califica por separado. Puedes ser Avanzado en Sintaxis básica e Intermedio en Algoritmos, y los dos resultados quedan en tu historial. Por eso, al comparar evaluaciones de áreas distintas, PyLevel te avisa que la comparación no es equivalente: un mismo puntaje puede significar cosas diferentes según el tema."
+          ]
+        },
+        {
+          "id": "seccion-4-4",
+          "number": "4.4",
+          "title": "Cómo leer tu reporte",
+          "table": {
+            "caption": "Componentes del reporte de evaluación",
+            "headers": ["Elemento del reporte", "Para qué te sirve"],
+            "rows": [
+              ["Fortalezas", "Los temas donde mejor te fue; no necesitas repasarlos primero"],
+              ["Aspectos a reforzar", "Los temas donde peor te fue; son el punto de partida de tu plan de estudio"],
+              ["Desempeño por subtema", "El porcentaje de aciertos de cada tema, para ver con precisión dónde estás"],
+              ["Muestra insuficiente", "Un subtema con muy pocas preguntas: tómalo como una pista, no como un dato firme"]
+            ]
+          },
+          "paragraphsAfter": [
+            "Tu nivel es una fotografía del momento. Repite la evaluación después de estudiar y compara en tu historial cuánto avanzaste."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-5",
+      "number": "5",
+      "title": "Reglas del entorno de ejecución seguro",
+      "lead": "Tu código se ejecuta en un entorno aislado, separado del resto del sistema, para que ninguna solución pueda dañar la plataforma ni afectar a otros usuarios. Ese entorno impone límites que debes conocer para no perder respuestas por motivos ajenos a la lógica de tu código.",
+      "subsections": [
+        {
+          "id": "seccion-5-1",
+          "number": "5.1",
+          "title": "Qué puede y qué no puede hacer tu código",
+          "table": {
+            "caption": "Reglas y restricciones operativas del entorno de ejecución",
+            "headers": ["Regla", "Qué significa para ti"],
+            "rows": [
+              ["Sin acceso a internet", "No puedes descargar datos ni llamar a servicios externos; cualquier intento falla"],
+              ["Sin acceso a archivos del servidor", "No puedes leer ni escribir archivos de la plataforma; cualquier intento falla"],
+              ["Límite de tiempo", "Si tu código tarda más del tiempo permitido, se detiene y la respuesta cuenta como incorrecta"],
+              ["Límite de memoria", "Si usa más memoria de la permitida, se detiene y la respuesta cuenta como incorrecta"],
+              ["Límite de CPU", "El uso de procesador también está acotado"],
+              ["Versión fija de Python", "Tu código se ejecuta siempre con la misma versión del lenguaje"]
+            ]
+          },
+          "paragraphsAfter": [
+            "Los valores exactos de tiempo, memoria y CPU los define el equipo administrador de PyLevel y pueden ajustarse; por eso no se fijan en este manual."
+          ]
+        },
+        {
+          "id": "seccion-5-2",
+          "number": "5.2",
+          "title": "Qué ocurre cuando tu código falla",
+          "paragraphs": [
+            "Si tu código supera un límite, tiene un error de sintaxis o lanza una excepción, PyLevel lo detiene de forma controlada, registra la respuesta como incorrecta y te muestra el tipo de falla (tiempo excedido, sintaxis o excepción). La evaluación continúa con la siguiente pregunta: un error en un ejercicio no cierra ni daña tu sesión."
+          ]
+        },
+        {
+          "id": "seccion-5-3",
+          "number": "5.3",
+          "title": "Consejos para escribir tu solución",
+          "list": [
+            "Evita los bucles que no terminan. Revisa que cada while tenga una condición que llegue a cumplirse.",
+            "Resuelve exactamente lo que pide el enunciado. Las pruebas comparan tu salida con la esperada, así que un espacio de más o un texto adicional puede hacer fallar un caso.",
+            "No dejes mensajes de depuración. Quita los print que usaste para probar si no forman parte de la respuesta pedida.",
+            "Prefiere soluciones eficientes. Una solución correcta pero muy lenta puede superar el límite de tiempo con casos grandes.",
+            "Revisa la plantilla inicial. Si el ejercicio trae una, mantén el nombre y los parámetros de la función tal como aparecen.",
+            "No uses archivos ni red. No funcionarán dentro del entorno."
+          ]
+        },
+        {
+          "id": "seccion-5-4",
+          "number": "5.4",
+          "title": "Si crees que fue un error del sistema",
+          "paragraphs": [
+            "Si una respuesta que consideras correcta aparece como incorrecta, revisa primero el tipo de falla que se muestra. Si el mensaje no coincide con lo que hiciste, repórtalo desde el apartado de contacto (sección 8) indicando el área, el número de pregunta y la fecha, para que el equipo lo revise."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-6",
+      "number": "6",
+      "title": "Guía del docente",
+      "role": "Docente",
+      "lead": "Como docente puedes consultar el nivel, el puntaje y el historial de los estudiantes de tus grupos, filtrarlos por área y comparar su desempeño. Solo ves a los estudiantes que el administrador asoció a tus grupos.",
+      "subsections": [
+        {
+          "id": "seccion-6-1",
+          "number": "6.1",
+          "title": "Ver tus grupos",
+          "steps": [
+            "Inicia sesión con tu cuenta de docente.",
+            "Abre Mis grupos.",
+            "Selecciona un grupo para ver los estudiantes asociados."
+          ],
+          "paragraphs": [
+            "Si todavía no tienes estudiantes asociados, el sistema te lo indica. Los grupos y sus integrantes los crea y gestiona el administrador (sección 7)."
+          ]
+        },
+        {
+          "id": "seccion-6-2",
+          "number": "6.2",
+          "title": "Consultar los resultados de un estudiante",
+          "paragraphs": [
+            "Al seleccionar un estudiante de tu grupo ves su nivel, su puntaje y su historial de evaluaciones."
+          ]
+        },
+        {
+          "id": "seccion-6-3",
+          "number": "6.3",
+          "title": "Filtrar por área",
+          "paragraphs": [
+            "Dentro de un grupo puedes limitar los resultados a una sola área (Sintaxis básica, POO, Estructuras de datos o Algoritmos) para ver cómo está el grupo en un tema específico."
+          ]
+        },
+        {
+          "id": "seccion-6-4",
+          "number": "6.4",
+          "title": "Comparar estudiantes",
+          "paragraphs": [
+            "Selecciona varios estudiantes del mismo grupo para comparar su nivel y su puntaje lado a lado. Tenlo presente al interpretar: comparar puntajes de áreas distintas no es equivalente."
+          ]
+        },
+        {
+          "id": "seccion-6-5",
+          "number": "6.5",
+          "title": "Qué no puedes hacer",
+          "list": [
+            "No puedes ver resultados de estudiantes que no están en tus grupos. El sistema muestra un mensaje de acceso denegado.",
+            "No puedes modificar preguntas, recursos de estudio ni grupos; eso corresponde al administrador.",
+            "No puedes presentar evaluaciones por un estudiante ni cambiar sus puntajes: los resultados los calcula el sistema de forma automática."
+          ]
+        },
+        {
+          "id": "seccion-6-6",
+          "number": "6.6",
+          "title": "Cómo usar la información en clase",
+          "paragraphs": [
+            "Los niveles y puntajes por área te muestran dónde está el grupo. Si varios estudiantes aparecen como Principiante en la misma área, conviene dedicar una sesión a ese tema. Pide además a tus estudiantes que revisen su reporte por subtema, donde ven con detalle sus fortalezas y los aspectos a reforzar."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "seccion-7",
+      "number": "7",
+      "title": "Guía del administrador",
+      "role": "Administrador",
+      "lead": "Como administrador mantienes vivo el contenido de PyLevel: el banco de preguntas, los recursos de estudio y los grupos de docentes y estudiantes. También recibes avisos cuando algo necesita tu atención.",
+      "subsections": [
+        {
+          "id": "seccion-7-1",
+          "number": "7.1",
+          "title": "Registrar una pregunta",
+          "steps": [
+            "Abre la gestión del banco de preguntas y elige Registrar pregunta.",
+            "Completa el formulario con los datos de la tabla siguiente.",
+            "Pulsa Guardar. La pregunta queda en estado activa y entra en las nuevas evaluaciones."
+          ],
+          "table": {
+            "caption": "Campos para el registro de preguntas en el banco de evaluación",
+            "headers": ["Campo", "Qué ingresar"],
+            "rows": [
+              ["ID", "Un número que no exista en el banco. Si está vacío, no es numérico o ya está registrado, el sistema lo rechaza y conserva el formulario"],
+              ["Enunciado", "El texto de la pregunta o del ejercicio"],
+              ["Tipo", "Opción múltiple o ejercicio de código"],
+              ["Área", "Sintaxis básica, POO, Estructuras de datos o Algoritmos"],
+              ["Dificultad", "El grado de dificultad de la pregunta"],
+              ["Subtema", "El tema específico dentro del área; alimenta el reporte por subtema"],
+              ["Respuesta correcta", "La opción correcta (opción múltiple)"],
+              ["Opciones o casos de prueba", "Las opciones disponibles, o los casos de prueba con su entrada y su salida esperada (código)"],
+              ["Explicaciones por tipo de error", "El texto que verá el estudiante según su error: sintaxis, excepción, salida distinta, tiempo excedido u opción incorrecta"]
+            ]
+          },
+          "paragraphsAfter": [
+            "Antes de guardar, el sistema valida la sintaxis del código del ejercicio y la estructura de los casos de prueba. Si hay un error, te indica el problema para que lo corrijas."
+          ]
+        },
+        {
+          "id": "seccion-7-2",
+          "number": "7.2",
+          "title": "Modificar una pregunta",
+          "paragraphs": [
+            "Selecciona la pregunta y se carga en el formulario con sus datos actuales. Cambia lo necesario y guarda: el sistema vuelve a validar y confirma la actualización. Si la validación falla, el registro original no se altera."
+          ]
+        },
+        {
+          "id": "seccion-7-3",
+          "number": "7.3",
+          "title": "Inactivar una pregunta",
+          "paragraphs": [
+            "Para retirar una pregunta de las evaluaciones sin perder los datos históricos, inactívala en lugar de borrarla. Las preguntas inactivas siguen disponibles para el historial de resultados, pero no aparecen en evaluaciones nuevas. Antes de inactivar, el sistema valida los casos de prueba asociados y te pide confirmación.",
+            "Ten en cuenta que un área necesita al menos una pregunta activa para poder evaluarse."
+          ]
+        },
+        {
+          "id": "seccion-7-4",
+          "number": "7.4",
+          "title": "Recursos de estudio por subtema",
+          "paragraphs": [
+            "Los recursos de estudio (enlaces y ejercicios recomendados) son lo que los estudiantes ven en su plan de estudio. Puedes registrar, editar y retirar los recursos de cada subtema. Mientras más subtemas tengan recursos, más útil es el plan de estudio."
+          ]
+        },
+        {
+          "id": "seccion-7-5",
+          "number": "7.5",
+          "title": "Grupos y asociación de estudiantes",
+          "steps": [
+            "Crea un grupo y asígnale un nombre.",
+            "Asigna el docente responsable.",
+            "Asocia los estudiantes que pertenecen al grupo."
+          ],
+          "paragraphs": [
+            "El docente verá en Mis grupos exactamente los estudiantes que asocies aquí, y ninguno más."
+          ]
+        },
+        {
+          "id": "seccion-7-6",
+          "number": "7.6",
+          "title": "Avisos que recibirás",
+          "paragraphs": [
+            "PyLevel te notifica en estos casos para que puedas corregir el contenido:"
+          ],
+          "table": {
+            "caption": "Notificaciones automáticas y acciones requeridas por el administrador",
+            "headers": ["Aviso", "Qué debes hacer"],
+            "rows": [
+              [
+                "Respuesta no evaluable por falla del entorno o por una pregunta sin respuesta esperada",
+                "Revisa la pregunta y sus casos de prueba, o el estado del entorno de ejecución"
+              ],
+              [
+                "Error de un estudiante sin explicación registrada",
+                "Agrega la explicación del tipo de error en la pregunta correspondiente"
+              ],
+              [
+                "Pregunta sin subtema asignado",
+                "Asígnale un subtema para que cuente en el reporte por subtema"
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "seccion-8",
+      "number": "8",
+      "title": "Preguntas frecuentes, privacidad y soporte",
+      "lead": "Respuestas directas a las dudas más comunes, compromisos de seguridad de tus datos y canales de contacto del equipo de PyLevel.",
+      "subsections": [
+        {
+          "id": "seccion-8-1",
+          "aliasId": "faq",
+          "number": "8.1",
+          "title": "Preguntas frecuentes",
+          "isAccordion": true,
+          "faqs": [
+            {
+              "id": "faq-1",
+              "question": "¿Tengo que evaluar las cuatro áreas?",
+              "answer": "No. Eliges el área que quieras en cada evaluación. Si presentas varias, cada una queda con su propio puntaje y nivel."
+            },
+            {
+              "id": "faq-2",
+              "question": "¿Puedo repetir una evaluación?",
+              "answer": "Sí. Desde la pantalla de resultados o desde el menú principal puedes iniciar una nueva evaluación. Todas quedan en tu historial para que compares tu evolución."
+            },
+            {
+              "id": "faq-3",
+              "question": "Mi código funciona en mi computador, pero PyLevel lo marca incorrecto. ¿Por qué?",
+              "answer": "Las causas más comunes son que la salida no coincide exactamente con la esperada en algún caso de prueba, que el código supera el límite de tiempo o de memoria, o que usa archivos o internet, que están bloqueados en el entorno. Revisa el tipo de falla que muestra el sistema y las recomendaciones de la sección 5."
+            },
+            {
+              "id": "faq-4",
+              "question": "¿Por qué mi puntaje no incluye todas las preguntas?",
+              "answer": "Las preguntas que no se pudieron evaluar por una falla del sistema se excluyen del cálculo y no te penalizan (secciones 3.5 y 4.1)."
+            },
+            {
+              "id": "faq-5",
+              "question": "¿Por qué un subtema dice \"muestra insuficiente\"?",
+              "answer": "Porque en esa evaluación hubo muy pocas preguntas de ese tema para calcular un porcentaje confiable. Tómalo como una pista, no como un resultado definitivo."
+            },
+            {
+              "id": "faq-6",
+              "question": "Mi cuenta quedó bloqueada. ¿Qué hago?",
+              "answer": "Espera 15 minutos. El bloqueo se levanta automáticamente tras 5 intentos fallidos seguidos."
+            },
+            {
+              "id": "faq-7",
+              "question": "¿Las insignias suben mi nivel?",
+              "answer": "No. La gamificación es opcional y no modifica tu puntaje ni tu nivel."
+            },
+            {
+              "id": "faq-8",
+              "question": "¿Puedo usar PyLevel desde el celular?",
+              "answer": "Sí, pero está optimizado para computador. Para resolver ejercicios de código te recomendamos usar teclado y una pantalla grande."
+            },
+            {
+              "id": "faq-9",
+              "question": "¿Quién puede ver mis resultados?",
+              "answer": "Solo tú. Un docente puede ver tu nivel, tu puntaje y tu historial únicamente si el administrador te asoció a uno de sus grupos."
+            }
+          ]
+        },
+        {
+          "id": "seccion-8-2",
+          "number": "8.2",
+          "title": "Privacidad y seguridad de tus datos",
+          "list": [
+            "Tu contraseña se guarda cifrada y no se almacena nunca en texto plano.",
+            "Tu historial es privado: solo lo ves tú y, en su caso, el docente de tu grupo.",
+            "Tu código se ejecuta en un entorno aislado, sin acceso a internet ni a archivos del sistema, y no puede afectar a otros usuarios.",
+            "Al iniciar sesión nunca se indica cuál de tus datos falló, para dificultar que alguien adivine credenciales.",
+            "Si compartes tu equipo, cierra sesión al terminar."
+          ]
+        },
+        {
+          "id": "seccion-8-3",
+          "number": "8.3",
+          "title": "Contacto y soporte",
+          "paragraphs": [
+            "Si tienes un problema que este manual no resuelve, escríbenos indicando tu correo de registro, el área y la pregunta donde ocurrió, la fecha aproximada y, si es posible, una captura de pantalla del mensaje que viste."
+          ],
+          "table": {
+            "caption": "Canales oficiales de soporte y contacto del proyecto",
+            "headers": ["Canal", "Dato"],
+            "rows": [
+              ["Correo de soporte", { "isPending": true, "text": "[correo de soporte del proyecto]" }],
+              ["Repositorio del proyecto", { "isPending": true, "text": "[enlace al repositorio, si se desea publicar]" }],
+              ["Equipo", "David Santiago Cuervo Pinilla y Kevin Andrés Pardo, Institución Universitaria de Colombia"]
+            ]
+          },
+          "footerNote": "PyLevel — Manual de usuario, versión 1.0, noviembre de 2026."
+        }
+      ]
+    }
+  ]
+}
+
