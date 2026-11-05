@@ -1,0 +1,57 @@
+<!-- Resolve the choice before the body exists, including on cached reloads. -->
+<script is:inline>
+  (() => {
+    const key = 'pylevel:cookie-notice';
+    const lifetime = 180 * 24 * 60 * 60 * 1000;
+    const root = document.documentElement;
+    let dismissed = false;
+
+    function acknowledged() {
+      for (const area of ['localStorage', 'sessionStorage']) {
+        try {
+          const saved = JSON.parse(window[area].getItem(key) || 'null');
+          const age = Date.now() - saved?.acceptedAt;
+          if (saved?.version === 1 && Number.isFinite(saved.acceptedAt) && age >= 0 && age < lifetime) return true;
+        } catch { /* The notice remains usable when browser storage is blocked. */ }
+      }
+      return false;
+    }
+
+    function sync() {
+      const accepted = dismissed || acknowledged();
+      root.dataset.cookieNotice = accepted ? 'accepted' : 'pending';
+      const banner = document.getElementById('cookie-banner');
+      if (banner) banner.hidden = accepted;
+    }
+
+    function bind() {
+      document.getElementById('cookie-accept')?.addEventListener('click', () => {
+        const value = JSON.stringify({ version: 1, acceptedAt: Date.now() });
+        for (const area of ['localStorage', 'sessionStorage']) {
+          try { window[area].setItem(key, value); } catch { /* Dismiss for this page even without storage. */ }
+        }
+        dismissed = true;
+        sync();
+      });
+      document.querySelectorAll('[data-cookie-details]').forEach(button => {
+        button.addEventListener('click', () => document.getElementById('cookie-details')?.showModal());
+      });
+      sync();
+    }
+
+    window.addEventListener('pageshow', sync);
+    window.addEventListener('storage', event => {
+      if (event.key === key || event.key === null) sync();
+    });
+    sync();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind, { once: true });
+    else bind();
+  })();
+</script>
+
+<!-- Keep this CSS inline: delayed styles or scripts must never reveal the notice. -->
+<style is:inline>
+  #cookie-banner { display: none !important; }
+  html[data-cookie-notice='pending'] #cookie-banner:not([hidden]) { display: flex !important; }
+  #cookie-details:not([open]) { display: none !important; }
+</style>

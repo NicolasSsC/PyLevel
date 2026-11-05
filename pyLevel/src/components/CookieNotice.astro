@@ -36,48 +36,6 @@
   </dialog>
 </section>
 
-<!-- Read the saved choice immediately so it never flashes on the next page. -->
-<script is:inline>
-  (() => {
-    const key = 'pylevel:cookie-notice';
-    const lifetime = 180 * 24 * 60 * 60 * 1000;
-    const banner = document.getElementById('cookie-banner');
-    const dialog = document.getElementById('cookie-details');
-    let dismissed = false;
-
-    function acknowledged() {
-      for (const area of ['localStorage', 'sessionStorage']) {
-        try {
-          const saved = JSON.parse(window[area].getItem(key) || 'null');
-          const age = Date.now() - saved?.acceptedAt;
-          if (saved?.version === 1 && Number.isFinite(saved.acceptedAt) && age >= 0 && age < lifetime) return true;
-        } catch { /* The notice remains usable when browser storage is blocked. */ }
-      }
-      return false;
-    }
-
-    function sync() { banner.hidden = dismissed || acknowledged(); }
-
-    document.getElementById('cookie-accept').addEventListener('click', () => {
-      const value = JSON.stringify({ version: 1, acceptedAt: Date.now() });
-      for (const area of ['localStorage', 'sessionStorage']) {
-        try { window[area].setItem(key, value); } catch { /* Dismiss for this page even without storage. */ }
-      }
-      dismissed = true;
-      sync();
-    });
-
-    document.querySelectorAll('[data-cookie-details]').forEach(button => {
-      button.addEventListener('click', () => dialog.showModal());
-    });
-    window.addEventListener('pageshow', sync);
-    window.addEventListener('storage', event => {
-      if (event.key === key || event.key === null) sync();
-    });
-    sync();
-  })();
-</script>
-
 <style>
   [hidden] { display: none !important; }
   :global(html[data-home-intro]) #cookie-notice { visibility: hidden; }
