@@ -30,6 +30,42 @@ test('recuerda la aceptación al recargar, navegar y en otras pestañas', async 
   await other.close();
 });
 
+test('no dibuja el aviso ya aceptado mientras se recarga, incluso con recursos lentos', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByRole('button', { name: 'Aceptar', exact: true }).click();
+  await page.addInitScript(() => {
+    const observations = { checks: 0, visible: 0, firstBodyChoice: null as string | null };
+    Object.assign(window, { cookiePaintObservations: observations });
+    function inspect() {
+      if (document.body && observations.firstBodyChoice === null) {
+        observations.firstBodyChoice = document.documentElement.dataset.cookieNotice || 'unresolved';
+      }
+      const banner = document.getElementById('cookie-banner');
+      if (!banner) return;
+      observations.checks++;
+      if (banner.checkVisibility({ checkVisibilityCSS: true, checkOpacity: true })) observations.visible++;
+    }
+    new MutationObserver(inspect).observe(document, { childList: true, subtree: true, attributes: true });
+    function frame() { inspect(); requestAnimationFrame(frame); }
+    requestAnimationFrame(frame);
+  });
+  await page.route(/\.(?:css|js)(?:\?|$)/, async route => {
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await route.continue();
+  });
+  for (const path of ['/login', '/', '/login']) {
+    await page.goto(path);
+    await page.reload();
+    await expect(page.locator('#cookie-banner')).toBeHidden();
+    const observations = await page.evaluate(() => (window as typeof window & {
+      cookiePaintObservations: { checks: number; visible: number; firstBodyChoice: string };
+    }).cookiePaintObservations);
+    expect(observations.checks).toBeGreaterThan(0);
+    expect(observations.firstBodyChoice).toBe('accepted');
+    expect(observations.visible).toBe(0);
+  }
+});
+
 test('explica el almacenamiento en móvil y permite consultarlo después de aceptar', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
