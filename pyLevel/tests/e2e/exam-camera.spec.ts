@@ -33,6 +33,11 @@ test('la cámara sigue procesando imágenes al ocultar la preparación durante e
   await page.getByRole('button', { name: /Comenzar examen/ }).click();
   await expect(page.getByRole('region', { name: 'Examen en curso' })).toBeVisible();
   await expect(page.locator('#exam-camera')).toBeHidden();
+  // Starting the attempt begins a fresh presence episode. Wait for its stable
+  // face confirmation before checking that identical messages stay unchanged.
+  const startFrames = await page.evaluate(() => (window as any).__examFrames);
+  await expect.poll(() => page.evaluate(() => (window as any).__examFrames)).toBeGreaterThan(startFrames + 6);
+  await expect(page.locator('#camera-live')).toHaveText('Cámara activa · Un rostro detectado');
   await page.evaluate(() => {
     (window as any).__cameraStatusChanges = 0;
     new MutationObserver(() => { (window as any).__cameraStatusChanges++; })
