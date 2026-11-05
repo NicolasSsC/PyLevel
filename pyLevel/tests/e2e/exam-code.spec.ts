@@ -55,7 +55,15 @@ test('muestra fallos y permite reintentar, sin confundir resultados de preguntas
   await run.click();
   await expect(panel).toContainText('Ejemplos superados');
   await page.setViewportSize({ width: 390, height: 844 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const mobileLayout = await page.evaluate(() => ({
+    width: innerWidth, scrollWidth: document.documentElement.scrollWidth,
+    overflowing: [...document.querySelectorAll<HTMLElement>('body *')].filter(node => {
+      const rect = node.getBoundingClientRect(); return rect.width > 0 && rect.right > innerWidth + 1;
+    }).slice(0, 12).map(node => ({ tag: node.tagName, id: node.id, className: String(node.className), right: node.getBoundingClientRect().right })),
+  }));
+  if (mobileLayout.scrollWidth > mobileLayout.width) console.log('Mobile resize layout:', JSON.stringify(mobileLayout));
+  // Viewport emulation and the page's resize/render cycle settle asynchronously.
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await panel.scrollIntoViewIfNeeded();
   await panel.screenshot({ path: testInfo.outputPath('prueba-examen-movil.png') });
 });
