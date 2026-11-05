@@ -38,6 +38,7 @@ test('saltar la precarga libera Inicio y permite navegar al login desde el botó
   await page.getByRole('button', { name: 'Saltar precarga (Esc)' }).click();
   await expect(page.getByRole('heading', { level: 1, name: /Tu próxima/ })).toBeFocused();
   await expect(page.locator('#top-navbar')).toBeVisible();
+  await page.getByRole('button', { name: 'Aceptar', exact: true }).click();
   await page.getByRole('link', { name: /Descubre las posibilidades/ }).click();
   await expect(page.getByRole('heading', { name: /Una herramienta/ })).toBeInViewport();
   await page.getByRole('link', { name: /Dale forma a tu primera idea/ }).click();
@@ -47,6 +48,7 @@ test('saltar la precarga libera Inicio y permite navegar al login desde el botó
 test('el botón de inicio "Empieza a crear" lleva al login', async ({ page }) => {
   await page.goto('/?intro=1');
   await page.getByRole('button', { name: 'Saltar precarga (Esc)' }).click();
+  await page.getByRole('button', { name: 'Aceptar', exact: true }).click();
   const createButton = page.getByRole('link', { name: /Empieza a crear/ });
   await expect(createButton).toHaveAttribute('href', '/login');
   await createButton.click();
